@@ -67,7 +67,7 @@
                                             <i class="fas fa-truck"></i> Kurye Ata
                                         </a>
 
-                                        <div class="modal fade" id="Courier{{$order->id}}">
+                                      <div class="modal fade" data-bs-backdrop="false" id="Courier{{$order->id}}">
                                             <div class="modal-dialog modal-dialog-centered" role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
@@ -127,7 +127,7 @@
                                         <a data-bs-toggle="modal" data-bs-target="#Orders{{$order->id}}" class="btn btn-secondary shadow btn-xs sharp me-1">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <div class="modal fade" id="Orders{{$order->id}}">
+                                      <div class="modal fade" data-bs-backdrop="false" data-bs-backdrop="false" id="Orders{{$order->id}}">
                                             <div class="modal-dialog modal-dialog-centered" role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-header">

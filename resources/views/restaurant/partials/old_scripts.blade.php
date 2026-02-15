@@ -581,7 +581,7 @@
     <td>
         ${courierSection}
         <!-- Kurye atama modal -->
-        <div class="modal fade" id="Courier${order.id}">
+      <div class="modal fade" data-bs-backdrop="false" id="Courier${order.id}">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -621,7 +621,7 @@
             ${statusOptions}
         </select>
         <!-- İptal modal -->
-        <div class="modal fade" id="cancelModal${order.id}">
+      <div class="modal fade" data-bs-backdrop="false" id="cancelModal${order.id}">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">

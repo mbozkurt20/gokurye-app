@@ -1,105 +1,118 @@
 @extends('restaurant.layouts.app')
 
 @section('content')
-    <div class="container-fluid">
-        <div class="mb-sm-4 d-flex flex-wrap align-items-center text-head">
-            <h2 class="mb-3 me-auto">Restaurant Ürünleri</h2>
+    <div class="container-fluid py-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/restaurant/products">Ürünler</a></li>
-                    <li class="breadcrumb-item"><a href="javascript:void(0)">Yeni</a></li>
+                <h1 class="text-2xl font-black tracking-tighter text-slate-800 uppercase leading-none">
+                    YENİ <span class="text-slate-400">ÜRÜN TANIMLA</span>
+                </h1>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">
+                    Menünüze yeni bir lezzet ekliyorsunuz.
+                </p>
+            </div>
+            <div>
+                <ol class="breadcrumb !bg-transparent p-0 m-0 text-[10px] font-black uppercase tracking-tighter">
+                    <li class="breadcrumb-item"><a href="/restaurant/products" class="text-slate-400">Ürünler</a></li>
+                    <li class="breadcrumb-item active text-slate-800">Yeni Ekle</li>
                 </ol>
             </div>
         </div>
+
         @if(session()->has('message'))
-            <div class="custom-alert success">
-                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <span class="alert-message">{{ session()->get('message') }}</span>
+            <div class="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-emerald-500 flex items-center justify-center text-white text-xs shadow-lg shadow-emerald-200">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <span class="text-xs font-black text-emerald-700 uppercase tracking-tight">{{ session()->get('message') }}</span>
             </div>
         @endif
 
-        @if(session()->has('test') )
-            <div class="custom-alert error">
-                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <span class="alert-message">{{ session()->get('test') }}</span>
+        @if(session()->has('test'))
+            <div class="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-rose-500 flex items-center justify-center text-white text-xs shadow-lg shadow-rose-200">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <span class="text-xs font-black text-rose-700 uppercase tracking-tight">{{ session()->get('test') }}</span>
             </div>
         @endif
 
         <div class="row">
-            <div class="col-xl-8 col-lg-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title">Yeni Ürün Formu</h4>
+            <div class="col-xl-9 col-lg-12">
+                <div class="bg-white !rounded-[40px] shadow-sm border border-slate-50 overflow-hidden">
+                    <div class="p-8 border-b border-slate-50 bg-slate-50/30">
+                        <h4 class="text-sm font-black text-slate-800 uppercase tracking-tighter m-0">Yeni Ürün Kayıt Formu</h4>
                     </div>
-                    <div class="card-body">
-                        <div class="basic-form">
-                            <form method="post" action="{{route('restaurant.products.create')}}" enctype="multipart/form-data">
-                                @csrf
-                                <div class="row">
-                                    <div class="mb-3 col-md-4 mb-5">
-                                        <label class="form-label text-dark fw-bold" for="imageInput">Görsel</label>
-                                        <div class="image-upload-wrapper" id="imageUploadWrapper">
-                                            <label for="imageInput" class="image-upload-label" id="uploadLabel">
-                                                <!-- SVG simgesi burada -->
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                                    <path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 12.5l2.5 3.01L14.5 11l4.5 6H5l3.5-4.5z"/>
-                                                </svg>
-                                                Resim Seç veya Sürükle
-                                            </label>
-                                            <input type="file" id="imageInput" name="image" accept="image/*" required>
-                                            <img id="imagePreview" alt="Seçilen Resim">
-                                            <button type="button" id="changeImageBtn" style="display:none; margin-top:10px;" class="btn btn-secondary btn-sm">Görseli Değiştir</button>
-                                        </div>
 
+                    <div class="p-8">
+                        <form method="post" action="{{route('restaurant.products.create')}}" enctype="multipart/form-data">
+                            @csrf
+
+                            <div class="row g-5">
+                                <div class="col-12 mb-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">Ürün Görseli</label>
+                                    <div class="image-upload-wrapper !w-full !max-w-md !border-slate-100 bg-slate-50/50 hover:!border-slate-300 transition-all rounded-[30px]" id="imageUploadWrapper">
+                                        <label for="imageInput" class="image-upload-label !py-12" id="uploadLabel">
+                                            <i class="fa-solid fa-image text-4xl text-slate-200 mb-3"></i>
+                                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Resim Seç veya Sürükle</span>
+                                        </label>
+                                        <input type="file" id="imageInput" name="image" accept="image/*" required>
+                                        <img id="imagePreview" alt="Seçilen Resim" class="!rounded-2xl shadow-xl border-4 border-white">
+                                        <button type="button" id="changeImageBtn" style="display:none;"
+                                                class="mt-4 bg-slate-900 text-white text-[9px] font-black uppercase px-6 py-2 rounded-xl tracking-widest">Görseli Değiştir</button>
                                     </div>
                                 </div>
 
-                                <div class="row">
-                                    <div class="mb-3 col-md-4 mb-5">
-                                        <label class="form-label text-dark fw-bold">Kategori Seçiniz</label>
-                                        <select class="form-control" name="category_id" required>
-                                            @foreach($categories as $categorie)
-                                                <option value="{{$categorie->id}}"> {{$categorie->name}}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-3 col-md-4 mb-5">
-                                        <label class="form-label text-dark fw-bold">Ürün Adı</label>
-                                        <input type="text" id="productName" class="form-control" name="name" placeholder="Ürün Adı" required>
-                                    </div>
-
-                                    <div class="mb-3 col-md-4 mb-5">
-                                        <label class="form-label text-dark fw-bold">Ürün Kodu</label>
-                                        <input type="text" id="productCode" class="form-control" name="code" placeholder="Ürün Kodu" required>
-                                    </div>
-
-                                    <div class="mb-3 col-md-4 mb-5">
-                                        <label class="form-label text-dark fw-bold">Ürün Fiyatı</label>
-                                        <input type="text" class="form-control" name="price" placeholder="Ürün Fiyatı" required>
-                                    </div>
-
-                                    <div class="mb-3 col-md-4 mb-5">
-                                        <label class="form-label text-dark fw-bold">Hazırlanma Süresi Seçiniz</label>
-                                        <input type="number" class="form-control" name="preparation_time"
-                                               placeholder="Hazırlanma Süresi (dk)" value="0" required>
-                                    </div>
-                                    <div class="mb-3 col-md-4 mb-5">
-                                        <label class="form-label text-dark fw-bold">Ürün Türü Seçiniz</label>
-                                        <select class="form-control form-select" name="begenilen" required>
-                                            <option selected value="deactive">Standart Ürün</option>
-                                            <option value="active">Beğenilen Ürün</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-3 col-md-8">
-                                        <label class="form-label text-dark fw-bold">Ürün Detayları</label>
-                                        <textarea cols="15" class="form-control border border-dark" name="details" rows="15" ></textarea>
-                                    </div>
+                                <div class="col-md-4">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">Kategori Seçiniz</label>
+                                    <select class="w-full !rounded-2xl border-slate-100 bg-slate-50/50 p-4 font-bold text-slate-600 focus:bg-white focus:ring-2 focus:ring-slate-100 transition-all border" name="category_id" required>
+                                        @foreach($categories as $categorie)
+                                            <option value="{{$categorie->id}}"> {{$categorie->name}}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
 
-                                <button type="submit" class="special-button float-end mt-4">Kaydet</button>
-                            </form>                        </div>
+                                <div class="col-md-4">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">Ürün Adı</label>
+                                    <input type="text" id="productName" name="name" class="w-full !rounded-2xl border-slate-100 bg-slate-50/50 p-4 font-bold text-slate-600 focus:bg-white focus:ring-2 focus:ring-slate-100 transition-all border" placeholder="Ürün Adı" required>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">Ürün Kodu (Otomatik)</label>
+                                    <input type="text" id="productCode" name="code" class="w-full !rounded-2xl border-slate-100 bg-slate-50/50 p-4 font-bold text-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-100 transition-all border" placeholder="Ürün Kodu" required>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">Ürün Fiyatı (₺)</label>
+                                    <input type="text" name="price" class="w-full !rounded-2xl border-slate-100 bg-slate-50/50 p-4 font-bold text-slate-600 focus:bg-white focus:ring-2 focus:ring-slate-100 transition-all border" placeholder="0.00" required>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">Hazırlanma Süresi (DK)</label>
+                                    <input type="number" name="preparation_time" value="0" class="w-full !rounded-2xl border-slate-100 bg-slate-50/50 p-4 font-bold text-slate-600 focus:bg-white focus:ring-2 focus:ring-slate-100 transition-all border" required>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">Ürün Türü Seçiniz</label>
+                                    <select class="w-full !rounded-2xl border-slate-100 bg-slate-50/50 p-4 font-bold text-slate-600 focus:bg-white focus:ring-2 focus:ring-slate-100 transition-all border" name="begenilen" required>
+                                        <option selected value="deactive">Standart Ürün</option>
+                                        <option value="active">Beğenilen Ürün</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">Ürün Detayları</label>
+                                    <textarea name="details" rows="8" class="w-full !rounded-[30px] border-slate-100 bg-slate-50/50 p-6 font-bold text-slate-600 focus:bg-white focus:ring-2 focus:ring-slate-100 transition-all border"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="mt-10 pt-8 border-t border-slate-50 flex items-center justify-end gap-4">
+                                <a href="/restaurant/products" class="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors">Vazgeç</a>
+                                <button type="submit" class="bg-[#0f172a] text-white px-12 py-4 !rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-slate-200 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 border-0">
+                                    <i class="fa-solid fa-check text-brand"></i> Ürünü Kaydet
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -107,69 +120,18 @@
     </div>
 
     <style>
-        .image-upload-wrapper {
-            position: relative;
-            width: 250px;
-            cursor: pointer;
-            border: 2px dashed #6c757d;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            transition: border-color 0.3s ease;
-        }
-
-        .image-upload-wrapper:hover {
-            border-color: #0d6efd; /* Bootstrap primary renk */
-        }
-
-        .image-upload-wrapper input[type="file"] {
-            opacity: 0;
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            cursor: pointer;
-            z-index: 2;
-        }
-
-        .image-upload-label {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #6c757d;
-            font-weight: 600;
-        }
-
-        .image-upload-label svg {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 10px;
-            fill: #6c757d;
-            transition: fill 0.3s ease;
-        }
-
-        .image-upload-wrapper:hover .image-upload-label svg {
-            fill: #0d6efd;
-        }
-
-        #imagePreview {
-            margin-top: 15px;
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
-            display: none;
-        }
+        .image-upload-wrapper { position: relative; cursor: pointer; border: 2px dashed; text-align: center; }
+        .image-upload-wrapper input[type="file"] { opacity: 0; position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 2; }
+        .image-upload-label { display: flex; flex-direction: column; align-items: center; }
+        #imagePreview { margin-top: 20px; max-width: 100%; max-height: 250px; display: none; margin-left: auto; margin-right: auto; }
     </style>
 
-
     <script>
+        // Orijinal Image Preview Logic
         const imageInput = document.getElementById('imageInput');
         const imagePreview = document.getElementById('imagePreview');
         const uploadLabel = document.getElementById('uploadLabel');
         const changeImageBtn = document.getElementById('changeImageBtn');
-        const wrapper = document.getElementById('imageUploadWrapper');
 
         imageInput.addEventListener('change', () => {
             const file = imageInput.files[0];
@@ -185,36 +147,27 @@
             }
         });
 
-        changeImageBtn.addEventListener('click', () => {
-            imageInput.click();
-        });
-    </script>
+        changeImageBtn.addEventListener('click', () => { imageInput.click(); });
 
-    <script>
+        // Orijinal Product Code Generation Logic
         document.addEventListener("DOMContentLoaded", function () {
             const nameInput = document.getElementById('productName');
             const codeInput = document.getElementById('productCode');
 
             function generateProductCode(name) {
                 if (!name) return '';
-
                 const namePart = name.trim().substring(0, 3).toUpperCase().replace(/\s/g, '');
                 const chars = 'ABCDEFGHIKLMNOPQRSTUVWXYZ0123456789';
                 let randomPart = '';
                 for (let i = 0; i < 5; i++) {
                     randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
                 }
-
                 return namePart + randomPart;
             }
 
             nameInput.addEventListener('input', () => {
-                const code = generateProductCode(nameInput.value);
-                codeInput.value = code;
+                codeInput.value = generateProductCode(nameInput.value);
             });
         });
     </script>
-
 @endsection
-
-

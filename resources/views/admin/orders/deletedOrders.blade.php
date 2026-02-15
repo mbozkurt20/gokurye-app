@@ -85,7 +85,7 @@
                                 </div>
 
                                 <!-- Modal -->
-                                <div class="modal fade" id="Orders{{ $order->id }}" tabindex="-1" aria-labelledby="modalLabel{{ $order->id }}" aria-hidden="true">
+                              <div class="modal fade" data-bs-backdrop="false" data-bs-backdrop="false" id="Orders{{ $order->id }}" tabindex="-1" aria-labelledby="modalLabel{{ $order->id }}" aria-hidden="true">
                                     <div class="modal-dialog modal-lg modal-dialog-centered">
                                         <div class="modal-content" id="Printed{{ $order->id }}">
                                             <div class="modal-header">

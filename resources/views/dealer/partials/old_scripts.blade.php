@@ -543,7 +543,7 @@
     <td>
         ${courierSection}
         <!-- Kurye atama modal -->
-        <div class="modal fade" id="Courier${order.id}">
+      <div class="modal fade" data-bs-backdrop="false" id="Courier${order.id}">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">

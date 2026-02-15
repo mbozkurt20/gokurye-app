@@ -116,7 +116,7 @@
                                             <i class="fas fa-truck"></i>
                                         </a>
 
-                                        <div class="modal fade" id="Courier{{ $order->id }}">
+                                      <div class="modal fade" data-bs-backdrop="false" id="Courier{{ $order->id }}">
                                             <div class="modal-dialog modal-dialog-centered"
                                                  role="document">
                                                 <div class="modal-content">
@@ -224,7 +224,7 @@
                                     </select>
                                 </td>
                                 <!-- cancelModal Modal -->
-                                <div class="modal fade" id="cancelModal" tabindex="-1"
+                              <div class="modal fade" data-bs-backdrop="false" id="cancelModal" tabindex="-1"
                                      aria-labelledby="cancelModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
@@ -262,7 +262,7 @@
                                         </a>
 
                                         @if ($order->platform == 'getir')
-                                            <div class="modal fade" id="Orders{{ $order->id }}">
+                                          <div class="modal fade" data-bs-backdrop="false" id="Orders{{ $order->id }}">
                                                 <div class="modal-dialog modal-dialog-centered"
                                                      role="document">
                                                     <div class="modal-content">
@@ -364,7 +364,7 @@
                                                 </div>
                                             </div>
                                         @elseif($order->platform == 'yemeksepeti')
-                                            <div class="modal fade" id="Orders{{ $order->id }}">
+                                          <div class="modal fade" data-bs-backdrop="false" id="Orders{{ $order->id }}">
                                                 <div class="modal-dialog modal-dialog-centered"
                                                      role="document">
                                                     <div class="modal-content">
@@ -469,7 +469,7 @@
                                                 </div>
                                             </div>
                                         @elseif($order->platform == 'adisyo')
-                                            <div class="modal fade" id="Orders{{ $order->id }}">
+                                          <div class="modal fade" data-bs-backdrop="false" id="Orders{{ $order->id }}">
                                                 <div class="modal-dialog modal-dialog-centered"
                                                      role="document">
                                                     <div class="modal-content">
@@ -574,7 +574,7 @@
                                                 </div>
                                             </div>
                                         @else
-                                            <div class="modal fade" id="Orders{{ $order->id }}">
+                                          <div class="modal fade" data-bs-backdrop="false" id="Orders{{ $order->id }}">
                                                 <div class="modal-dialog modal-dialog-centered"
                                                      role="document">
                                                     <div class="modal-content">

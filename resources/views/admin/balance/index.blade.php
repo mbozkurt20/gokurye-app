@@ -126,7 +126,7 @@
                                             </button>
 
                                             <!-- Modal -->
-                                            <div class="modal fade" id="paymentDetailsModal{{ $movement->id }}"
+                                          <div class="modal fade" data-bs-backdrop="false" id="paymentDetailsModal{{ $movement->id }}"
                                                  tabindex="-1" aria-hidden="true">
                                                 <div class="modal-dialog modal-lg modal-dialog-centered">
                                                     <div class="modal-content">

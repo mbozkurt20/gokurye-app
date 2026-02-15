@@ -8,7 +8,6 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 
 class HomeController extends Controller
 {
@@ -25,47 +24,42 @@ class HomeController extends Controller
         return view('auth.login');
     }
 
-    public function dealer(){
+    public function dealer()
+    {
         $cities = City::all();
         return view('dealer-register', compact('cities'));
     }
 
     public function getDistricts($cityId)
     {
-        $districts = District::where('city_id', $cityId)->get(['id', 'name']);
-        return response()->json($districts);
+        return response()->json(District::where('city_id', $cityId)->get(['id', 'name']));
     }
 
     public function createDealerRequest(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $data = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'phone' => 'required|unique:users',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'required|unique:users,phone',
             'password' => 'required|min:5',
             'lat' => 'required',
             'lng' => 'required',
-            'city_id' => 'required',
-            'district_id' => 'required',
-            'address' => 'nullable',
+            'city_id' => 'required|exists:cities,id',
+            'district_id' => 'required|exists:districts,id',
+            'address' => 'nullable|string',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()->with('test', $validator->getMessageBag()->first());
-        }
-
-        // Validasyon başarılı ise admin tablosuna kaydet
         User::create([
             'is_active' => false,
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
-            'latitude' => $request->input('lat'),
-            'longitude' => $request->input('lng'),
-            'city_id' => $request->input('city_id'),
-            'district_id' => $request->input('district_id'),
-            'address' => $request->input('address'),
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'],
+            'password' => Hash::make($data['password']),
+            'latitude' => $data['lat'],
+            'longitude' => $data['lng'],
+            'city_id' => $data['city_id'],
+            'district_id' => $data['district_id'],
+            'address' => $data['address'],
         ]);
 
         return redirect()->back()->with('message', 'Başvurunuz Başarıyla Alınmıştır');

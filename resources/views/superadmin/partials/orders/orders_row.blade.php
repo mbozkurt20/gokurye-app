@@ -64,7 +64,7 @@
                 <i class="fas fa-eye"></i>
             </a>
 
-            <div class="modal fade" id="Orders{{ $order->id }}">
+          <div class="modal fade" data-bs-backdrop="false" id="Orders{{ $order->id }}">
                 <div class="modal-dialog modal-dialog-centered"
                      role="document">
                     <div class="modal-content">

@@ -89,7 +89,7 @@
                                 </div>
 
                                 <!-- MODAL -->
-                                <div class="modal fade" id="orderModal{{ $order->id }}">
+                              <div class="modal fade" data-bs-backdrop="false" id="orderModal{{ $order->id }}">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content" id="Printed{{ $order->id }}">
                                             <div class="modal-header">

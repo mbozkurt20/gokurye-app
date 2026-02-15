@@ -163,7 +163,7 @@
 
         {{-- 🔍 Kurye Modalları --}}
         @foreach ($couriers as $courier)
-            <div class="modal fade" id="courierModal{{ $courier->id }}" tabindex="-1"
+          <div class="modal fade" data-bs-backdrop="false" data-bs-backdrop="false" id="courierModal{{ $courier->id }}" tabindex="-1"
                  aria-labelledby="courierModalLabel{{ $courier->id }}" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content shadow">

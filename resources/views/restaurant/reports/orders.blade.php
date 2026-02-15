@@ -1,65 +1,23 @@
 @extends('restaurant.layouts.app')
 
 @section('content')
-    <style>
-        /* Kurumsal Light Kart Stilleri */
-        .summary-box {
-            padding: 1.25rem;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 1rem;
-            border: 1px solid rgba(0,0,0,0.05); /* Çok hafif sınır çizgisi */
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-
-        .summary-box:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-
-        /* Rakamlar için koyu gri/füme */
-        .summary-box h3 {
-            font-size: 1.5rem;
-            margin: 0.2rem 0 0;
-            font-weight: 800;
-            color: #2d3748;
-        }
-
-        /* Başlıklar için orta ton gri */
-        .summary-box span {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            font-weight: 700;
-            letter-spacing: 1px;
-            display: block;
-            color: #718096;
-        }
-
-        /* Light Renk Paleti (Soft Arka Planlar) */
-        .bg-nakit  { background-color: #ffffff !important; border-bottom: 3px solid #c1d3d2 !important; } /* Su Yeşili */
-        .bg-kkarti { background-color: #ffffff !important; border-bottom: 3px solid #b6bcc1 !important; } /* Buz Mavisi */
-        .bg-ticket { background-color: #ffffff !important; border-bottom: 3px solid #d5d2d0 !important; } /* Krem Turuncu */
-        .bg-online { background-color: #edf2ff !important; border-bottom: 3px solid #f3f3f3 !important; } /* Lavanta Mavi */
-        .bg-other  { background-color: #f7fafc !important; border-bottom: 3px solid #a0aec0 !important; } /* Bulut Gri */
-        .bg-total  { background-color: #f1f5f9 !important; border-bottom: 3px solid #1e293b !important; } /* Slate (Toplam) */
-        .bg-cancel { background-color: #fff5f5 !important; border-bottom: 3px solid #ffffff !important; } /* Pudra Kırmızı */
-    </style>
-
-    <div class="container-fluid">
-        <div class="mb-sm-4 d-flex flex-wrap align-items-center text-head">
-            <h2 class="mb-3 me-auto">Sipariş Raporları</h2>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="#">Raporlar</a></li>
-                <li class="breadcrumb-item active">Filtrele</li>
-            </ol>
+    <div class="container-fluid py-4 px-md-5">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+                <h1 class="text-2xl font-black tracking-tighter text-slate-800 uppercase leading-none italic">
+                    SİPARİŞ <span class="text-indigo-500">RAPORLARI</span>
+                </h1>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">
+                    İşletmenizin ciro ve performans verilerini analiz edin.
+                </p>
+            </div>
         </div>
 
-        <div class="card p-4 mb-4 shadow-sm border-0" style="border-radius: 15px;">
+        <div class="bg-white !rounded-[35px] border border-slate-50 shadow-xl shadow-slate-200/50 p-6 mb-8">
             <div class="row g-3">
                 <div class="col-md-2">
-                    <label class="small fw-bold">Platform</label>
-                    <select class="form-select" id="platform">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ps-1">Platform</label>
+                    <select class="form-select !rounded-2xl border-0 bg-slate-100 p-3 font-bold text-slate-700 shadow-inner text-xs" id="platform">
                         <option value="0">Tüm Platformlar</option>
                         <option value="gpsyemek">GpsYemek</option>
                         <option value="getir">GetirYemek</option>
@@ -70,154 +28,170 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="small fw-bold">Durum</label>
-                    <select class="form-select" id="status_filter">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ps-1">Durum</label>
+                    <select class="form-select !rounded-2xl border-0 bg-slate-100 p-3 font-bold text-slate-700 shadow-inner text-xs" id="status_filter">
                         <option value="delivered">Teslim Edilenler</option>
                         <option value="cancelled">İptal Edilenler</option>
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label class="small fw-bold">Başlangıç Tarihi</label>
-                    <input type="date" value="{{ date('Y-m-d') }}" class="form-control" id="start_date">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ps-1">Başlangıç</label>
+                    <input type="date" value="{{ date('Y-m-d') }}" class="form-control !rounded-2xl border-0 bg-slate-100 p-3 font-bold text-slate-700 shadow-inner text-xs" id="start_date">
                 </div>
                 <div class="col-md-3">
-                    <label class="small fw-bold">Bitiş Tarihi</label>
-                    <input type="date" value="{{ date('Y-m-d') }}" class="form-control" id="end_date">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ps-1">Bitiş</label>
+                    <input type="date" value="{{ date('Y-m-d') }}" class="form-control !rounded-2xl border-0 bg-slate-100 p-3 font-bold text-slate-700 shadow-inner text-xs" id="end_date">
                 </div>
-                <div class="col-md-2 gap-2 d-flex align-items-end">
-                    <button class="btn btn-primary w-100 fw-bold shadow-sm" onclick="ReportFilter()">
-                        <i class="fas fa-search"></i> Listele
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button class="flex-1 py-3 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest border-0 shadow-lg shadow-slate-200 transition-transform active:scale-95" onclick="ReportFilter()">
+                        LİSTELE
                     </button>
-                    <button class="btn btn-danger w-100 fw-bold shadow-sm" id="downloadPDF">
-                        <i class="fas fa-file-pdf"></i> PDF Rapor
+                    <button class="w-12 h-12 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center border-0 transition-all hover:bg-red-500 hover:text-white" id="downloadPDF">
+                        <i class="fas fa-file-pdf"></i>
                     </button>
                 </div>
             </div>
         </div>
 
-        <div class="row g-2 mb-4">
+        <div class="row g-3 mb-8">
             <div class="col-md-3 col-6">
-                <div class="summary-box bg-total"><span>Sipariş Adedi</span><h3 id="res-count">0</h3></div>
+                <div class="bg-white p-5 rounded-[30px] border border-slate-50 shadow-sm text-center">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-2">Sipariş Adedi</span>
+                    <h3 class="text-2xl font-black text-slate-800 m-0 tracking-tighter" id="res-count">0</h3>
+                </div>
             </div>
             <div class="col-md-3 col-6">
-                <div class="summary-box bg-nakit"><span>Nakit Toplam</span><h3 id="res-nakit">0.00 TL</h3></div>
+                <div class="bg-white p-5 rounded-[30px] border border-slate-50 shadow-sm text-center border-b-4 border-b-emerald-500">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-2">Nakit Toplam</span>
+                    <h3 class="text-2xl font-black text-slate-800 m-0 tracking-tighter" id="res-nakit">0.00 TL</h3>
+                </div>
             </div>
             <div class="col-md-3 col-6">
-                <div class="summary-box bg-kkarti"><span>Kredi Kartı</span><h3 id="res-kkarti">0.00 TL</h3></div>
+                <div class="bg-white p-5 rounded-[30px] border border-slate-50 shadow-sm text-center border-b-4 border-b-indigo-500">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-2">Kredi Kartı</span>
+                    <h3 class="text-2xl font-black text-slate-800 m-0 tracking-tighter" id="res-kkarti">0.00 TL</h3>
+                </div>
             </div>
             <div class="col-md-3 col-6">
-                <div class="summary-box bg-online"><span>Online Ödeme</span><h3 id="res-online">0.00 TL</h3></div>
+                <div class="bg-white p-5 rounded-[30px] border border-slate-50 shadow-sm text-center border-b-4 border-b-blue-400">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-2">Online Ödeme</span>
+                    <h3 class="text-2xl font-black text-slate-800 m-0 tracking-tighter" id="res-online">0.00 TL</h3>
+                </div>
+            </div>
+
+            <div class="col-md-2 col-4">
+                <div class="bg-slate-50/50 p-4 rounded-[25px] border border-slate-100 text-center">
+                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1">Ticket</span>
+                    <h4 class="text-sm font-black text-slate-700 m-0" id="res-ticket">0.00 TL</h4>
+                </div>
             </div>
             <div class="col-md-2 col-4">
-                <div class="summary-box bg-ticket"><span>Ticket</span><h3 id="res-ticket">0.00 TL</h3></div>
+                <div class="bg-slate-50/50 p-4 rounded-[25px] border border-slate-100 text-center">
+                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1">Sodexo</span>
+                    <h4 class="text-sm font-black text-slate-700 m-0" id="res-sodexo">0.00 TL</h4>
+                </div>
             </div>
             <div class="col-md-2 col-4">
-                <div class="summary-box bg-other"><span>Sodexo</span><h3 id="res-sodexo">0.00 TL</h3></div>
+                <div class="bg-slate-50/50 p-4 rounded-[25px] border border-slate-100 text-center">
+                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1">Multinet/Plux</span>
+                    <h4 class="text-sm font-black text-slate-700 m-0" id="res-multi_plux">0.00 TL</h4>
+                </div>
             </div>
-            <div class="col-md-2 col-4">
-                <div class="summary-box bg-other"><span>Multinet/Pluxee</span><h3 id="res-multi_plux">0.00 TL</h3></div>
-            </div>
+
             <div class="col-md-6 col-12">
-                <div class="summary-box" style="background: linear-gradient(45deg, #1c1c1c, #000); border: 1px solid #gold;">
-                    <span class="text-warning">GENEL TOPLAM CİRO</span>
-                    <h2 class="text-warning fw-bold m-0" id="res-grand_total">0.00 TL</h2>
+                <div class="bg-slate-900 p-5 rounded-[30px] shadow-xl shadow-slate-200 flex justify-between items-center px-8 overflow-hidden relative group">
+                    <div class="relative z-10">
+                        <span class="text-[10px] font-black text-indigo-300 uppercase tracking-[0.3em] block mb-1">GENEL TOPLAM CİRO</span>
+                        <h2 class="text-3xl font-black text-white m-0 tracking-tighter" id="res-grand_total">0.00 TL</h2>
+                    </div>
+                    <i class="fas fa-wallet text-slate-800 text-6xl absolute right-[-10px] bottom-[-10px] transition-transform group-hover:scale-110"></i>
                 </div>
             </div>
         </div>
 
-        <div class="card shadow-sm border-0" style="border-radius: 15px;">
-            <div class="table-responsive table-secondary">
-                <table class="table table-hover align-middle mb-0" id="reportTable">
-                    <thead class="bg-light text-muted small uppercase">
-                    <tr><th>Platform</th><th>No</th><th>Müşteri</th><th>Ödeme Tipi</th><th class="text-end">Tutar</th><th>Saat</th></tr>
+        <div class="bg-white !rounded-[40px] border border-slate-50 shadow-xl shadow-slate-200/50 overflow-hidden">
+            <div class="table-responsive p-4">
+                <table class="table table-hover align-middle border-0" id="reportTable">
+                    <thead>
+                    <tr class="border-0">
+                        <th class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4 py-4">Kanal</th>
+                        <th class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4">Sipariş No</th>
+                        <th class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4">Müşteri</th>
+                        <th class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4">Ödeme Tipi</th>
+                        <th class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4 text-end">Tutar</th>
+                        <th class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4 text-center">Saat</th>
+                    </tr>
                     </thead>
-                    <tbody id="report" class="small"></tbody>
+                    <tbody id="report" class="border-0">
+                    <tr><td colspan="6" class="text-center py-5 text-slate-300 font-bold italic">Lütfen filtreleme yapın...</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    {{-- PDF & Toast Scripts --}}
+    <style>
+        .table > :not(caption) > * > * { border-bottom-width: 0; }
+        .form-select, .form-control { outline: none !important; }
+        .form-select:focus, .form-control:focus { box-shadow: none !important; background-color: #f1f5f9 !important; }
+    </style>
+
+    {{-- PDF Scripts --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.16/jspdf.plugin.autotable.min.js"></script>
 
-    <script>
-        function showAlert(message, type = 'info') {
-            const alertBox = document.getElementById('alertBox');
-            alertBox.className = `alert alert-${type}`;
-            alertBox.innerText = message;
-            alertBox.classList.remove('d-none');
-
-            setTimeout(() => {
-                alertBox.classList.add('d-none');
-            }, 3000);
-        }
-
-        document.getElementById("downloadPDF").addEventListener("click", function () {
-            const tableRows = document.querySelectorAll("#report tr");
-            if (tableRows.length === 0) {
-                showAlert("PDF oluşturmak için önce rapor filtreleyin.", "warning");
-                return;
-            }
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            doc.autoTable({
-                html: '#reportTable',
-                theme: 'grid',
-                styles: {
-                    fontSize: 8,
-                    textColor: [0, 0, 0],
-                    cellPadding: 4,
-                },
-                headStyles: {
-                    fillColor: [253, 104, 62],
-                    textColor: [255, 255, 255],
-                    fontSize: 9,
-                    fontStyle: 'bold',
-                },
-                alternateRowStyles: { fillColor: [245, 245, 245] },
-            });
-
-            doc.save('siparis-raporları.pdf');
-        });
-    </script>
     <script>
         function ReportFilter() {
             const params = {
                 start: $('#start_date').val(),
                 end: $('#end_date').val(),
                 platform: $('#platform').val(),
-                status: $('#status_filter').val() // İptal parametresi
+                status: $('#status_filter').val(),
+                _token: '{{ csrf_token() }}'
             };
 
-            $.post('/restaurant/reports/globalFilterOrder?_token={{ csrf_token() }}', params, function (res) {
+            $.post('/restaurant/reports/globalFilterOrder', params, function (res) {
                 let html = '';
                 res.data.forEach(order => {
-                    html += `<tr>
-                    <td><span class="badge bg-soft-primary text-primary">${order.platform}</span></td>
-                    <td>#${order.tracking_id}</td>
-                    <td class="fw-bold">${order.full_name}</td>
-                    <td>${order.payment}</td>
-                    <td class="text-end fw-bold">${order.amount}</td>
-                    <td>${order.time}</td>
-                </tr>`;
+                    html += `<tr class="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">
+                        <td class="px-4 py-4"><span class="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-500 text-[9px] font-black uppercase tracking-widest">${order.platform}</span></td>
+                        <td class="px-4 text-xs font-black text-slate-400">#${order.tracking_id}</td>
+                        <td class="px-4 text-xs font-black text-slate-700 uppercase">${order.full_name}</td>
+                        <td class="px-4 text-[10px] font-bold text-slate-500 italic">${order.payment}</td>
+                        <td class="px-4 text-end text-xs font-black text-slate-900">${order.amount} ₺</td>
+                        <td class="px-4 text-center text-[10px] font-bold text-slate-400">${order.time}</td>
+                    </tr>`;
                 });
-                $('#report').html(html || '<tr><td colspan="6" class="text-center py-4">Sonuç bulunamadı.</td></tr>');
+                $('#report').html(html || '<tr><td colspan="6" class="text-center py-5 font-bold text-slate-300">Sonuç bulunamadı.</td></tr>');
 
-                // Tüm ID'leri ve Grand Total'i otomatik güncelle
-                Object.keys(res.totals).forEach(key => {
-                    let val = res.totals[key];
-                    // Multinet ve Pluxee'yi tek kutuda toplamak istersen diye (opsiyonel):
-                    if(key === 'multinet' || key === 'pluxee') {
-                        // Burayı ihtiyacına göre JS ile toplatabilirsin.
-                    }
-                    $(`#res-${key}`).text(key === 'count' ? val : new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2 }).format(val) + " TL");
-                });
+                // Update Totals
+                if(res.totals) {
+                    Object.keys(res.totals).forEach(key => {
+                        let val = res.totals[key];
+                        let formatted = key === 'count' ? val : new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2 }).format(val) + " TL";
+                        $(`#res-${key}`).text(formatted);
+                    });
+                }
             });
         }
 
-        // Multinet ve Pluxee'yi ayrı ayrı basmak için HTML'e res-multinet ve res-pluxee ekleyebilirsin.
+        document.getElementById("downloadPDF").addEventListener("click", function () {
+            const tableRows = document.querySelectorAll("#report tr");
+            if (tableRows.length === 0 || tableRows[0].cells.length === 1) {
+                alert("Önce veri listelemelisiniz.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text("Sipariş Raporu - {{ date('d.m.Y') }}", 14, 15);
+            doc.autoTable({
+                html: '#reportTable',
+                startY: 20,
+                theme: 'striped',
+                headStyles: { fillColor: [79, 70, 229] }
+            });
+            doc.save('rapor.pdf');
+        });
     </script>
 @endsection

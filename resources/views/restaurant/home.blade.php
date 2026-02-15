@@ -1,241 +1,258 @@
 @extends('restaurant.layouts.app')
 @section('content')
-    <link rel="stylesheet" href="{{asset('css/pages/home/index.css')}}">
-    <link rel="stylesheet" href="{{asset('css/pages/admin/home/index.css')}}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/chartjs-adapter-moment.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+
     <style>
-        .chart-container {
-            position: relative;
-            height: 400px;
-            width: 100%;
+        :root {
+            --ultra-indigo: #4f46e5;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --dark-surface: #0f172a;
         }
 
-        .stats-card {
-            margin-bottom: 20px;
+        body {
+            background: radial-gradient(circle at top right, #f8fafc, #eff6ff);
+            font-family: 'Inter', sans-serif;
+        }
+        .modal-content.neo-surface {
+            border-radius: 40px !important;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.3) sepia(1) saturate(5) hue-rotate(220deg); /* Takvim ikonunu indigo yapıyoruz */
+            cursor: pointer;
+        }
+        /* Dash Layout Animasyonu */
+        .fade-in-up { animation: fadeInUp 0.6s ease-out; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Modern Glass Surfaces */
+        .neo-surface {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 32px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Sipariş Sayacı - Ultra Vurgu */
+        .counter-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 900;
+            letter-spacing: -4px;
+            background: linear-gradient(180deg, var(--dark-surface) 0%, var(--ultra-indigo) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Platform Chip - Minimalist */
+        .platform-chip {
+            background: white;
+            border-radius: 20px;
+            padding: 12px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid transparent;
+        }
+        .platform-chip:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 15px 30px rgba(79, 70, 229, 0.1);
+            border-color: var(--ultra-indigo);
+        }
+
+        /* Hız Göstergesi Bar */
+        .speed-indicator {
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 100px;
+            position: relative;
+            overflow: visible;
+        }
+        .speed-knob {
+            height: 24px;
+            width: 24px;
+            background: white;
+            border: 4px solid var(--ultra-indigo);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 15px rgba(79, 70, 229, 0.4);
+        }
+
+        /* Menü Pill */
+        .nav-pill-group {
+            background: rgba(15, 23, 42, 0.05);
+            padding: 6px;
+            border-radius: 20px;
+            display: inline-flex;
+        }
+        .nav-link-custom {
+            padding: 8px 20px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--slate-500);
+            transition: 0.3s;
+            text-decoration: none !important;
+        }
+        .nav-link-custom.active {
+            background: var(--dark-surface);
+            color: white;
         }
     </style>
 
-    <div class="container-fluid" style="padding-top: 1.5rem">
-        <div class="row">
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-                <div class="w-100 d-flex align-items-center justify-content-between">
-                    <form method="GET" action="{{ route('restaurant.filterByDate') }}"
-                          class="d-flex  gap-3 align-items-center">
-                        <div>
-                            <input type="date" class="form-control custom-input" id="start_date" name="start_date"
-                                   required>
+    <div class="container-fluid py-5 px-4">
+        @include('restaurant.partials.home_script_modals')
+
+        <div class="row mb-5 fade-in-up">
+            <div class="col-lg-6">
+                <span class="badge bg-indigo-700 rounded-b-full text-white px-3 py-2 rounded-pill mb-2">Canlı Operasyon</span>
+                <h1 class="fw-black text-dark tracking-tighter display-5 mb-0">Genel Bakış</h1>
+            </div>
+            <div class="col-lg-6 text-end d-flex align-items-center justify-content-end gap-3">
+                <div class="nav-pill-group">
+                    <a href="{{ route('orders.filter', ['date' => 'today']) }}" class="nav-link-custom {{request()->date == 'today' ? 'active' : '' }}">BUGÜN</a>
+                    <a href="{{ route('orders.filter', ['date' => 'yesterday']) }}" class="nav-link-custom {{request()->date == 'yesterday' ? 'active' : '' }}">DÜN</a>
+                    <a href="{{ route('orders.filter', ['date' => 'this_week']) }}" class="nav-link-custom {{request()->date == 'this_week' ? 'active' : '' }}">HAFTA</a>
+                </div>
+                <button class="btn neo-surface p-3 border-0" onclick="$('#dateModal').modal('show')">
+                    <i class="fas fa-calendar-day text-indigo"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="row g-5">
+            <div class="col-xl-4 fade-in-up" style="animation-delay: 0.1s">
+                <div class="neo-surface p-5 h-100 d-flex flex-column justify-content-center text-center">
+                    <h6 class="text-uppercase fw-black text-muted tracking-widest mb-4">Toplam Sipariş</h6>
+                    <div class="counter-display display-1 mb-2">{{ count($tumu) }}</div>
+                    <p class="text-slate-400 fw-medium">Şu ana kadar alınan tüm talepler.</p>
+
+                    <div class="mt-5 p-4 rounded-4 bg-white shadow-sm border border-light">
+                        <div class="row">
+                            <div class="col-6 border-end">
+                                <small class="d-block text-muted fw-bold">EN ÇOK</small>
+                                <span class="fw-black fs-5">Getir</span>
+                            </div>
+                            <div class="col-6">
+                                <small class="d-block text-muted fw-bold">HIZ</small>
+                                <span class="fw-black fs-5 text-success">Stabil</span>
+                            </div>
                         </div>
-                        <div>
-                            <input type="date" class="form-control custom-input" id="end_date" name="end_date" required>
-                        </div>
-                        <div class="d-flex align-items-end">
-                            <button style="background: #ec691e;color:#fff;font-size: 0.8rem" type="submit"
-                                    class="btn custom-btn">
-                                <i class="fas fa-calendar-day" style="padding-right:5px"></i>
-                                Filtrele
-                            </button>
-                        </div>
-                    </form>
-                    <div class="date-filters d-flex align-items-center gap-1 ">
-                        <a style="font-size:0.8rem;font-weight: 300;{{request()->date == 'today' ? 'background-color: #e7004d;color:white' : '' }}"
-                           href="{{ route('orders.filter', ['date' => 'today']) }}" class="date-filter custom-link">
-                            <i class="fas fa-calendar-day text-danger"></i>
-                            <span>Bugün</span>
-                        </a>
-                        <a style="font-size:0.8rem;font-weight: 300;{{request()->date == 'yesterday' ? 'background-color: #e7004d;color:white' : '' }}"
-                           href="{{ route('orders.filter', ['date' => 'yesterday']) }}" class="date-filter custom-link">
-                            <i class="fas fa-calendar-day text-danger"></i>
-                            <span>Dün</span>
-                        </a>
-                        <a style="font-size:0.8rem;font-weight: 300;{{request()->date == 'this_week' ? 'background-color: #e7004d;color:white' : '' }}"
-                           href="{{ route('orders.filter', ['date' => 'this_week']) }}" class="date-filter custom-link">
-                            <i class="fas fa-calendar-week text-danger"></i>
-                            <span>Bu Hafta</span>
-                        </a>
-                        <a style="font-size:0.8rem;font-weight: 300;{{request()->date == 'last_week' ? 'background-color: #e7004d;color:white' : '' }}"
-                           href="{{ route('orders.filter', ['date' => 'last_week']) }}" class="date-filter custom-link">
-                            <i class="fas fa-calendar-week text-danger"></i>
-                            <span>Geçen Hafta</span>
-                        </a>
-                        <a style="font-size:0.8rem;font-weight: 300;{{request()->date == 'last_month' ? 'background-color: #e7004d;color:white' : '' }}"
-                           href="{{ route('orders.filter', ['date' => 'last_month']) }}"
-                           class="date-filter custom-link">
-                            <i class="fas fa-calendar-week text-danger"></i>
-                            <span>Geçen Ay</span>
-                        </a>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-6">
-                <div class="orders-section p-4 border-0 rounded-4 bg-white shadow">
-                    <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
-                        <h4 class="fw-bold text-dark m-0">Sipariş Paneli</h4>
-                        <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2">
-                            Bugün: <strong>{{ count($tumu) }}</strong>
-                        </span>
-                    </div>
+            <div class="col-xl-4 fade-in-up" style="animation-delay: 0.2s">
+                <div class="row g-3">
+                    @php
+                        $platforms = [
+                            ['title' => 'Telefon', 'count' => count($telefonsiparis), 'icon' => 'fa-phone', 'color' => '#6366f1'],
+                            ['title' => 'GpsYemek', 'count' => count($gpsyemek), 'img' => 'gpsyemek.png'],
+                            ['title' => 'Getir', 'count' => count($getiryemek), 'img' => 'getir.png'],
+                            ['title' => 'Trendyol', 'count' => count($trendyol), 'img' => 'trendyol.png'],
+                            ['title' => 'Y.Sepeti', 'count' => count($yemeksepeti), 'img' => 'yemeksepeti.png'],
+                            ['title' => 'Migros', 'count' => $migros, 'img' => 'migros.png'],
+                        ];
+                    @endphp
 
-                    <div class="row g-3">
-                        <div class="col-12 mb-2">
-                            <div class="d-flex align-items-center justify-content-between p-3 rounded-4 bg-secondary-light text-dark fw-bolder shadow-sm transition-hover">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-box bg-white bg-opacity-10 p-2 rounded-3 me-3">
-                                        <i class="fa-solid fa-layer-group fs-5"></i>
-                                    </div>
-                                    <span class="fw-semibold ">Genel Toplam</span>
+                    @foreach($platforms as $p)
+                        <div class="col-6">
+                            <div class="platform-chip d-flex align-items-center gap-3">
+                                <div class="bg-light p-2 rounded-3">
+                                    @if(isset($p['img']))
+                                        <img src="{{ asset('theme/images/platforms/'.$p['img']) }}" style="width: 24px; height: 24px; object-fit: contain;">
+                                    @else
+                                        <i class="fa-solid {{ $p['icon'] }} text-indigo"></i>
+                                    @endif
                                 </div>
-                                <span class="fs-3 fw-bold">{{ count($tumu) }}</span>
+                                <div>
+                                    <h4 class="m-0 fw-black tracking-tighter">{{ $p['count'] }}</h4>
+                                    <small class="text-muted fw-bold" style="font-size: 10px;">{{ $p['title'] }}</small>
+                                </div>
                             </div>
                         </div>
-
-                        @php
-                            $platforms = [
-                                ['title' => 'Telefon', 'count' => count($telefonsiparis), 'icon' => 'fa-phone', 'color' => '#198754', 'is_img' => false],
-                                ['title' => 'GpsYemek', 'count' => count($gpsyemek), 'img' => 'gpsyemek.png', 'is_img' => true],
-                                ['title' => 'Getir Yemek', 'count' => count($getiryemek), 'img' => 'getir.png', 'is_img' => true],
-                                ['title' => 'Trendyol', 'count' => count($trendyol), 'img' => 'trendyol.png', 'is_img' => true],
-                                ['title' => 'Y.Sepeti', 'count' => count($yemeksepeti), 'img' => 'yemeksepeti.png', 'is_img' => true],
-                                ['title' => 'Migros', 'count' => $migros, 'img' => 'migros.png', 'is_img' => true],
-                            ];
-                        @endphp
-
-                        @foreach($platforms as $p)
-                            <div class="col-4 col-md-4 col-xl-2">
-                                <div class="card h-100 border-0 shadow-sm text-center py-3 px-2 rounded-4 platform-card">
-                                    <div class="platform-logo-container mb-4 d-flex align-items-center justify-content-center bg-white shadow-sm rounded-circle mx-auto" style="width: 45px; height: 45px;">
-                                        @if($p['is_img'])
-                                            <img class="rounded-circle" src="{{ asset('theme/images/platforms/'.$p['img']) }}" style="width: 28px; height: auto;" alt="{{ $p['title'] }}">
-                                        @else
-                                            <i class="fa-solid {{ $p['icon'] }} fs-5" style="color: {{ $p['color'] }}"></i>
-                                        @endif
-                                    </div>
-                                    <div class="fw-bold fs-5 text-dark">{{ $p['count'] }}</div>
-                                    <div class="text-muted  text-primary fw-bold" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">{{ $p['title'] }}</div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+                    @endforeach
                 </div>
             </div>
 
-            <!-- Performance Section -->
-            <div class="col-lg-6">
-                @if($dailyPreparedSpeed->isEmpty() && $dailyHandoverSpeed->isEmpty() && $dailyDeliverySpeed->isEmpty())
-                    <div class="alert" style="background: #259a38;color: white">
-                        Bu tarih aralığında veri bulunamadı.
-                    </div>
-                @else
-                    <div class="row g-4">
-                        <!-- Hazırlanma Hızı -->
-                        <div class="col-md-4">
-                            <div class="card stats-card shadow-sm border-0">
-                                <div class="card-header  text-white text-center"
-                                     style="background: #4927b3;color: white">
-                                    <h6 class="text-white">Hazırlanma Hızı</h6>
-                                </div>
-                                <div class="card-body text-center">
-                                    <canvas id="preparedSpeedChart" height="150"></canvas>
-                                    <p class="mt-3 mb-0">Ortalama: <strong>{{ $stats['prepared']['avg'] }} dk</strong>
-                                    </p>
-                                    <p>En Hızlı: <strong>{{ $stats['prepared']['min'] }} dk</strong></p>
-                                    <p>En Yavaş: <strong>{{ $stats['prepared']['max'] }} dk</strong></p>
-                                    <p>Toplam Sipariş: <strong>{{ $stats['prepared']['total_orders'] }}</strong></p>
-                                </div>
-                            </div>
-                        </div>
+            <div class="col-xl-4 fade-in-up" style="animation-delay: 0.3s">
+                <div class="neo-surface p-4 h-100">
+                    <h5 class="fw-black mb-5 tracking-tighter uppercase">Performans Skorları</h5>
 
-                        <!-- Teslim Alma Hızı -->
-                        <div class="col-md-4">
-                            <div class="card stats-card shadow-sm border-0">
-                                <div class="card-header text-white text-center"
-                                     style="background: #ec691e;color: white">
-                                    <h6 class="text-white">Teslim Alma Hızı</h6>
-                                </div>
-                                <div class="card-body text-center">
-                                    <canvas id="handoverSpeedChart" height="150"></canvas>
-                                    <p class="mt-3 mb-0">Ortalama: <strong>{{ $stats['handover']['avg'] }} dk</strong>
-                                    </p>
-                                    <p>En Hızlı: <strong>{{ $stats['handover']['min'] }} dk</strong></p>
-                                    <p>En Yavaş: <strong>{{ $stats['handover']['max'] }} dk</strong></p>
-                                    <p>Toplam Sipariş: <strong>{{ $stats['handover']['total_orders'] }}</strong></p>
-                                </div>
-                            </div>
-                        </div>
+                    @php
+                        $metrics = [
+                            ['l' => 'Mutfak Hazırlık', 'v' => $stats['prepared']['avg'], 'm' => 60, 'c' => '#4f46e5'],
+                            ['l' => 'Kurye Atama', 'v' => $stats['handover']['avg'], 'm' => 20, 'c' => '#f59e0b'],
+                            ['l' => 'Saha Teslimat', 'v' => $stats['delivery']['avg'], 'm' => 45, 'c' => '#10b981'],
+                        ];
+                    @endphp
 
-                        <!-- Teslimat Hızı -->
-                        <div class="col-md-4">
-                            <div class="card stats-card shadow-sm border-0">
-                                <div class="card-header text-white text-center"
-                                     style="background: #30d760;color: white">
-                                    <h6 class="text-white">Teslimat Hızı</h6>
-                                </div>
-                                <div class="card-body text-center">
-                                    <canvas id="deliverySpeedChart" height="150"></canvas>
-                                    <p class="mt-3 mb-0">Ortalama: <strong>{{ $stats['delivery']['avg'] }} dk</strong>
-                                    </p>
-                                    <p>En Hızlı: <strong>{{ $stats['delivery']['min'] }} dk</strong></p>
-                                    <p>En Yavaş: <strong>{{ $stats['delivery']['max'] }} dk</strong></p>
-                                    <p>Toplam Sipariş: <strong>{{ $stats['delivery']['total_orders'] }}</strong></p>
-                                </div>
+                    @foreach($metrics as $m)
+                        <div class="mb-5">
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="fw-bold text-dark small">{{ $m['l'] }}</span>
+                                <span class="fw-black text-indigo">{{ $m['v'] }} DK</span>
+                            </div>
+                            <div class="speed-indicator">
+                                <div class="speed-knob" style="left: {{ ($m['v'] / $m['m']) * 100 }}%;"></div>
+                                <div style="width: {{ ($m['v'] / $m['m']) * 100 }}%; height: 100%; background: {{ $m['c'] }}; border-radius: 100px; opacity: 0.3;"></div>
                             </div>
                         </div>
-                    </div>
-                @endif
+                    @endforeach
+                </div>
             </div>
 
-            @include('restaurant.partials.home_table')
+            <div class="col-12 fade-in-up" style="animation-delay: 0.4s">
+                <div class="neo-surface p-4 overflow-hidden shadow-sm border-0">
+                    <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+                        <h4 class="fw-black m-0 tracking-tighter">SİPARİŞ AKIŞI</h4>
+                        <a href="#" class="text-indigo fw-bold small text-decoration-none">Tümünü Gör <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
+                    @include('restaurant.partials.home_table')
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <div class="modal fade" data-bs-backdrop="false" id="dateModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content neo-surface border-0 shadow-lg" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px);">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h4 class="fw-black text-dark tracking-tighter m-0">ZAMAN ARALIĞI</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="GET" action="{{ route('restaurant.filterByDate') }}">
+                    <div class="modal-body p-4">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="small fw-bold text-muted mb-2 uppercase tracking-widest" style="font-size: 10px;">Başlangıç</label>
+                                <input type="date" class="form-control border-0 bg-light p-3 rounded-4 fw-bold shadow-sm" name="start_date" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="small fw-bold text-muted mb-2 uppercase tracking-widest" style="font-size: 10px;">Bitiş</label>
+                                <input type="date" class="form-control border-0 bg-light p-3 rounded-4 fw-bold shadow-sm" name="end_date" required>
+                            </div>
+                        </div>
+                        <div class="mt-4 p-3 rounded-4 bg-indigo bg-opacity-10 border border-indigo border-opacity-10 text-center">
+                            <p class="small text-indigo fw-bold m-0"><i class="fas fa-info-circle me-2"></i>Seçilen tarihler arasındaki tüm veriler analiz edilecektir.</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="submit" class="btn w-100 p-3 rounded-4 fw-black text-white shadow-lg tracking-tighter" style="background: var(--dark-surface); transition: 0.3s;">
+                            VERİLERİ GÜNCELLE <i class="fas fa-sync-alt ms-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function createSpeedChart(ctx, value, max, color) {
-            return new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    datasets: [{
-                        data: [value, max - value],
-                        backgroundColor: [color, '#e9ecef'],
-                        borderWidth: 0,
-                        cutout: '75%'
-                    }]
-                },
-                options: {
-                    rotation: -90,
-                    circumference: 180,
-                    plugins: {
-                        legend: {display: false},
-                        tooltip: {enabled: false},
-                    }
-                }
-            });
-        }
-
-        // Hazırlanma Hızı
-        createSpeedChart(
-            document.getElementById('preparedSpeedChart'),
-            {{ $stats['prepared']['avg'] }},
-            60, // Maks dakika
-            '#4927b3'
-        );
-
-        // Teslim Alma Hızı
-        createSpeedChart(
-            document.getElementById('handoverSpeedChart'),
-            {{ $stats['handover']['avg'] }},
-            60,
-            '#ec691e'
-        );
-
-        // Teslimat Hızı
-        createSpeedChart(
-            document.getElementById('deliverySpeedChart'),
-            {{ $stats['delivery']['avg'] }},
-            60,
-            '#30d760'
-        );
+        $('#dateModal').on('shown.bs.modal', function () {
+            $(this).appendTo('body');
+        });
     </script>
 @endsection

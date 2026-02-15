@@ -1,134 +1,157 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RestaurantController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\MyController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\CourierController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CouponController;
+use App\Http\Controllers\PrinterController;
+use App\Http\Controllers\CategorieController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\SiparislerController;
+use App\Http\Controllers\MenuController;
+use App\Http\Controllers\EntegraController;
+use App\Http\Controllers\GpsYemekController;
 
 Route::group(['prefix' => 'restaurant'], function () {
+
     Route::group(['middleware' => ['guest.restaurant']], function () {
         Route::view('login', 'restaurant.login')->name('restaurant.login');
         Route::view('payment', 'restaurant.payment')->name('restaurant.payment');
-        Route::post('login', [App\Http\Controllers\RestaurantController::class, 'login'])->name('restaurant.auth');
-        Route::post('register', [App\Http\Controllers\RestaurantController::class, 'register'])->name('restaurant.create');
+
+        Route::controller(RestaurantController::class)->group(function () {
+            Route::post('login', 'login')->name('restaurant.auth');
+            Route::post('register', 'register')->name('restaurant.create');
+        });
     });
 
     Route::group(['middleware' => ['restaurant.auth']], function () {
-        Route::get('/printed/{orderId}', [App\Http\Controllers\OrderController::class, 'printed']);
-        Route::get('/orders/ajax', [App\Http\Controllers\RestaurantController::class, 'ajax'])->name('restaurant.orders.ajax');
 
-        Route::get('profile', [App\Http\Controllers\MyController::class, 'profile'])->name('restaurant.profile');
-        Route::post('/profile', [App\Http\Controllers\MyController::class, 'profileUpdate'])->name('restaurant.profile.update');
+        Route::controller(RestaurantController::class)->group(function () {
+            Route::get('/', 'home')->name('restaurant.index');
+            Route::get('/orders/ajax', 'ajax')->name('restaurant.orders.ajax');
+            Route::get('/customers/get-by-phone/{phone}', 'getByPhone');
+            Route::post('logout', 'logout')->name('restaurant.logout');
+            Route::get('/filter-by-date', 'filterByDate')->name('restaurant.filterByDate');
+            Route::get('/orders/filter', 'filterOrders')->name('orders.filter');
+        });
 
-        Route::post('/quick-order', [App\Http\Controllers\OrderController::class, 'storeQuick'])->name('quick.order.store');
+        Route::controller(OrderController::class)->group(function () {
+            Route::get('/printed/{orderId}', 'printed');
+            Route::post('/quick-order', 'storeQuick')->name('quick.order.store');
+            Route::post('/orders/message', 'message');
+            Route::post('/orders/message2', 'message2');
+            Route::get('/orders/new', 'new')->name('restaurant.orders.new');
+            Route::get('/orders/removePOS', 'removePOS')->name('restaurant.removePOS');
+            Route::get('/orders/{link}', 'index')->name('restaurant.orders');
+            Route::get('/orders/sendCourier/{orderID}/{courierID}', 'sendCourier')->name('restaurant.orders.sendCourier');
+            Route::get('/orders/addPOS/{id}', 'addPOS')->name('restaurant.addPOS');
+            Route::get('/get-pos-items', 'getPosItems');
+            Route::get('/orders/updatePlusPOS/{id}', 'updatePlusPOS')->name('restaurant.updatePlusPOS');
+            Route::get('/orders/updateMinusPOS/{id}/{qty}', 'updateMinusPOS')->name('restaurant.updateMinusPOS');
+            Route::get('/orders/customerpos/{id}', 'customerpos')->name('restaurant.customerpos');
+            Route::post('/orders/addOrder', 'addOrder');
+            Route::get('/check-orders', 'checkOrders');
+            Route::post('/telefonsiparis/updateOrderStatus', 'updateOrderStatus');
+        });
 
-        Route::get('/customers/get-by-phone/{phone}', [App\Http\Controllers\RestaurantController::class, 'getByPhone']);
-        Route::get('/', [App\Http\Controllers\RestaurantController::class, 'home'])->name('restaurant.index');
-        Route::post('logout', [App\Http\Controllers\RestaurantController::class, 'logout'])->name('restaurant.logout');
-        Route::get('/filter-by-date', [App\Http\Controllers\RestaurantController::class, 'filterByDate'])->name('restaurant.filterByDate');
-        Route::get('/orders/filter', [App\Http\Controllers\RestaurantController::class, 'filterOrders'])->name('orders.filter');
+        Route::controller(MyController::class)->group(function () {
+            Route::get('profile', 'profile')->name('restaurant.profile');
+            Route::post('/profile', 'profileUpdate')->name('restaurant.profile.update');
+            Route::get('/entegrations', 'entegrations')->name('restaurant.entegrations');
+            Route::post('/entegrations/update', 'entegrastion_update')->name('restaurant.entegrations.entegrastion_update');
+        });
 
-        Route::get('/reports/orders', [App\Http\Controllers\ReportController::class, 'orders'])->name('restaurant.reports.orders');
-        Route::get('/reports/couriers', [App\Http\Controllers\ReportController::class, 'couriers'])->name('restaurant.reports.couriers');
-        Route::get('/couriers', [App\Http\Controllers\CourierController::class, 'index'])->name('restaurant.couriers.index');
+        Route::controller(ReportController::class)->group(function () {
+            Route::get('/reports/orders', 'orders')->name('restaurant.reports.orders');
+            Route::get('/reports/couriers', 'couriers')->name('restaurant.reports.couriers');
+            Route::post('/reports/globalFilter', 'globalFilter');
+            Route::post('/reports/globalFilterOrder', 'globalFilterOrder');
+        });
 
-        /* Products */
-        Route::get('/products', [App\Http\Controllers\ProductController::class, 'index'])->name('restaurant.products');
-        Route::get('/products/new', [App\Http\Controllers\ProductController::class, 'new'])->name('restaurant.products.new');
-        Route::get('/products/edit/{id}', [App\Http\Controllers\ProductController::class, 'edit'])->name('restaurant.products.edit');
-        Route::get('/products/delete/{id}', [App\Http\Controllers\ProductController::class, 'delete'])->name('restaurant.products.delete');
-        Route::post('/products/create', [App\Http\Controllers\ProductController::class, 'create'])->name('restaurant.products.create');
-        Route::post('/products/update', [App\Http\Controllers\ProductController::class, 'update'])->name('restaurant.products.update');
+        Route::controller(CourierController::class)->group(function () {
+            Route::get('/get-couriers', 'getCourier');
+            Route::get('/couriers', 'index')->name('restaurant.couriers');
+            Route::get('/couriers/new', 'new')->name('restaurant.couriers.new');
+            Route::get('/couriers/edit/{id}', 'edit')->name('restaurant.couriers.edit');
+            Route::get('/couriers/delete/{id}', 'delete')->name('restaurant.couriers.delete');
+            Route::get('/couriers/report/{id}', 'report')->name('restaurant.couriers.report');
+            Route::post('/couriers/create', 'create')->name('restaurant.couriers.create');
+            Route::post('/couriers/update', 'update')->name('restaurant.couriers.update');
+        });
 
-        /* Coupons */
-        Route::get('/coupons', [App\Http\Controllers\CouponController::class, 'index'])->name('restaurant.coupons');
-        Route::get('/coupons/new', [App\Http\Controllers\CouponController::class, 'create'])->name('restaurant.coupons.new');
-        Route::get('/coupons/edit/{id}', [App\Http\Controllers\CouponController::class, 'edit'])->name('restaurant.coupons.edit');
-        Route::get('/coupons/delete/{id}', [App\Http\Controllers\CouponController::class, 'delete'])->name('restaurant.coupons.delete');
-        Route::post('/coupons/create', [App\Http\Controllers\CouponController::class, 'store'])->name('restaurant.coupons.create');
-        Route::post('/coupons/update', [App\Http\Controllers\CouponController::class, 'update'])->name('restaurant.coupons.update');
+        Route::controller(ProductController::class)->prefix('products')->group(function () {
+            Route::get('/', 'index')->name('restaurant.products');
+            Route::get('/new', 'new')->name('restaurant.products.new');
+            Route::get('/edit/{id}', 'edit')->name('restaurant.products.edit');
+            Route::get('/delete/{id}', 'delete')->name('restaurant.products.delete');
+            Route::post('/create', 'create')->name('restaurant.products.create');
+            Route::post('/update', 'update')->name('restaurant.products.update');
+        });
 
-        /* prints */
-        Route::get('/apps', [App\Http\Controllers\PrinterController::class, 'apps'])->name('restaurant.apps');
-        Route::get('/prints', [App\Http\Controllers\PrinterController::class, 'index'])->name('restaurant.prints');
-        Route::get('/prints/new', [App\Http\Controllers\PrinterController::class, 'create'])->name('restaurant.prints.new');
-        Route::get('/prints/edit/{id}', [App\Http\Controllers\PrinterController::class, 'edit'])->name('restaurant.prints.edit');
-        Route::get('/prints/delete/{id}', [App\Http\Controllers\PrinterController::class, 'delete'])->name('restaurant.prints.delete');
-        Route::post('/prints/create', [App\Http\Controllers\PrinterController::class, 'store'])->name('restaurant.prints.create');
-        Route::post('/prints/update', [App\Http\Controllers\PrinterController::class, 'update'])->name('restaurant.prints.update');
+        Route::controller(CouponController::class)->prefix('coupons')->group(function () {
+            Route::get('/', 'index')->name('restaurant.coupons');
+            Route::get('/new', 'create')->name('restaurant.coupons.new');
+            Route::get('/edit/{id}', 'edit')->name('restaurant.coupons.edit');
+            Route::get('/delete/{id}', 'delete')->name('restaurant.coupons.delete');
+            Route::post('/create', 'store')->name('restaurant.coupons.create');
+            Route::post('/update', 'update')->name('restaurant.coupons.update');
+        });
 
-        /* Categories */
-        Route::get('/categories', [App\Http\Controllers\CategorieController::class, 'index'])->name('restaurant.categories');
-        Route::get('/categories/new', [App\Http\Controllers\CategorieController::class, 'new'])->name('restaurant.categories.new');
-        Route::get('/categories/edit/{id}', [App\Http\Controllers\CategorieController::class, 'edit'])->name('restaurant.categories.edit');
-        Route::get('/categories/delete/{id}', [App\Http\Controllers\CategorieController::class, 'delete'])->name('restaurant.categories.delete');
-        Route::post('/categories/create', [App\Http\Controllers\CategorieController::class, 'create'])->name('restaurant.categories.create');
-        Route::post('/categories/update', [App\Http\Controllers\CategorieController::class, 'update'])->name('restaurant.categories.update');
+        Route::controller(PrinterController::class)->group(function () {
+            Route::get('/apps', 'apps')->name('restaurant.apps');
+            Route::get('/prints', 'index')->name('restaurant.prints');
+            Route::get('/prints/new', 'create')->name('restaurant.prints.new');
+            Route::get('/prints/edit/{id}', 'edit')->name('restaurant.prints.edit');
+            Route::get('/prints/delete/{id}', 'delete')->name('restaurant.prints.delete');
+            Route::post('/prints/create', 'store')->name('restaurant.prints.create');
+            Route::post('/prints/update', 'update')->name('restaurant.prints.update');
+        });
 
-        /* Courier */
-        Route::get('/get-couriers', [\App\Http\Controllers\CourierController::class, 'getCourier']);
-        Route::get('/couriers', [App\Http\Controllers\CourierController::class, 'index'])->name('restaurant.couriers');
-        Route::get('/couriers/new', [App\Http\Controllers\CourierController::class, 'new'])->name('restaurant.couriers.new');
-        Route::get('/couriers/edit/{id}', [App\Http\Controllers\CourierController::class, 'edit'])->name('restaurant.couriers.edit');
-        Route::get('/couriers/delete/{id}', [App\Http\Controllers\CourierController::class, 'delete'])->name('restaurant.couriers.delete');
-        Route::get('/couriers/report/{id}', [App\Http\Controllers\CourierController::class, 'report'])->name('restaurant.couriers.report');
-        Route::post('/couriers/create', [App\Http\Controllers\CourierController::class, 'create'])->name('restaurant.couriers.create');
-        Route::post('/couriers/update', [App\Http\Controllers\CourierController::class, 'update'])->name('restaurant.couriers.update');
+        Route::controller(CategorieController::class)->prefix('categories')->group(function () {
+            Route::get('/', 'index')->name('restaurant.categories');
+            Route::get('/new', 'new')->name('restaurant.categories.new');
+            Route::get('/edit/{id}', 'edit')->name('restaurant.categories.edit');
+            Route::get('/delete/{id}', 'delete')->name('restaurant.categories.delete');
+            Route::post('/create', 'create')->name('restaurant.categories.create');
+            Route::post('/update', 'update')->name('restaurant.categories.update');
+        });
 
-        /* Customers */
-        Route::get('/get-customers', [App\Http\Controllers\CustomerController::class, 'getCustomers'])->name('restaurant.getCustomers');
-        Route::get('/customers', [App\Http\Controllers\CustomerController::class, 'index'])->name('restaurant.customers');
-        Route::get('/customers/new', [App\Http\Controllers\CustomerController::class, 'new'])->name('restaurant.customers.new');
-        Route::get('/customers/edit/{id}', [App\Http\Controllers\CustomerController::class, 'edit'])->name('restaurant.customers.edit');
-        Route::get('/customers/delete/{id}', [App\Http\Controllers\CustomerController::class, 'delete'])->name('restaurant.customers.delete');
-        Route::post('/customers/create', [App\Http\Controllers\CustomerController::class, 'create'])->name('restaurant.customers.create');
-        Route::post('/customers/update', [App\Http\Controllers\CustomerController::class, 'update'])->name('restaurant.customers.update');
+        Route::controller(CustomerController::class)->prefix('customers')->group(function () {
+            Route::get('/get-customers', 'getCustomers')->name('restaurant.getCustomers');
+            Route::get('/', 'index')->name('restaurant.customers');
+            Route::get('/new', 'new')->name('restaurant.customers.new');
+            Route::get('/edit/{id}', 'edit')->name('restaurant.customers.edit');
+            Route::get('/delete/{id}', 'delete')->name('restaurant.customers.delete');
+            Route::post('/create', 'create')->name('restaurant.customers.create');
+            Route::post('/update', 'update')->name('restaurant.customers.update');
+        });
 
-        /* Orders */
-        Route::post('/orders/message', [App\Http\Controllers\OrderController::class, 'message']);
+        Route::controller(SiparislerController::class)->group(function () {
+            Route::get('/deletedOrders', 'deletedOrders')->name('restaurant.deletedOrders');
+            Route::get('/deliveredOrders', 'deliveredOrders')->name('restaurant.deliveredOrders');
+        });
 
-        Route::post('/orders/message2', [App\Http\Controllers\OrderController::class, 'message2']);
-        Route::get('/orders/new', [App\Http\Controllers\OrderController::class, 'new'])->name('restaurant.orders.new');
-        Route::get('/orders/removePOS', [App\Http\Controllers\OrderController::class, 'removePOS'])->name('restaurant.removePOS');
+        Route::controller(MenuController::class)->group(function () {
+            Route::get('/menus', 'index')->name('restaurant.menus');
+            Route::get('/{restaurantId}/menu', 'show')->name('restaurant.menu');
+            Route::post('/menus/select', 'store')->name('restaurant.menu.template.select');
+            Route::get('/menus/edit/{id}', 'edit')->name('restaurant.menus.edit');
+            Route::post('/menus/create', 'create')->name('restaurant.menus.create');
+            Route::post('/menus/update', 'update')->name('restaurant.menus.update');
+        });
 
-        Route::get('/orders/{link}', [App\Http\Controllers\OrderController::class, 'index'])->name('restaurant.orders');
-        Route::get('/orders/sendCourier/{orderID}/{courierID}', [App\Http\Controllers\OrderController::class, 'sendCourier'])->name('restaurant.orders.sendCourier');
-        Route::get('/orders/addPOS/{id}', [App\Http\Controllers\OrderController::class, 'addPOS'])->name('restaurant.addPOS');
-        Route::get('/get-pos-items', [App\Http\Controllers\OrderController::class, 'getPosItems']);
+        Route::controller(EntegraController::class)->group(function () {
+            Route::post('/getir/updateOrderStatus', 'updateOrderStatus');
+            Route::post('/yemeksepeti/updateOrderStatus', 'updateOrderStatus');
+            Route::post('/migros/updateOrderStatus', 'updateOrderStatus');
+            Route::post('/trendyol/updateOrderStatus', 'updateOrderStatus');
+            Route::get('/entegra/reject-statuses/{orderId}', 'getRejectReasons');
+        });
 
-        Route::get('/orders/updatePlusPOS/{id}', [App\Http\Controllers\OrderController::class, 'updatePlusPOS'])->name('restaurant.updatePlusPOS');
-        Route::get('/orders/updateMinusPOS/{id}/{qty}', [App\Http\Controllers\OrderController::class, 'updateMinusPOS'])->name('restaurant.updateMinusPOS');
-        Route::get('/orders/customerpos/{id}', [App\Http\Controllers\OrderController::class, 'customerpos'])->name('restaurant.customerpos');
-        Route::post('/orders/addOrder', [App\Http\Controllers\OrderController::class, 'addOrder']);
-
-        Route::get('/deletedOrders', [App\Http\Controllers\SiparislerController::class, 'deletedOrders'])->name('restaurant.deletedOrders');
-        Route::get('/deliveredOrders', [App\Http\Controllers\SiparislerController::class, 'deliveredOrders'])->name('restaurant.deliveredOrders');
-
-        Route::get('/menus', [App\Http\Controllers\MenuController::class, 'index'])->name('restaurant.menus');
-        Route::get('/{restaurantId}/menu', [App\Http\Controllers\MenuController::class, 'show'])->name('restaurant.menu');
-        Route::post('/menus/select', [App\Http\Controllers\MenuController::class, 'store'])->name('restaurant.menu.template.select');
-
-        /* Menus */
-        Route::get('/menus', [App\Http\Controllers\MenuController::class, 'index'])->name('restaurant.menus');
-        Route::get('/menus/edit/{id}', [App\Http\Controllers\MenuController::class, 'edit'])->name('restaurant.menus.edit');
-        Route::post('/menus/create', [App\Http\Controllers\MenuController::class, 'create'])->name('restaurant.menus.create');
-        Route::post('/menus/update', [App\Http\Controllers\MenuController::class, 'update'])->name('restaurant.menus.update');
-
-        /* Settings */
-        Route::get('/entegrations', [App\Http\Controllers\MyController::class, 'entegrations'])->name('restaurant.entegrations');
-        Route::post('/entegrations/update', [App\Http\Controllers\MyController::class, 'entegrastion_update'])->name('restaurant.entegrations.entegrastion_update');
-
-        //Raporlar
-        Route::post('/reports/globalFilter', [App\Http\Controllers\ReportController::class, 'globalFilter']);
-        Route::post('/reports/globalFilterOrder', [App\Http\Controllers\ReportController::class, 'globalFilterOrder']);
-
-        Route::get('/check-orders', [App\Http\Controllers\OrderController::class, 'checkOrders']);
-
-        Route::post('/telefonsiparis/updateOrderStatus', [App\Http\Controllers\OrderController::class, 'updateOrderStatus']);
-        Route::post('/getir/updateOrderStatus', [App\Http\Controllers\EntegraController::class, 'updateOrderStatus']);
-        Route::post('/yemeksepeti/updateOrderStatus', [App\Http\Controllers\EntegraController::class, 'updateOrderStatus']);
-        Route::post('/migros/updateOrderStatus', [App\Http\Controllers\EntegraController::class, 'updateOrderStatus']);
-        Route::post('/trendyol/updateOrderStatus', [App\Http\Controllers\EntegraController::class, 'updateOrderStatus']);
-        Route::post('/gpsyemek/updateOrderStatus', [App\Http\Controllers\GpsYemekController::class, 'updateOrder']);
-
-        Route::get('/entegra/reject-statuses/{orderId}',[\App\Http\Controllers\EntegraController::class, 'getRejectReasons']);
-        Route::get('/printed/{orderId}', [App\Http\Controllers\OrderController::class, 'printed']);
+        Route::post('/gpsyemek/updateOrderStatus', [GpsYemekController::class, 'updateOrder']);
     });
 });

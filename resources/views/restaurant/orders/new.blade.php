@@ -1,1318 +1,463 @@
-<!DOCTYPE HTML>
-<html lang="tr">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="author" content="{{config('site.name')}}">
-    <title>Sipariş Ekranı - {{config('site.name')}}</title>
-
-    <!-- Toastr CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-
-    <!-- Toastr JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-    <link href="{{asset('pos/assets/css/ui.css')}}" rel="stylesheet" type="text/css"/>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
-          integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-    <link href="{{asset('pos/assets/css/OverlayScrollbars.css')}}" type="text/css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-    <style>
-        .toast-success {
-            background-color: #30d760 !important; /* koyu yeşil */
-            color: #fff !important;
-            font-weight: 600;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-        }
-
-        .toast-success .toast-title {
-            font-size: 15px;
-        }
-
-        .toast-success .toast-message {
-            font-size: 14px;
-        }
-
-        .coupon-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: flex-start;
-            padding-bottom: 12px;
-        }
-
-        .coupon-item {
-            flex: 1 1 calc(50% - 12px);
-            padding: 12px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            box-sizing: border-box;
-            background-color: #fce9ef;
-            color: #ec691e;,
-        transition: background-color 0.3 s ease, color 0.3 s ease, border-color 0.3 s ease;
-            user-select: none;
-        }
-
-        .coupon-item:hover {
-            background-color: #fdf7f9;
-            border-color: #b3003a;
-        }
-
-        .coupon-item.selected {
-            background-color: #ec691e;
-            color: white;
-            border-color: #a3003b;
-        }
-
-        @media (max-width: 576px) {
-            .coupon-item {
-                flex: 1 1 100%;
-            }
-        }
-    </style>
-    <style>
-        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
-            background: #ec691e;
-        }
-
-        .special-button {
-            background-color: #259a38; /* Indigo-600 */
-            color: white;
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 2.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .special-button:hover {
-            background-color: #132945; /* Indigo-700 */
-            transform: translateY(-2px);
-            color: white;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-        }
-
-
-        .special-ok-button {
-            background-color: #ec691e; /* Indigo-600 */
-            color: white;
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 2.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .special-ok-button:hover {
-            background-color: #dc205f; /* Indigo-700 */
-            transform: translateY(-2px);
-            color: white;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-        }
-
-        .special-ok-button-small {
-            background-color: #ec691e; /* Indigo-600 */
-            color: white;
-            padding: 0.35rem 1rem;
-            font-size: 0.76rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 2.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .special-ok-button-small:hover {
-            background-color: #dc205f; /* Indigo-700 */
-            transform: translateY(-2px);
-            color: white;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-        }
-
-    </style>
-
-    <style>
-        /* Varsayılan buton stilleri */
-        .paymentRol {
-            background: #183785; /* Genel koyu mavi */
-            color: white;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        /* Tıklandığında aktif olacak sınıf */
-        .paymentRol.active {
-            background: #ec691e !important; /* Turuncu vurgu */
-            transform: scale(1.05); /* Hafif büyüme efekti */
-        }
-
-        #map {
-            border: #259a38 solid 2px;
-            height: 300px; /* ya da istediğin başka bir yükseklik */
-            width: 100%;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-    </style>
-    <style>
-        .select2-results__option[aria-selected] {
-            height: 40px;
-            font-weight: bold;
-        }
-
-        .select2-container--default .select2-selection--single {
-            height: 40px;
-        }
-
-        .avatar {
-            vertical-align: middle;
-            width: 35px;
-            height: 35px;
-            border-radius: 0%;
-        }
-
-        .bg-default, .btn-default {
-            background-color: #f2f3f8;
-        }
-
-        .tabs {
-            display: flex;
-            flex-wrap: wrap;
-            margin-bottom: 1rem;
-        }
-
-        .tabs input[type="radio"] {
-            display: none;
-        }
-
-        .tabs label {
-            padding: 12px 20px;
-            cursor: pointer;
-            background: #f1f1f1;
-            margin-right: 5px;
-            border-radius: 5px;
-            transition: all 0.3s ease-in-out;
-            font-weight: 600;
-            font-size: 20px;
-        }
-
-        .tabs input[type="radio"]:checked + label {
-            background: #259a38;
-            color: #fff;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .tabs .tab {
-            width: 100%;
-            display: none;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        .tabs input[type="radio"]:checked + label + .tab {
-            display: block;
-        }
-
-        .card-product {
-            border: none;
-            border-radius: 10px;
-            transition: transform 0.2s ease-in-out, box-shadow 0.3s;
-        }
-
-        .card-product:hover {
-            transform: scale(1.03);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .card-product .title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        .card-product .price-new {
-            font-size: 22px;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        .toplusil a i:hover {
-            color: red;
-        }
-
-        .paymentRol {
-
-            font-size: 18px;
-            color: #fff;
-            text-align: center;
-            font-weight: bold;
-            height: 80px;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-
-        .nakit {
-            background: #243d7a;
-        }
-
-        .kkkarti {
-            background: #183785;
-        }
-
-        .kkarti {
-            background: #0077b8;
-        }
-
-        .kayit {
-            background: #1fde74;
-            padding: 25px;
-            font-size: 22px;
-        }
-
-        .customer {
-            padding: 5px 10px;
-            border: 1px solid white;
-            width: 100%;
-            border-radius: 10px;
-            text-align: left;
-        }
-
-        .rightbtn {
-            padding: 0 !important;
-        }
-
-        .rightbtn a {
-            padding: 10px 15px;
-            height: 50px;
-            font-size: 18px;
-        }
-
-        .selectiki {
-            height: 50px !important;
-            padding: 10px;
-        }
-
-        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
-            line-height: 40px;
-        }
-
-        .select2-container--default .select2-results__option--selected {
-            background-color: #e7e7e7;
-            line-height: 40px;
-        }
-
-        .select2-results__option--selectable {
-            cursor: pointer;
-            line-height: 40px;
-        }
-
-        .select2-container--default .select2-search--dropdown .select2-search__field {
-            border: 1px solid #aaa;
-            height: 45px;
-        }
-
-        #loader {
-            position: absolute;
-            padding: 0;
-            width: 100%;
-            height: 100vh;
-            text-align: center;
-            background: #fff;
-            z-index: 999;
-        }
-
-        #loader img {
-            position: relative;
-            top: 50%;
-        }
-
-        .in::placeholder {
-            color: #ec691e;
-        }
-
-        .drawer {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 86.6666%; /* Ekranın 2/3'ü */
-            height: 100vh;
-            background-color: #ffffff;
-            box-shadow: -2px 0 12px rgba(0, 0, 0, 0.3);
-            z-index: 50;
-            transform: translateX(100%);
-            transition: transform 0.3s ease-in-out;
-            overflow-y: auto;
-        }
-
-        /* Drawer aktif olduğunda */
-        .drawer.open {
-            transform: translateX(0%);
-        }
-
-        /* Drawer Başlık */
-        .drawer-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-            border-bottom: 1px solid #ddd;
-            background-color: #f8f8f8;
-        }
-
-        /* Kapatma Butonu */
-        .drawer-close {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #ec691e;
-        }
-
-        /* Drawer İçeriği */
-        .drawer-body {
-            padding: 20px;
-        }
-
-
-    </style>
-
-    <style>
-        .header-main {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 15px 0;
-        }
-
-        .logo-text {
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            text-transform: uppercase;
-        }
-
-        .special-ok-button {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            padding: 8px 16px;
-            border-radius: 8px;
-            color: white !important;
-            text-decoration: none !important;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .special-ok-button:hover {
-            background: white;
-            color: #259a38 !important;
-        }
-
-        .customer-box {
-            background: rgba(0, 0, 0, 0.15);
-            border-radius: 10px;
-            padding: 10px 15px;
-            border-left: 4px solid #fff;
-        }
-    </style>
-</head>
-<body>
-
-<div id="loader" style=" display: none;">
-    <div>
-        <img src="https://wpamelia.com/wp-content/uploads/2018/11/ezgif-2-6d0b072c3d3f.gif" style="height:100px">
+<div class="h-full flex flex-col bg-slate-50 overflow-hidden shadow-2xl">
+    <div class="bg-brand px-6 py-5 flex items-center justify-between shadow-lg z-10">
+        <div class="flex items-center gap-3">
+            <div class="bg-white/20 p-2 rounded-lg text-white">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div>
+                <h4 class="text-white font-black uppercase text-sm tracking-tighter m-0">Sipariş Ekranı</h4>
+                <p class="text-white/60 text-[10px] uppercase font-bold tracking-widest">{{ Auth::user()->restaurant_name }}</p>
+            </div>
+        </div>
+        <button onclick="toggleDrawer()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
-</div>
 
-<div id="drawer" class="drawer" style="z-index: 1050">
-    <div class="drawer-header">
-        <h4 class="m-0">Sepet</h4>
-        <button onclick="toggleDrawer()" class="drawer-close"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="drawer-body">
-        <section class="header-main" style="background:#259a38">
-            <div class="container-fluid">
-                <div class="row align-items-center">
-
-                    <div class="col-md-4 col-12 mb-3 mb-md-0">
-                        <div class="d-flex align-items-center">
-                            <div class="text-left">
-                                <h2 class="logo-text text-white m-0" style="font-size: 1.5rem;">Sipariş Ekranı</h2>
-                                <small class="text-white-50"><i
-                                        class="fas fa-utensils"></i> {{ Auth::user()->restaurant_name }}</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-5 col-12 mb-3 mb-md-0 text-md-center">
-                        <div class="btn-group-wrap">
-                            <a class="special-ok-button" href="{{ url('/restaurant') }}">
-                                <i class="fas fa-home"></i> <span>Anasayfa</span>
-                            </a>
-                            <span class="mx-1"></span>
-                            <a class="special-ok-button" data-toggle="modal" data-target="#musteriAta"
-                               style="cursor: pointer;">
-                                <i class="fas fa-user-plus"></i> <span>Müşteri Seçiniz</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="col-md-3 col-12">
-                        <div class="customer-box text-white">
-                            <small class="d-block text-white-50" style="font-size: 0.7rem; text-transform: uppercase;">Aktif
-                                Müşteri</small>
-                            <div class="brand-wrap customer fw-bold">
-                                <i class="fas fa-user-circle"></i> Seçili Müşteri Bulunmuyor
-                            </div>
-                        </div>
-                    </div>
-
+    <div class="bg-white border-b border-slate-200 p-4">
+        <div class="flex flex-wrap gap-3 items-center justify-between">
+            <div class="flex gap-2">
+                <button type="button" onclick="$('#musteriAta').modal('show')"
+                        class="bg-brand/10 text-brand px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-brand hover:text-white transition-all flex items-center gap-2">
+                    <i class="fas fa-user-plus"></i> Müşteri Seç
+                </button>
+            </div>
+            <div class="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100">
+                <i class="fas fa-user-circle text-brand text-xl opacity-50"></i>
+                <div>
+                    <span class="block text-[9px] uppercase font-black text-slate-400 tracking-tighter leading-none">Aktif Müşteri</span>
+                    <span class="customer block text-xs font-bold text-slate-700">Seçili Müşteri Bulunmuyor</span>
                 </div>
             </div>
-        </section>
+        </div>
+    </div>
 
-        <section class="section-content padding-y-sm">
-            <form method="POST" action="javascript:void(0);" name="formPos">
-                <div class="container-fluid">
-                    <div class="row">
-                        <input type="hidden" name="payment_control" id="payment_control" value="0">
-                        <input type="hidden" name="user_id" id="customer_id" value="0">
-                        <input type="hidden" name="courier_id" id="courier_id" value="">
-                        <input type="hidden" name="total" id="totalPrice" value="">
-                        <div class="col-md-9 card padding-y-sm card"
-                             style="border-radius: 10px; background-color: #fdfdfd; padding: 20px;min-height: 70vh">
+    <div class="flex-1 overflow-hidden flex flex-col lg:flex-row">
 
-                            @php $checked = 0; @endphp
+        <div class="flex-1 overflow-y-auto p-4 border-r border-slate-200 custom-scrollbar">
+            <form id="formPos" name="formPos" onsubmit="event.preventDefault(); CreateOrder();">
+                <input type="hidden" name="payment_control" id="payment_control" value="0">
+                <input type="hidden" name="user_id" id="customer_id" value="0">
+                <input type="hidden" name="courier_id" id="courier_id" value="">
+                <input type="hidden" name="total" id="totalPrice" value="">
 
-                            {{-- Kategori Sekmeleri --}}
-                            <div class="nav nav-tabs mb-4 b" id="categoryTabs">
-                                @foreach($categories as $cat)
-                                    @php $checked++; @endphp
-                                    <button
-                                        style="background: #259a38"
-                                        class="size-3 text-white nav-link {{ $checked == 1 ? 'active  text-dark' : '' }}"
-                                        id="tabProduct_{{$cat->id}}_tab"
-                                        data-bs-toggle="tab"
-                                        data-bs-target="#tabProduct_{{$cat->id}}"
-                                        type="button"
-                                        role="tab"
-                                    >
-                                        {{ $cat->name }}
-                                    </button>
-                                @endforeach
+                <div class="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
+                    @foreach($categories as $cat)
+                        <button type="button"
+                                class="category-tab whitespace-nowrap px-5 py-2.5 rounded-xl text-xs font-bold transition-all
+                                       {{ $loop->first ? 'bg-brand text-white shadow-lg shadow-brand/20' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50' }}"
+                                onclick="switchCategory('cat_{{$cat->id}}', this)">
+                            {{ $cat->name }}
+                        </button>
+                    @endforeach
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
+                    @foreach($categories as $cat)
+                        @foreach(\App\Models\Product::where('category_id', $cat->id)->where('status','active')->where('restaurant_id',auth()->id())->get() as $pro)
+                            <div class="product-card group relative bg-white border border-slate-100 p-3 rounded-2xl hover:border-brand hover:shadow-xl hover:shadow-brand/10 transition-all cursor-pointer cat-content cat_{{$cat->id}} {{ $loop->parent->first ? '' : 'hidden' }}"
+                                 onclick="productAdd({{$pro->id}})">
+                                <div class="bg-slate-50 aspect-square rounded-xl mb-3 flex items-center justify-center group-hover:bg-brand/5 transition-colors">
+                                    <i class="fas fa-utensils text-slate-300 group-hover:text-brand/40 text-2xl"></i>
+                                </div>
+                                <h5 class="text-slate-800 font-bold text-sm leading-tight mb-1">{{$pro->name}}</h5>
+                                <p class="text-brand font-black text-sm">{{ number_format($pro->price, 2, ',', '.') }} ₺</p>
                             </div>
+                        @endforeach
+                    @endforeach
+                </div>
+            </form>
+        </div>
 
-                            {{-- Ürün Kartları --}}
-                            <div class="tab-content mt-4">
-                                @forelse($categories as $cat)
-                                    <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}"
-                                         id="tabProduct_{{$cat->id}}"
-                                         role="tabpanel">
+        <div class="w-full lg:w-[420px] bg-white flex flex-col border-t lg:border-t-0 border-slate-200 shadow-2xl">
+            <div class="p-4 flex items-center justify-between border-b border-slate-50">
+                <h5 class="font-black text-slate-800 text-sm flex items-center gap-2 uppercase">
+                    <i class="fas fa-shopping-basket text-brand"></i> Sepetim
+                </h5>
+                <button type="button" onclick="removePos(1)" class="text-[10px] font-bold text-rose-500 hover:text-rose-700 uppercase tracking-tighter">
+                    <i class="fas fa-trash-alt mr-1"></i> Temizle
+                </button>
+            </div>
 
-                                        <div class="row">
-                                            @foreach(\App\Models\Product::where('category_id', $cat->id)
-                                                    ->where('status','active')
-                                                    ->where('restaurant_id',auth()->id())
-                                                    ->get() as $pro)
+            <div class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar min-h-[300px]" id="productItemLista">
+            </div>
 
-                                                <div class="col-md-3 mb-4" onclick="productAdd({{$pro->id}})"
-                                                     style="cursor: pointer">
-                                                    <div class="card text-white" style="background:#ec691e">
-                                                        <div class="card-body text-center">
-                                                            <h5 class="card-title text-white"
-                                                                style="font-size: 24px">{{$pro->name}}</h5>
-                                                            <p class="card-text"
-                                                               style="font-size: 20px;font-weight: bold">
-                                                                {{ number_format($pro->price, 2, ',', '.') }} ₺
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @empty
-                                    <h3>Kategori Bulunmuyor...</h3>
-                                @endforelse
+          <div class="modal fade" data-bs-backdrop="false" id="musteriAta"  tabindex="-1" role="dialog" aria-labelledby="musteriAtaLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content !rounded-[32px] border-0 shadow-2xl overflow-hidden">
+                        <div class="px-8 pt-8 pb-4 flex justify-between items-center border-b border-slate-50">
+                            <div>
+                                <h5 class="text-2xl font-black text-slate-800 uppercase tracking-tighter" id="musteriAtaLabel">Müşteri Seçiniz</h5>
+                                <p class="text-slate-400 text-xs font-bold italic">İşlem yapılacak müşteriyi belirleyin.</p>
                             </div>
+                            <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors outline-none"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Kapat">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
 
-                        <!-- SAĞ SEPET -->
-                        <div class="col-md-3">
-                            <div class="card shadow-lg" style="border-radius: 10px;">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h4 class="size-3 px-3 mt-2">Sepetim </h4>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <a class="special-ok-button-small text-white mt-2 float-end float-right"
-                                           onclick="removePos(1)"><i
-                                                class="fa fa-trash-alt"></i> Sepeti Temizle </a>
-
-                                        <!-- Kupon Seçimi Butonu -->
-                                        @if(count($coupons))
-                                            <button type="button"
-                                                    class="px-2 special-ok-button-small text-white mt-2 float-end float-right"
-                                                    data-bs-toggle="modal" data-bs-target="#couponModal">
-                                                + Kuponlar
-                                            </button>
-
-                                            <!-- Kupon Modal -->
-                                            <div class="modal fade" id="couponModal" tabindex="-1"
-                                                 aria-labelledby="couponModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog modal-dialog-centered" role="document">
-                                                    <div class="modal-content" style="border-radius: 10px;">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="couponModalLabel">Kuponlar</h5>
-                                                            <button type="button" class="btn-close"
-                                                                    data-bs-dismiss="modal" aria-label="Kapat"></button>
-                                                        </div>
-                                                        <div class="modal-body"
-                                                             style="max-height: 500px; overflow-y: auto;">
-                                                            <div class="coupon-list p-3">
-                                                                @foreach($coupons as $coupon)
-                                                                    <div class="coupon-item"
-                                                                         data-coupon-id="{{ $coupon->id }}"
-                                                                         data-coupon-name="{{ $coupon->name }}"
-                                                                         data-coupon-amount="{{ $coupon->total_seller_amount }}"
-                                                                         onclick="selectCoupon(this); $('#couponModal').modal('hide');"
-                                                                         style="cursor: pointer; padding: 10px; border-bottom: 1px solid #eee;">
-                                                                        <strong>{{ $coupon->name }}</strong><br>
-                                                                        Toplam
-                                                                        Tutar: {{ number_format($coupon->total_seller_amount, 2, ',', '.') }}
-                                                                        ₺
-                                                                    </div>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
-                                    <hr>
-
-                                    <div class="productItems row" style="min-height: 500px;">
-                                        <div class="col-lg-12" id="productItemListp"
-                                             style="padding: 20px;height: 460px;overflow-y: scroll">
-                                            @foreach(\Cart::session(\Illuminate\Support\Facades\Auth::user()->id)->getContent() as $basket)
-                                                <div id="posItem_{{$basket->id}}"
-                                                     style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
-                background-color: #f1f1f1; border-radius: 10px; padding: 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
-
-                                                    <!-- Ürün Görseli -->
-                                                    <div style="flex: 0 0 auto; margin-right: 12px;">
-                                                        <img src="{{$basket->associatedModel->image}}"
-                                                             alt="Ürün Görseli"
-                                                             style="height: 60px; width: 60px; object-fit: cover; border-radius: 6px;">
-                                                        <input type="hidden" name="product_id[]"
-                                                               value="{{$basket->id}}">
-                                                    </div>
-
-                                                    <!-- Ürün Bilgileri -->
-                                                    <div style="flex: 1 1 auto; min-width: 150px;">
-                                                        <div
-                                                            style="font-weight: bold; font-size: 14px; color: #333;">{{$basket->name}}</div>
-                                                        <div
-                                                            style="color: #555; font-size: 13px;">{{number_format($basket->price, 2, ',', '.')}}
-                                                            ₺
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Adet Butonları -->
-                                                    <div
-                                                        style="flex: 0 0 auto; display: flex; align-items: center; gap: 6px; margin-top: 8px;">
-                                                        <button type="button" onclick="updateMinus({{$basket->id}})"
-                                                                style="background-color: #dc3545; border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer;">
-                                                            <i class="fa fa-minus"></i>
-                                                        </button>
-
-                                                        <input type="text" name="quantity[]"
-                                                               id="quantity_{{$basket->id}}"
-                                                               value="{{$basket->quantity}}" disabled
-                                                               style="width: 40px; height: 30px; text-align: center; font-weight: bold; font-size: 13px; border: 1px solid #ccc; border-radius: 4px; background-color: white;">
-
-                                                        <button type="button" onclick="updatePlus({{$basket->id}})"
-                                                                style="background-color: #259a38; border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer;">
-                                                            <i class="fa fa-plus"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                        <div class="col-lg-12" id="productItemLista"
-                                             style="padding: 20px;height: 460px;overflow-y: scroll;display: none">
-
-                                        </div>
-                                    </div>
-                                    <div style="padding: 1rem 1.2rem;" class="">
-
-                                        <dl class="dlist-align" style="padding: 5px">
-                                            <dt>Toplam:</dt>
-                                            <dd class="text-right h4 b"
-                                                id="posTotal"> {{number_format(\Cart::session(\Illuminate\Support\Facades\Auth::user()->id)->getTotal(), 2, ',', '.')}}
-                                                TL
-                                            </dd>
-
-                                            <dt>Kupon:</dt>
-                                            <dd class="fw-bold size-4 " id="selectedCoupon">
-                                                <span id="selectedCouponName">Bulunmuyor</span>
-                                                <input type="hidden" id="coupon_id" name="coupon_id" value="">
-                                            </dd>
-                                        </dl>
-
-                                        <div class="text-danger" id="selectedCoupon"
-                                             style="margin-top:10px; font-weight: normal;">
-
-                                        </div>
-                                        <div class="row" style="margin:0px;">
-                                            <div class="col-md-4 p-2">
-                                                <div class="paymentRol"
-                                                     onclick="PaymentMethodSave('Kapıda Nakit ile Ödeme', this)">
-                                                    <i class="fas fa-lira-sign"></i><br> Nakit
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 p-2">
-                                                <div class="paymentRol"
-                                                     onclick="PaymentMethodSave('Kapıda Ticket ile Ödeme', this)">
-                                                    <i class="fas fa-credit-card"></i><br> Ticket
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 p-2">
-                                                <div class="paymentRol"
-                                                     onclick="PaymentMethodSave('Kapıda Sodexo ile Ödeme', this)">
-                                                    <i class="fas fa-credit-card"></i><br> Sodexo
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 p-2">
-                                                <div class="paymentRol"
-                                                     onclick="PaymentMethodSave('Kapıda Pluxee ile Ödeme', this)">
-                                                    <i class="fas fa-credit-card"></i><br> Pluxee
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 p-2">
-                                                <div class="paymentRol"
-                                                     onclick="PaymentMethodSave('Kapıda Multinet ile Ödeme', this)">
-                                                    <i class="fas fa-credit-card"></i><br> Multinet
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 p-2">
-                                                <div class="paymentRol"
-                                                     onclick="PaymentMethodSave('Kapıda Kredi Kartı ile Ödeme', this)">
-                                                    <i class="fas fa-credit-card"></i><br> Kredi Kartı
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-12 p-2">
-                                                <div
-                                                    class="mx-auto text-white kayit d-flex justify-content-center align-items-center"
-                                                    style="cursor: pointer; background:#28a745; padding:15px; border-radius:5px;"
-                                                    onclick="CreateOrder()">
-                                                    <i class="fas fa-check me-2"></i> Sipariş Ekle
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                        <div class="p-8">
+                            <div class="space-y-4">
+                                <label for="customerSelect" class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                                    📋 Müşteri Seçimi
+                                </label>
+                                <div class="relative">
+                                    <select id="customerSelect"
+                                            class="form-control js-example-basic-single w-full"
+                                            onchange="customerSelect(event)">
+                                        <option value="0">🔍 Müşteri Seçiniz...</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-start gap-2 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50">
+                                    <i class="fas fa-info-circle text-blue-500 mt-0.5 text-xs"></i>
+                                    <p class="text-[11px] font-medium text-blue-600 leading-relaxed">
+                                        Aramak için yazmaya başlayabilirsiniz. Müşteri listede yoksa aşağıdan yeni bir kayıt oluşturabilirsiniz.
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </form>
-        </section>
 
-        <div class="modal fade" id="kuryeAta" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Kurye Seçiniz</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <select class="js-example-basic-single" onchange="CourierSet(event)"
-                                        style="width: 100%;">
-                                    <option value="0">Kurye Ata</option>
-                                    <option value="-1">{{config('site.name')}} Kuryesi</option>
-                                    @foreach($courierses as $courier)
-                                        <option value="{{$courier->id}}">{{$courier->name}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                        <div class="px-8 pb-8 pt-2 flex gap-3">
+                            <a href="/restaurant/customers/new" class="flex-1 flex items-center justify-center gap-2 px-4 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-tighter hover:bg-slate-200 transition-all active:scale-95">
+                                <i class="fas fa-user-plus"></i> YENİ EKLE
+                            </a>
+                            <button type="button" class="flex-[1.5] py-4 bg-brand text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-brand/20 hover:bg-brand-dark transition-all active:scale-95" data-dismiss="modal">
+                                SEÇİMİ TAMAMLA
+                            </button>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tamam</button>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="modal fade" id="musteriAta" tabindex="-1" role="dialog" aria-labelledby="musteriAtaLabel"
-             aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <!-- Modal Header -->
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="musteriAtaLabel">Müşteri Seçiniz</h5>
-                        <button
-                            type="button"
-                            class="close"
-                            data-dismiss="modal"
-                            aria-label="Kapat"
-                            style="font-size: 1.2rem; padding: 0.25rem 0.5rem; background: white; border: none; line-height: 1;">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-
-                    <!-- Modal Body -->
-                    <div class="modal-body">
-                        <div class="form-group mb-3">
-                            <label for="customerSelect" class="font-weight-medium mb-2" style="font-size: 0.95rem;">
-                                📋 Müşteri Seçimi
-                            </label>
-                            <select id="customerSelect"
-                                    class="form-control js-example-basic-single"
-                                    onchange="customerSelect(event)">
-                                <option value="0">🔍 Müşteri Seçiniz...</option>
-                                <!-- Müşteri listesi JavaScript ile doldurulacak -->
-                            </select>
-                            <small class="form-text text-muted mt-2">
-                                Aramak için yazmaya başlayabilirsiniz. Seçim yapıldıktan sonra "Tamam" tuşuna basınız.
-                            </small>
-                        </div>
-                    </div>
-
-                    <!-- Modal Footer -->
-                    <div class="modal-footer d-flex justify-content-between">
-                        <a href="/restaurant/customers/new" class="special-ok-button">
-                            <i class="fas fa-plus"></i> Müşteri Ekle
-                        </a>
-                        <button type="button" class="special-button" data-dismiss="modal">Tamam</button>
-                    </div>
+            <div class="p-6 bg-slate-50 border-t border-slate-200">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-xs font-bold text-slate-500 uppercase">Ödenecek</span>
+                    <span class="text-3xl font-black text-slate-900 tracking-tighter" id="posTotal">0,00 TL</span>
                 </div>
+
+                <div class="grid grid-cols-3 gap-2 mb-6">
+                    @php
+                        $methods = [
+                            ['name' => 'Nakit', 'icon' => 'fa-money-bill-wave'],
+                            ['name' => 'Kredi Kartı', 'icon' => 'fa-credit-card'],
+                            ['name' => 'Ticket', 'icon' => 'fa-ticket-alt'],
+                            ['name' => 'Sodexo', 'icon' => 'fa-utensils'],
+                            ['name' => 'Pluxee', 'icon' => 'fa-star'],
+                            ['name' => 'Multinet', 'icon' => 'fa-wallet'],
+                        ];
+                    @endphp
+                    @foreach($methods as $m)
+                        <button type="button" onclick="PaymentMethodSave('{{$m['name']}}', this)"
+                                class="paymentRol group flex flex-col items-center justify-center p-3 rounded-2xl border-2 border-white bg-white hover:border-brand hover:bg-brand/5 hover:-translate-y-1 transition-all duration-300">
+                            <i class="fas {{$m['icon']}} text-slate-400 group-hover:text-brand text-lg mb-1 transition-colors"></i>
+                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-600 group-hover:text-brand">{{$m['name']}}</span>
+                        </button>
+                    @endforeach
+                </div>
+
+                <button type="button" onclick="CreateOrder()"
+                        class="kayit w-full bg-brand text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-brand/30 hover:bg-brand-dark transition-all flex items-center justify-center gap-3">
+                    <i class="fas fa-check-circle text-lg"></i> SİPARİŞİ TAMAMLA
+                </button>
             </div>
         </div>
-
-        <!-- Yeni müşteri ekle -->
-        <div class="modal fade" id="yeniMusteri" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-             aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Müşteri Ekle</h5>
-                        <button style="    font-size: 1.2rem; /* or 1rem for even smaller */
-    padding: 0.25rem 0.5rem;background: white;border: none;
-    line-height: 1;" type="button" class="close small-close-btn" data-dismiss="modal" aria-label="Kapat">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="basic-form">
-                                <form method="post" id="customerForm">
-                                    <div class="row">
-                                        <div class="mb-3 col-md-12">
-                                            <label class="form-label">Müşteri Adı</label>
-                                            <input type="text" class="form-control" name="name" id="name"
-                                                   placeholder="Müşteri Adı"
-                                                   required>
-                                        </div>
-                                        <div class="mb-3 col-md-6">
-                                            <label class="form-label">Telefon Numarası</label>
-                                            @include('components.phone',['key' => 'phone', 'required' => true, 'value' => null])
-                                        </div>
-
-                                        <div class="mb-3 col-md-6">
-                                            <label class="form-label">İlçe Seçiniz</label>
-                                            <select class="form-control" required name="ilce" id="">
-                                                @foreach(App\Models\District::where('city_id',\App\Models\Admin::find(auth()->user()->admin_id)->city_id)->get() as $d)
-                                                    <option value="{{$d->id}}">{{$d->name}}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="card-body" style="border-top:1px solid #ddd;padding: 0px 0px">
-                                        <div class="clearfix"></div>
-                                        <div class="mb-3">
-                                            <h5 class="fw-semibold text-black mb-3">Adres Bilgileri</h5>
-
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="me-2 text-black">Mah.</span>
-                                                <input type="text" name="mahalle"
-                                                       class="flex-grow-1 border-0 border-bottom bg-transparent"
-                                                       placeholder="Örn: Ankara" required>
-                                            </div>
-
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="me-2 text-black">Sok/Cadde</span>
-                                                <input type="text" name="sokak_cadde"
-                                                       class="flex-grow-1 border-0 border-bottom bg-transparent"
-                                                       placeholder="Örn: 5021" required>
-                                            </div>
-
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="me-2 text-black">Apt Adı.</span>
-                                                <input type="text" name="bina_no"
-                                                       class="flex-grow-1 border-0 border-bottom bg-transparent"
-                                                       placeholder="Örn: Deniz Apt." required>
-                                            </div>
-
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="me-2 text-black">Kat:</span>
-                                                <input type="text" name="kat"
-                                                       class="flex-grow-1 border-0 border-bottom bg-transparent"
-                                                       placeholder="Örn: 3" required>
-                                            </div>
-
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="me-2 text-black">Daire:</span>
-                                                <input type="text" name="daire_no"
-                                                       class="flex-grow-1 border-0 border-bottom bg-transparent"
-                                                       placeholder="Örn: 5" required>
-                                            </div>
-
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="me-2 text-black">Adres Tarifi (opsiyonel):</span>
-                                                <input type="text" name="adress_tarifi"
-                                                       class="flex-grow-1 border-0 border-bottom bg-transparent"
-                                                       placeholder="Örn: 5" required>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="special-button" onclick="CreateCustomer()">Kaydet</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Yeni müşteri ekle -->
-
-        <input type="hidden" value="{{Auth::user()->id}}" id="restaurant">
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{{asset('pos/assets/js/jquery-2.0.0.min.js')}}" type="text/javascript"></script>
-<script src="{{asset('pos/assets/js/bootstrap.bundle.min.js')}}" type="text/javascript"></script>
-<script src="{{asset('pos/assets/js/OverlayScrollbars.js')}}" type="text/javascript"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-<script>
-
-    // Modal açıldığında input alanına odaklanma
-    $('#yeniMusteri').on('shown.bs.modal', function () {
-        $('#name').focus();
-    });
-
-    // Modal kapatıldığında formu temizleme
-    $('#yeniMusteri').on('hidden.bs.modal', function () {
-        document.getElementById("customerForm").reset();
-    });
-
-    function toggleDrawer() {
-        const drawer = document.getElementById('drawer');
-        const isOpen = drawer.classList.contains('open');
-
-        if (isOpen) {
-            drawer.classList.remove('open');
-            localStorage.setItem('drawerState', 'closed');
-        } else {
-            drawer.classList.add('open');
-            localStorage.setItem('drawerState', 'open');
-        }
+<style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    .paymentRol.active {
+        background-color: #5850ec !important;
+        border-color: #4338ca !important;
+        box-shadow: 0 8px 15px rgba(88, 80, 236, 0.3);
+        transform: translateY(-2px);
     }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const drawer = document.getElementById('drawer');
-        drawer.classList.remove('open'); // her zaman kapalı başlat
-    });
-</script>
+    .paymentRol.active i, .paymentRol.active span { color: white !important; }
+</style>
 
 <script type="text/javascript">
-    function selectCoupon(element) {
-        var couponId = $(element).data('coupon-id');
-        var couponName = $(element).data('coupon-name');
-        var couponAmount = $(element).data('coupon-amount');
-
-        // Önce tüm kuponlardan seçili stilini kaldır
-        $('.coupon-item').removeClass('selected');
-
-        // Tıklanan kupona seçili stilini ekle
-        $(element).addClass('selected');
-
-        // Seçilen kuponu göster
-        $('#selectedCouponName').text(couponName);
-        $('#coupon_id').val(couponId);
-    }
-
-    $('form[name="formPos"]').on('submit', function (e) {
-        e.preventDefault(); // Sayfa yenilenmesin
-        CreateOrder(); // Siparişi oluştur
-    });
-
     $(document).ready(function () {
+
         loadCustomers();
-
-        $('#customerSelect').select2({
-            dropdownParent: $('#musteriAta'),
-            width: '100%',
-            placeholder: 'Müşteri Seçiniz'
-        });
-
-        $.ajax({
-            type: 'GET', //THIS NEEDS TO BE GET
-            url: '/restaurant/orders/removePOS',
-            success: function (data) {
-                $('#productItemListp').html("");
-                $('#productItemLista').html("");
-                $('.customer').html('<div style="text-align: center;padding: 15px">Müşteri Seçin</div>');
-                $('#posTotalItem').html("0");
-                $('#posTotal').html("0,00 TL");
-            },
-            error: function () {
-                console.log(data);
-            }
-        });
-
-        const drawer = document.getElementById('drawer');
-        const savedState = localStorage.getItem('drawerState');
-
-        if (savedState === 'open') {
-            drawer.classList.add('open');
-        } else {
-            drawer.classList.remove('open');
-        }
-
-        $('.js-example-basic-single').select2({
-            selectionCssClass: 'selectiki',
-            placeholder: 'Müşteri Arayınız..',
-            allowClear: true // placeholder için önerilir
-        });
-
+        // Sayfa yüklendiğinde sepeti getir
         $.ajax({
             type: 'GET',
             url: '/restaurant/get-pos-items',
             success: function (data) {
-                console.log({new: data})
-                $('#productItemLista').append(data.items);
-
+                $('#productItemLista').html(data.items); // HTML'i temizle ve bas
                 $('#posTotalItem').html(data.posTotalItem);
                 $('#posTotal').html(data.posTotal);
                 $('#totalPrice').val(data.total);
-            },
-            error: function () {
-                console.log("Sepet yüklenirken hata oluştu.");
             }
+        });
+
+        // Modal tetikleme fix
+        $(document).on('click', '[data-bs-target="#musteriAta"]', function() {
+            $('#musteriAta').modal('show');
         });
     });
 
-    function productAdd(e) {
-        let quant = $('#quantity_' + e).val();
-
-        $('#loader').css('display', 'block');
-
-        $.ajax({
-            type: 'GET', //THIS NEEDS TO BE GET
-            url: '/restaurant/orders/addPOS/' + e,
-            success: function (data) {
-                let src = '{{url('pos/audio/dot.mp3')}}';
-                let audio = new Audio(src);
-                audio.play();
-
-                $('#productItemListp').css('display', 'none');
-                $('#productItemLista').css('display', 'block');
-
-                if (data.durum === "yok") {
-                    console.log({data: data})
-                    $('#productItemLista').append(data.items);
-                } else {
-                    let newquant = parseInt(quant) + 1;
-                    $('#quantity_' + e).val(newquant);
-                }
-
-                $('#posTotalItem').html(data.posTotalItem);
-                $('#posTotal').html(data.posTotal);
-                $('#totalPrice').val(data.total);
-
-                $('#loader').css('display', 'none');
-            },
-            error: function () {
-                console.log(data);
-            }
-        });
+    // Kategori Değiştirme
+    function switchCategory(catId, btn) {
+        $('.cat-content').addClass('hidden');
+        $('.' + catId).removeClass('hidden');
+        $('.category-tab').removeClass('bg-brand text-white shadow-lg shadow-brand/20').addClass('bg-white text-slate-500 border-slate-200');
+        $(btn).addClass('bg-brand text-white shadow-lg shadow-brand/20').removeClass('bg-white text-slate-500 border-slate-200');
     }
 
-    function updatePlus(id) {
-        $('#loader').css('display', 'block');
-
-        let quant = $('#quantity_' + id).val();
-
-        $.ajax({
-            type: 'GET', //THIS NEEDS TO BE GET
-            url: '/restaurant/orders/updatePlusPOS/' + id,
-            success: function (data) {
-                let src = '{{url('pos/audio/dot.mp3')}}';
-                let audio = new Audio(src);
-                audio.play();
-
-                let newquant = parseInt(quant) + 1;
-                $('#quantity_' + id).val(newquant);
-
-                $('#posTotalItem').html(data.posTotalItem);
-                $('#posTotal').html(data.posTotal);
-                $('#totalPrice').val(data.total);
-
-                $('#loader').css('display', 'none');
-            },
-            error: function () {
-                console.log(data);
-            }
-        });
-    }
-
-    function updateMinus(id) {
-        $('#loader').css('display', 'block');
-
-        let qty = document.getElementById("quantity_" + id).value;
-
-        $.ajax({
-            type: 'GET', //THIS NEEDS TO BE GET
-            url: '/restaurant/orders/updateMinusPOS/' + id + '/' + qty,
-            success: function (data) {
-                let src = '{{url('pos/audio/dot.mp3')}}';
-                let audio = new Audio(src);
-                audio.play();
-
-                if (qty <= 1) {
-                    $("#posItem_" + id).remove();
-                    $('#posTotalItem').html(data.posTotalItem);
-                    $('#posTotal').html(data.posTotal);
-                    $('#totalPrice').val(data.total);
-                } else {
-                    let newquant = parseInt(qty) - 1;
-                    $('#quantity_' + id).val(newquant);
-                    $('#posTotalItem').html(data.posTotalItem);
-                    $('#posTotal').html(data.posTotal);
-                    $('#totalPrice').val(data.total);
-                }
-
-                $('#loader').css('display', 'none');
-            },
-            error: function () {
-                console.log(data);
-            }
-        });
-    }
-
-    function removePos(e) {
-        $.ajax({
-            type: 'GET', //THIS NEEDS TO BE GET
-            url: '/restaurant/orders/removePOS',
-            success: function (data) {
-                let src = '{{url('pos/audio/trash.mp3')}}';
-                let audio = new Audio(src);
-                audio.play();
-                $('#productItemListp').html("");
-                $('#productItemLista').html("");
-                $('.customer').html('<div style="text-align: center;padding: 15px">Müşteri Seçin</div>');
-                $('#posTotalItem').html("0");
-                $('#posTotal').html("0,00 TL");
-            },
-            error: function () {
-                console.log(data);
-            }
-        });
-    }
-
+    // Ödeme Yöntemi Seçimi
     function PaymentMethodSave(methodName, element) {
-        // 1. Gizli inputu güncelle
         $('#payment_control').val(methodName);
-
-        // 2. Ses çalma işlemini yap
-        const audio = new Audio('{{url("pos/audio/beep.mp3")}}');
-        audio.play();
-
-        // 3. Aktiflik durumunu yönet
-        // Önce tüm butonlardan 'active' sınıfını çıkar
+        new Audio('{{url("pos/audio/beep.mp3")}}').play().catch(e => {});
         $('.paymentRol').removeClass('active');
-
-        // Sadece tıklanan butona 'active' sınıfını ekle
         $(element).addClass('active');
     }
 
-    function CourierSet(e) {
-        $('#courier_id').val(e.target.value);
-        $('#kuryeAta').modal('hide');
-    }
-
-    function customerSelect(e) {
-        let customerId = e.target.value;
+    // Sepeti Yenileme (Orijinal Mantık)
+    function refreshBasket() {
         $.ajax({
-            type: 'GET', //THIS NEEDS TO BE GET
-            url: '/restaurant/orders/customerpos/' + customerId,
+            type: 'GET',
+            url: '/restaurant/get-pos-items',
             success: function (data) {
-                $('#musteriAta').modal('hide');
-                $('.customer').html(data.customer);
-                $('#customer_id').val(e.target.value);
-
-            },
-            error: function () {
-                console.log(data);
+                $('#productItemLista').html(data.items);
+                $('#posTotalItem').html(data.posTotalItem);
+                $('#posTotal').html(data.posTotal);
+                $('#totalPrice').val(data.total);
             }
         });
     }
 
+    // Sipariş Oluşturma (Ürün Toplama Hatası Giderildi)
     function CreateOrder() {
-        // 1. Butonu seç ve devre dışı bırak, içeriği değiştir
         const btn = $('.kayit');
-        const originalContent = btn.html(); // Eski içeriği sakla
-
-        btn.css('pointer-events', 'none'); // Tıklamayı engelle
-        btn.addClass('opacity-50'); // Görsel olarak pasif yap
-        btn.html('<i class="fas fa-spinner fa-spin me-2"></i> Sipariş Oluşturuluyor...');
-
-        // Fonksiyonun sonundaki AJAX ve validation kısımlarında butonu geri açmamız gerekecek
-        function resetBtn() {
-            btn.css('pointer-events', 'auto');
-            btn.removeClass('opacity-50');
-            btn.html(originalContent);
-        }
-
-        var payment_control = $('#payment_control').val();
-        var customer_id = $('#customer_id').val();
-        var courier_id = $('#courier_id').val();
-        var coupon_id = $('#coupon_id').val();
-        var total = $('#totalPrice').val();
+        const originalContent = btn.html();
 
         let products = [];
+        // Senin orijinal yapındaki .item divlerini baz alıyoruz
         $('.item').each(function () {
-            products.push({
-                product_id: $(this).find('input[name="product_id"]').val(),
-                quantity: $(this).find('input[name="quantity"]').val()
-            })
+            let p_id = $(this).find('input[name="product_id"]').val();
+            let p_qty = $(this).find('input[name="quantity"]').val();
+
+            if(p_id) {
+                products.push({
+                    product_id: p_id,
+                    quantity: p_qty
+                });
+            }
         });
 
-        // Doğrulama Kontrolleri
-        if (payment_control == 0) {
-            Swal.fire({ title: 'Lütfen Bir Ödeme Methodu Seçiniz', icon: 'warning', confirmButtonText: 'Tamam' });
-            resetBtn();
-            return;
-        }
-        if (!(customer_id > 0)) {
-            Swal.fire({ title: 'Lütfen Bir Müşteri Seçiniz', icon: 'warning', confirmButtonText: 'Tamam' });
-            $('#musteriAta').modal('show');
-            resetBtn();
-            return;
-        }
-        if (products.length === 0) {
-            Swal.fire({ title: 'Sepetinizde ürün Bulunmuyor!!', icon: 'warning', confirmButtonText: 'Tamam' });
-            resetBtn();
+        // Doğrulamalar
+        if ($('#payment_control').val() == "0") {
+            Swal.fire({
+                title: 'ÖDEME YÖNTEMİ EKSİK',
+                text: 'Lütfen devam etmeden önce bir ödeme yöntemi seçin.',
+                icon: 'warning',
+                confirmButtonText: 'ANLADIM',
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-[32px] border-0 shadow-2xl p-8',
+                    title: 'text-xl font-black text-slate-800 tracking-tighter uppercase',
+                    htmlContainer: 'text-slate-500 font-medium',
+                    confirmButton: 'bg-slate-900 text-white px-8 py-3 rounded-2xl font-black text-xs tracking-widest hover:bg-brand transition-all outline-none'
+                }
+            });
             return;
         }
 
-        // AJAX İşlemi
+        if ($('#customer_id').val() == "0" || !$('#customer_id').val()) {
+            Swal.fire({
+                title: 'MÜŞTERİ SEÇİLMEDİ',
+                text: 'Siparişi tamamlamak için bir müşteri atamanız gerekiyor.',
+                icon: 'warning',
+                confirmButtonText: 'MÜŞTERİ SEÇ',
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-[32px] border-0 shadow-2xl p-8',
+                    title: 'text-xl font-black text-slate-800 tracking-tighter uppercase',
+                    htmlContainer: 'text-slate-500 font-medium',
+                    confirmButton: 'bg-brand text-white px-8 py-3 rounded-2xl font-black text-xs tracking-widest hover:bg-brand-dark transition-all outline-none shadow-lg shadow-brand/20'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#musteriAta').modal('show');
+                }
+            });
+            return;
+        }
+
+        if (products.length === 0) {
+            Swal.fire({ title: 'Sepetinizde ürün bulunmuyor!', icon: 'warning', confirmButtonText: 'Tamam' });
+            return;
+        }
+
+        // Buton Kilitle
+        btn.prop('disabled', true).addClass('opacity-50').html('<i class="fas fa-spinner fa-spin"></i> İşleniyor...');
+
         $.ajax({
             type: 'POST',
-            url: '/restaurant/orders/addOrder' + '?_token=' + '{{ csrf_token() }}',
+            url: '/restaurant/orders/addOrder',
             data: {
-                customer_id: customer_id,
-                payment_method: payment_control,
-                courier_id: courier_id,
-                coupon_id: coupon_id,
+                _token: '{{ csrf_token() }}',
+                customer_id: $('#customer_id').val(),
+                payment_method: $('#payment_control').val(),
+                courier_id: $('#courier_id').val(),
+                coupon_id: $('#coupon_id').val(),
                 products: products,
-                amount: total
+                amount: $('#totalPrice').val()
             },
             success: function (response) {
                 if (response.status === "OK") {
                     removePos(1);
                     toastr.success("Sipariş Başarıyla Eklendi");
-                    // Başarılı olduğunda buton genellikle sayfadan temizlenir veya resetlenir
-                    resetBtn();
                 } else {
-                    // Hata mesajları (BalanceError veya ERR)
-                    Swal.fire({ title: response.message, icon: 'warning' });
-                    resetBtn();
+                    Swal.fire({
+                        title: 'HATA OLUŞTU',
+                        text: response.message,
+                        icon: 'error',
+                        confirmButtonText: 'TAMAM',
+                        buttonsStyling: false,
+                        customClass: {
+                            popup: 'rounded-[32px] border-0 shadow-2xl p-8',
+                            title: 'text-xl font-black text-red-600 tracking-tighter uppercase',
+                            htmlContainer: 'text-slate-500 font-medium',
+                            confirmButton: 'bg-slate-900 text-white px-10 py-3 rounded-2xl font-black text-xs tracking-widest hover:bg-red-600 transition-all outline-none'
+                        }
+                    });
                 }
             },
-            error: function (response) {
-                console.log({response: response});
-                resetBtn(); // Sunucu hatasında butonu geri aç
+            error: function() {
+                toastr.error("Sunucu hatası oluştu!");
+            },
+            complete: () => {
+                btn.prop('disabled', false).removeClass('opacity-50').html(originalContent);
             }
         });
     }
 
+    // Ürün Ekleme
+    function productAdd(e) {
+        $.ajax({
+            type: 'GET',
+            url: '/restaurant/orders/addPOS/' + e,
+            success: function (data) {
+                new Audio('{{url("pos/audio/dot.mp3")}}').play().catch(e => {});
+                // Orijinal mantığın: Eğer ürün yoksa append et, varsa miktarı artır
+                if (data.durum === "yok") {
+                    $('#productItemLista').append(data.items);
+                } else {
+                    let currentQty = parseInt($('#quantity_' + e).val());
+                    $('#quantity_' + e).val(currentQty + 1);
+                }
+                $('#posTotalItem').html(data.posTotalItem);
+                $('#posTotal').html(data.posTotal);
+                $('#totalPrice').val(data.total);
+            }
+        });
+    }
+
+    // Adet Artır
+    function updatePlus(id) {
+        $.ajax({
+            type: 'GET',
+            url: '/restaurant/orders/updatePlusPOS/' + id,
+            success: function (data) {
+                new Audio('{{url("pos/audio/dot.mp3")}}').play().catch(e => {});
+                let currentQty = parseInt($('#quantity_' + id).val());
+                $('#quantity_' + id).val(currentQty + 1);
+                $('#posTotalItem').html(data.posTotalItem);
+                $('#posTotal').html(data.posTotal);
+                $('#totalPrice').val(data.total);
+            }
+        });
+    }
+
+    // Adet Azalt
+    function updateMinus(id) {
+        let qty = $('#quantity_' + id).val();
+        $.ajax({
+            type: 'GET',
+            url: '/restaurant/orders/updateMinusPOS/' + id + '/' + qty,
+            success: function (data) {
+                new Audio('{{url("pos/audio/dot.mp3")}}').play().catch(e => {});
+                if (qty <= 1) {
+                    $("#posItem_" + id).remove();
+                } else {
+                    $('#quantity_' + id).val(parseInt(qty) - 1);
+                }
+                $('#posTotalItem').html(data.posTotalItem);
+                $('#posTotal').html(data.posTotal);
+                $('#totalPrice').val(data.total);
+            }
+        });
+    }
+
+    // Sepeti Temizle
+    function removePos(e) {
+        $.ajax({
+            type: 'GET',
+            url: '/restaurant/orders/removePOS',
+            success: function () {
+                new Audio('{{url("pos/audio/trash.mp3")}}').play().catch(e => {});
+                $('#productItemLista').html("");
+                $('.customer').html('<div style="text-align: center;padding: 15px">Müşteri Seçin</div>');
+                $('#customer_id').val(0);
+                $('#posTotalItem').html("0");
+                $('#posTotal').html("0,00 TL");
+                $('.paymentRol').removeClass('active');
+                $('#payment_control').val(0);
+            }
+        });
+    }
+
+    // Müşterileri Yükle
     function loadCustomers() {
         $.ajax({
             type: 'GET',
-            url: '/restaurant/get-customers', // Bu endpoint'i oluşturmanız gerekecek
+            url: '/restaurant/customers/get-customers',
             success: function (data) {
-                console.log({data: data})
-                $('#customerSelect').empty().append('<option value="0">🔍 Müşteri Seçiniz...</option>');
-
-                if (data.customers && data.customers.length > 0) {
-                    $.each(data.customers, function (index, customer) {
-                        $('#customerSelect').append(
-                            $('<option>', {
-                                value: customer.id,
-                                text: customer.name + ' - ' + customer.phone
-                            })
-                        );
-                    });
-                } else {
-                    $('#customerSelect').append(
-                        $('<option>', {
-                            value: '',
-                            text: 'Müşteri bulunamadı',
-                            disabled: true
-                        })
-                    );
-                }
-
-                // Select2'yi yeniden başlat
-                $('#customerSelect').select2({
-                    dropdownParent: $('#musteriAta'),
-                    width: '100%',
-                    placeholder: 'Müşteri Seçiniz'
+                const select = $('#customerSelect');
+                select.empty().append('<option value="0">🔍 Müşteri Seçiniz...</option>');
+                $.each(data.customers, (i, c) => {
+                    select.append(`<option value="${c.id}">${c.name} - ${c.phone}</option>`);
                 });
-            },
-            error: function () {
-                console.log("Müşteri listesi yüklenirken hata oluştu.");
-                $('#customerSelect').empty().append('<option value="0">🔍 Müşteri Seçiniz...</option>');
+                select.select2({ dropdownParent: $('#musteriAta'), width: '100%' });
+            }
+        });
+    }
 
-                // Select2'yi yeniden başlat
-                $('#customerSelect').select2({
-                    dropdownParent: $('#musteriAta'),
-                    width: '100%',
-                    placeholder: 'Müşteri Seçiniz'
-                });
+    // Müşteri Seçildiğinde
+    function customerSelect(e) {
+        let cid = e.target.value;
+        if(cid == "0") return;
+        $.ajax({
+            type: 'GET',
+            url: '/restaurant/orders/customerpos/' + cid,
+            success: function (data) {
+                $('#musteriAta').modal('hide');
+                $('.customer').html(data.customer);
+                $('#customer_id').val(cid);
             }
         });
     }
 </script>
-</body>
-</html>
+<style>
+    .select2-container--open {
+        z-index: 10000 !important;
+    }
+
+    /* Select2 kutusunun modal içindeki yüksekliğini ve tipini düzelt */
+    .select2-container .select2-selection--single {
+        height: 50px !important;
+        background-color: #f8fafc !important;
+        border: none !important;
+        border-radius: 12px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+</style>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>

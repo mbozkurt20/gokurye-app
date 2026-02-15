@@ -26,7 +26,6 @@ class Dealer extends Controller
         return redirect()->route('dealer.login')->withErrors(['error' => 'Giriş bilgileri hatalı.']);
     }
 
-
     public function logout()
     {
         Auth::guard('dealer')->logout(); // Superadmin oturumunu kapat

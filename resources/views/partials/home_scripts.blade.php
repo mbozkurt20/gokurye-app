@@ -134,10 +134,18 @@
             // Başarısızlık veya Boş Liste Kontrolü
             if (!result.success || reasons.length === 0) {
                 Swal.fire({
-                    icon: 'warning',
-                    title: 'Uyarı',
+                    title: 'DURUM KRİTİK',
                     text: 'İptal nedenleri yüklenemedi veya sipariş iptal edilemez durumda.',
-                    confirmButtonText: 'Tamam'
+                    icon: 'warning',
+                    background: '#ffffff',
+                    confirmButtonColor: '#1e293b',
+                    confirmButtonText: 'ANLADIM',
+                    customClass: {
+                        popup: '!rounded-[32px] !border-0 !shadow-2xl',
+                        title: '!font-black !tracking-tighter !text-slate-800',
+                        confirmButton: '!rounded-2xl !px-5 !py-3 !text-[10px] !font-black !tracking-widest',
+                        htmlContainer: '!font-bold !text-slate-500'
+                    }
                 });
                 return;
             }
@@ -169,7 +177,20 @@
 
         } catch (error) {
             console.error("Hata:", error);
-            Swal.fire('Hata', 'Bağlantı sağlanamadı.', 'error');
+            Swal.fire({
+                title: 'BAĞLANTI HATASI',
+                text: 'Sunucu ile bağlantı sağlanamadı.',
+                icon: 'error',
+                background: '#ffffff',
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'TEKRAR DENE',
+                customClass: {
+                    popup: '!rounded-[32px] !border-0 !shadow-2xl',
+                    title: '!font-black !tracking-tighter !text-red-600',
+                    confirmButton: '!rounded-2xl !px-5 !py-3 !text-[10px] !font-black !tracking-widest',
+                    htmlContainer: '!font-bold !text-slate-500'
+                }
+            });
         } finally {
             if (btn) {
                 btn.disabled = false;
@@ -190,7 +211,20 @@
         // Eğer platform neden gerektiriyorsa ve seçilmemişse durdur (Opsiyonel Güvenlik)
         const platformsWithReasons = ['getir', 'trendyol', 'migros', 'yemeksepeti'];
         if (platformsWithReasons.includes(platform.toLowerCase()) && !reasonKey) {
-            Swal.fire('Uyarı', 'Lütfen bir iptal nedeni seçiniz.', 'warning');
+            Swal.fire({
+                title: 'SEÇİM YAPIN',
+                text: 'Lütfen bir iptal nedeni seçiniz.',
+                icon: 'warning',
+                background: '#ffffff',
+                confirmButtonColor: '#1e293b', // Dark Slate
+                confirmButtonText: 'TAMAM',
+                customClass: {
+                    popup: '!rounded-[32px] !border-0 !shadow-2xl',
+                    title: '!font-black !tracking-tighter !text-slate-800',
+                    confirmButton: '!rounded-2xl !px-5 !py-3 !text-[10px] !font-black !tracking-widest',
+                    htmlContainer: '!font-bold !text-slate-500'
+                }
+            });
             return;
         }
 
@@ -211,13 +245,38 @@
                 const modalInstance = bootstrap.Modal.getInstance(modalEl);
                 if (modalInstance) modalInstance.hide();
 
-                Swal.fire('Başarılı', 'Sipariş iptal edildi.', 'success');
+                Swal.fire({
+                    title: 'İŞLEM BAŞARILI',
+                    text: 'Sipariş iptal edildi.',
+                    icon: 'success',
+                    background: '#ffffff',
+                    confirmButtonColor: '#1e293b', // Dark Slate
+                    confirmButtonText: 'TAMAM',
+                    buttonsStyling: true,
+                    customClass: {
+                        popup: '!rounded-[32px] !border-0 !shadow-2xl',
+                        title: '!font-black !tracking-tighter !text-slate-800',
+                        confirmButton: '!rounded-2xl !px-5 !py-3 !text-[10px] !font-black !tracking-widest'
+                    }
+                });
             })
             .catch((err) => {
                 console.error("İptal Hatası:", err);
                 confirmBtn.disabled = false;
                 confirmBtn.innerHTML = originalText;
-                Swal.fire('Hata', 'İptal işlemi başarısız oldu.', 'error');
+                Swal.fire({
+                    title: 'HATA OLUŞTU',
+                    text: 'İptal işlemi başarısız oldu.',
+                    icon: 'error',
+                    background: '#ffffff',
+                    confirmButtonColor: '#ef4444', // Red
+                    confirmButtonText: 'TEKRAR DENE',
+                    customClass: {
+                        popup: '!rounded-[32px] !border-0 !shadow-2xl',
+                        title: '!font-black !tracking-tighter !text-red-600',
+                        confirmButton: '!rounded-2xl !px-5 !py-3 !text-[10px] !font-black !tracking-widest'
+                    }
+                });
             });
     }
 
@@ -244,7 +303,20 @@
         var action = 'UNSUPPLIED';
 
         if (!cancelReason || cancelReason.trim() === '') {
-            Swal.fire('Lütfen iptal nedenini belirtin.');
+            Swal.fire({
+                title: 'BİLGİ EKSİK',
+                text: 'Lütfen iptal nedenini belirtin.',
+                icon: 'warning',
+                background: '#ffffff',
+                confirmButtonColor: '#f59e0b', // Amber/Warning Rengi
+                confirmButtonText: 'ANLADIM',
+                customClass: {
+                    popup: '!rounded-[32px] !border-0 !shadow-2xl',
+                    title: '!font-black !tracking-tighter !text-slate-800',
+                    confirmButton: '!rounded-2xl !px-5 !py-3 !text-[10px] !font-black !tracking-widest',
+                    htmlContainer: '!font-bold !text-slate-500'
+                }
+            });
             return;
         }
 
@@ -282,11 +354,18 @@
                 data: requestData,
                 success: function (data) {
                     Swal.fire({
-                        title: 'Başarılı!',
-                        text: 'Sipariş durumu güncellendi.',
+                        title: 'GÜNCELLENDİ',
+                        text: 'Sipariş durumu başarıyla güncellendi.',
                         icon: 'success',
-                        timer: 1500,
-                        showConfirmButton: false
+                        timer: 2000,
+                        showConfirmButton: false,
+                        timerProgressBar: true, // Alt kısımda ince bir ilerleme çubuğu
+                        background: '#ffffff',
+                        customClass: {
+                            popup: '!rounded-[32px] !border-0 !shadow-2xl',
+                            title: '!font-black !tracking-tighter !text-slate-800',
+                            htmlContainer: '!font-bold !text-slate-500'
+                        }
                     });
 
                     // --- MODAL VE GRİ EKRAN TEMİZLİĞİ ---
@@ -310,10 +389,18 @@
                 },
                 error: function (xhr, status, error) {
                     Swal.fire({
-                        title: 'Hata oluştu!',
-                        text: xhr.responseText || 'Bir hata meydana geldi.',
+                        title: 'HATA OLUŞTU',
+                        text: xhr.responseText || 'Sunucu tarafında beklenmedik bir hata meydana geldi.',
                         icon: 'error',
-                        confirmButtonText: 'Tamam'
+                        background: '#ffffff',
+                        confirmButtonColor: '#1e293b',
+                        confirmButtonText: 'TAMAM',
+                        customClass: {
+                            popup: '!rounded-[32px] !border-0 !shadow-2xl',
+                            title: '!font-black !tracking-tighter !text-red-600',
+                            confirmButton: '!rounded-2xl !px-5 !py-3 !text-[10px] !font-black !tracking-widest',
+                            htmlContainer: '!font-bold !text-slate-500 !text-sm'
+                        }
                     });
                     reject(error);
                 }
@@ -412,85 +499,101 @@
         const container = document.getElementById('OrdersModal');
         const modalBody = document.querySelector("#OrdersModal .modal-body");
 
-        // İçeriği doldur
+        // Mevcut yapını koruyarak Indigo renklerini ve fontlarını gömüyoruz
         modalBody.innerHTML = `
-      <div class="mb-1 col-md-6">
-        <p class="orderTitle">Sipariş Kodu</p>
-        <p class="orderProde">${order.tracking_id}</p>
-      </div>
-      <div class="mb-1 col-md-6">
-        <p class="orderTitle">Müşteri Adı</p>
-        <p class="orderProde">${order.full_name}</p>
-      </div>
-      <div class="mb-1 col-md-4">
-        <p class="orderTitle">Telefon</p>
-        <p class="orderProde">${order.phone}</p>
-      </div>
-      <div class="mb-1 col-md-4">
-        <p class="orderTitle">Tutar</p>
-        <p class="orderProde">${order.amount} ₺</p>
-      </div>
-      <div class="mb-1 col-md-4">
-        <p class="orderTitle">Ödeme Yön.</p>
-        <p class="orderProde">${order.payment_method}</p>
-      </div>
-      <div class="mb-2 col-md-12">
-        <p class="orderTitle">Adres</p>
-        <p class="orderProde">${order.address}</p>
-      </div>
-      <div class="mb-2 col-md-12">
-        <p class="">Müşteri Notu</p>
-        <p class="orderProde">${order.notes??'Bulunmuyor.'}</p>
-      </div>
+    <div class="row">
+        <div class="mb-3 col-md-6">
+            <p style="font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; margin-bottom: 2px; tracking-widest">Sipariş Kodu</p>
+            <p style="font-size: 13px; font-weight: 800; color: #4f46e5; margin: 0;">#${order.tracking_id}</p>
+        </div>
+        <div class="mb-3 col-md-6">
+            <p style="font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; margin-bottom: 2px;">Müşteri Adı</p>
+            <p style="font-size: 13px; font-weight: 800; color: #1e293b; text-transform: uppercase; margin: 0;">${order.full_name}</p>
+        </div>
+        <div class="mb-3 col-md-4">
+            <p style="font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; margin-bottom: 2px;">Telefon</p>
+            <p style="font-size: 13px; font-weight: 800; color: #1e293b; margin: 0;">${order.phone}</p>
+        </div>
+        <div class="mb-3 col-md-4">
+            <p style="font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; margin-bottom: 2px;">Tutar</p>
+            <p style="font-size: 13px; font-weight: 800; color: #1e293b; margin: 0;">${order.amount} ₺</p>
+        </div>
+        <div class="mb-3 col-md-4">
+            <p style="font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; margin-bottom: 2px;">Ödeme Yön.</p>
+            <p style="font-size: 13px; font-weight: 800; color: #64748b; font-style: italic; margin: 0;">${order.payment_method}</p>
+        </div>
+        <div class="mb-3 col-md-12">
+            <p style="font-size: 10px; font-weight: 900; color: #4f46e5; text-transform: uppercase; margin-bottom: 2px;">Adres</p>
+            <p style="font-size: 12px; font-weight: 700; color: #334155; line-height: 1.4; margin: 0;">${order.address}</p>
+        </div>
+        <div class="mb-3 col-md-12">
+            <p style="font-size: 10px; font-weight: 900; color: #6366f1; text-transform: uppercase; margin-bottom: 2px;">Müşteri Notu</p>
+            <p style="font-size: 11px; font-weight: 700; color: #475569; font-style: italic; margin: 0; background: #f8fafc; padding: 10px; border-radius: 8px; border-left: 3px solid #6366f1;">
+                ${order.notes ?? 'Bulunmuyor.'}
+            </p>
+        </div>
+    </div>
     `;
 
         // Ürün tablosu
         const items = JSON.parse(order.items);
         let tableHTML = `
-      <div class="mb-3 mt-4 col-md-12">
-        <table class="table table-border table-responsive-sm" style="min-width: 28rem !important;">
-          <thead>
-            <tr>
-              <th style="font-size: 14px;font-weight: 600">Ürün</th>
-              <th style="font-size: 14px;font-weight: 600">Adeti</th>
-              <th style="font-size: 14px;font-weight: 600">Fiyatı</th>
-            </tr>
-          </thead>
-          <tbody>
+    <div class="mb-3 mt-4 col-md-12">
+        <table class="table table-hover align-middle">
+            <thead class="bg-light">
+                <tr>
+                    <th style="font-size: 11px; font-weight: 900; color: #64748b; text-transform: uppercase; border-bottom: 2px solid #e2e8f0;">Ürün</th>
+                    <th style="font-size: 11px; font-weight: 900; color: #64748b; text-transform: uppercase; border-bottom: 2px solid #e2e8f0;" class="text-center">Adeti</th>
+                    <th style="font-size: 11px; font-weight: 900; color: #64748b; text-transform: uppercase; border-bottom: 2px solid #e2e8f0;" class="text-end">Fiyatı</th>
+                </tr>
+            </thead>
+            <tbody>
     `;
+
         items.forEach(item => {
             tableHTML += `
-          <tr>
-            <td class="orderProde text-black">${item.name}</td>
-            <td class="orderProde text-black">${item.quantity}</td>
-            <td class="orderProde text-black">${item.price} ₺</td>
-          </tr>
+        <tr>
+            <td style="font-size: 12px; font-weight: 800; color: #1e293b; text-transform: uppercase;">${item.name}</td>
+            <td style="font-size: 12px; font-weight: 800; color: #64748b;" class="text-center">x${item.quantity}</td>
+            <td style="font-size: 12px; font-weight: 800; color: #1e293b;" class="text-end">${item.price} ₺</td>
+        </tr>
         `;
         });
-        tableHTML += `</tbody></table></div>`;
 
+        tableHTML += `</tbody></table></div>`;
         modalBody.innerHTML += tableHTML;
 
-        // Modal aç
+        // Senin orijinal modal açma kodun
         let modal = new bootstrap.Modal(container);
         modal.show();
 
-        // Butona yazdır işlevi bağla
+        // Butona yazdır işlevi (senin orijinal kodun)
         document.getElementById("printOrderBtn").onclick = function () {
             let printContent = modalBody.innerHTML;
             let win = window.open("", "_blank", "width=800,height=600");
             win.document.write(`
-          <html>
+        <html>
             <head>
-              <title>Sipariş Yazdır</title>
-              <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+                <title>Sipariş Yazdır</title>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+                <style>
+                    body { padding: 20px; font-family: sans-serif; }
+                    .text-end { text-align: right; }
+                    .text-center { text-align: center; }
+                </style>
             </head>
-            <h1 class="fw-bold text-black text-center mx-auto">Sipariş Bilgileri </h1>
-            <body>${printContent}</body>
-          </html>
+            <body>
+                <h3 class="fw-bold text-center mb-4 pb-2 border-bottom">SİPARİŞ BİLGİLERİ</h3>
+                ${printContent}
+            </body>
+        </html>
         `);
             win.document.close();
-            win.print();
+            // Yazıların yüklenmesi için küçük bir delay
+            setTimeout(() => {
+                win.print();
+                win.close();
+            }, 300);
         };
     }
 
@@ -544,10 +647,36 @@
             success: function (data) {
                 if (data == "OK") {
                     $('#Courier' + orderid).hide();
-                    Swal.fire('Sipariş silindi');
+                    Swal.fire({
+                        title: 'SİLİNDİ',
+                        text: 'Sipariş başarıyla sistemden kaldırıldı.',
+                        icon: 'success',
+                        background: '#ffffff',
+                        confirmButtonColor: '#1e293b',
+                        confirmButtonText: 'TAMAM',
+                        customClass: {
+                            popup: '!rounded-[32px] !border-0 !shadow-2xl',
+                            title: '!font-black !tracking-tighter !text-slate-800',
+                            confirmButton: '!rounded-2xl !px-5 !py-3 !text-[10px] !font-black !tracking-widest',
+                            htmlContainer: '!font-bold !text-slate-500'
+                        }
+                    });
                 }
                 if (data == "ERR") {
-                    Swal.fire('Sipariş silinemedi!');
+                    Swal.fire({
+                        title: 'SİPARİŞ SİLİNEMEDİ',
+                        text: 'Sipariş  sistemden kaldırılamadı.',
+                        icon: 'success',
+                        background: '#ffffff',
+                        confirmButtonColor: '#1e293b',
+                        confirmButtonText: 'TAMAM',
+                        customClass: {
+                            popup: '!rounded-[32px] !border-0 !shadow-2xl',
+                            title: '!font-black !tracking-tighter !text-slate-800',
+                            confirmButton: '!rounded-2xl !px-5 !py-3 !text-[10px] !font-black !tracking-widest',
+                            htmlContainer: '!font-bold !text-slate-500'
+                        }
+                    });
                 }
 
             },
@@ -600,10 +729,17 @@
                     }, 150);
 
                     Swal.fire({
-                        title: data.message,
+                        title: data.message.toUpperCase(),
                         icon: 'success',
                         timer: 1500,
-                        showConfirmButton: false
+                        showConfirmButton: false,
+                        timerProgressBar: true,
+                        background: '#ffffff',
+                        customClass: {
+                            popup: '!rounded-[32px] !border-0 !shadow-2xl',
+                            title: '!font-black !tracking-tighter !text-slate-800 !text-xl',
+                            timerProgressBar: '!bg-brand' // Senin ana marka rengin
+                        }
                     });
                 }
             },
@@ -616,7 +752,20 @@
                     errorMsg = xhr.responseJSON.message;
                 }
 
-                Swal.fire('Üzgünüz :(', errorMsg, 'error');
+                Swal.fire({
+                    title: 'ÜZGÜNÜZ :(',
+                    text: errorMsg,
+                    icon: 'error',
+                    background: '#ffffff',
+                    confirmButtonColor: '#1e293b',
+                    confirmButtonText: 'KAPAT',
+                    customClass: {
+                        popup: '!rounded-[32px] !border-0 !shadow-2xl',
+                        title: '!font-black !tracking-tighter !text-red-600',
+                        confirmButton: '!rounded-2xl !px-5 !py-3 !text-[10px] !font-black !tracking-widest',
+                        htmlContainer: '!font-bold !text-slate-500'
+                    }
+                });
             }
         });
     }
@@ -672,225 +821,146 @@
         }) : '';
 
         const courierName = order.courier ? order.courier.name : 'Kurye Bulunmuyor';
-        const status = order.status; // varsayılan
+        const status = order.status;
         const distanceStr = order.distance ? formatDistance(order.distance) : '';
 
-        // Platform ikonu ve renkleri
         let platformHtml = '';
+        const basePlatformClass = "inline-flex items-center gap-2 bg-white border border-slate-100 px-3 py-1.5 rounded-2xl shadow-sm transition-all hover:shadow-md";
+
         if (platform.toLowerCase() === 'yemeksepeti') {
-            platformHtml = `
-        <span class="d-inline-flex align-items-center border rounded-pill px-2 py-1 small">
-            <img src="{{ asset('theme/images/yemeksepeti.png') }}" style="height:14px;margin-right:4px;">
-            ${restaurantName}
-        </span>`;
+            platformHtml = `<div class="${basePlatformClass}"><img src="{{ asset('theme/images/yemeksepeti.png') }}" style="height:14px;"><span class="text-[11px] font-black text-slate-700 tracking-tighter uppercase">${restaurantName}</span></div>`;
         } else if (platform.toLowerCase() === 'getir') {
-            platformHtml = `
-        <span class="d-inline-flex align-items-center border rounded-pill px-2 py-1 small">
-            <img src="{{ asset('theme/images/platforms/getir.png') }}" style="height:35px;margin-right:4px;">
-            ${restaurantName}
-        </span>`;
-        }
-        else if (platform.toLowerCase() === 'gpsyemek') {
-            platformHtml = `
-        <span class="d-inline-flex align-items-center border rounded-pill px-2 py-1 small">
-            <img src="{{ asset('theme/images/platforms/gpsyemek.png') }}" style="height:20px;margin-right:4px;">
-
-        </span>`;
+            platformHtml = `<div class="${basePlatformClass}"><img src="{{ asset('theme/images/platforms/getir.png') }}" style="height:28px;"><span class="text-[11px] font-black text-slate-700 tracking-tighter uppercase">${restaurantName}</span></div>`;
+        } else if (platform.toLowerCase() === 'gpsyemek') {
+            platformHtml = `<div class="${basePlatformClass}"><img src="{{ asset('theme/images/platforms/gpsyemek.png') }}" style="height:20px;"><span class="text-[11px] font-black text-slate-700 tracking-tighter uppercase">${restaurantName}</span></div>`;
         } else if (platform.toLowerCase() === 'trendyol') {
-            platformHtml = `
-        <span class="d-inline-flex align-items-center border rounded-pill px-2 py-1 small">
-            <img src="{{ asset('theme/images/platforms/trendyol.png') }}" style="height:16px;margin-right:4px;">
-            ${restaurantName}
-        </span>`;
+            platformHtml = `<div class="${basePlatformClass}"><img src="{{ asset('theme/images/platforms/trendyol.png') }}" style="height:16px;"><span class="text-[11px] font-black text-slate-700 tracking-tighter uppercase">${restaurantName}</span></div>`;
         } else if (platform.toLowerCase() === 'migros') {
-            platformHtml = `
-        <span class="d-inline-flex align-items-center border rounded-pill px-2 py-1 small">
-            <img src="{{asset('theme/images/platforms/migros.png')}}" style="height:16px;margin-right:4px;">
-            ${restaurantName}
-        </span>`;
+            platformHtml = `<div class="${basePlatformClass}"><img src="{{asset('theme/images/platforms/migros.png')}}" style="height:16px;"><span class="text-[11px] font-black text-slate-700 tracking-tighter uppercase">${restaurantName}</span></div>`;
         } else if (platform.toLowerCase() === 'adisyo') {
-            platformHtml = `
-        <span class="d-inline-flex align-items-center border rounded-pill px-2 py-1 small">
-            <img src="{{ asset('theme/images/adisyoFull.png') }}" style="height:16px;margin-right:4px;">
-            ${restaurantName}
-        </span>`;
+            platformHtml = `<div class="${basePlatformClass}"><img src="{{ asset('theme/images/adisyoFull.png') }}" style="height:16px;"><span class="text-[11px] font-black text-slate-700 tracking-tighter uppercase">${restaurantName}</span></div>`;
         } else if (platform.toLowerCase() === 'telefonsiparis') {
-            platformHtml = `
-        <span class="d-inline-flex justify-content-center border rounded-pill px-2 py-1 small w-100 fw-bold">
-            ${restaurantName} / POS
-        </span>`;
+            platformHtml = `<div class="inline-flex items-center justify-center bg-slate-900 text-white border border-slate-800 px-4 py-2 rounded-2xl shadow-sm w-full"><span class="text-[10px] font-black tracking-widest uppercase">${restaurantName} / POS</span></div>`;
         } else {
-            platformHtml = `<span class="badge bg-light text-dark small">${restaurantName}</span>`;
+            platformHtml = `<span class="bg-slate-100 text-slate-600 text-[10px] font-black px-3 py-2 rounded-xl uppercase tracking-widest">${restaurantName}</span>`;
         }
 
-        // Kurye bölümü
         let courierSection = '';
-        let courierStatusBadge = ''; // Yeni durum rozeti
+        let courierStatusBadge = '';
 
         if (status === 'UNSUPPLIED' || status === 'DELIVERED' || status === 'HANDOVER' || '{{$key == 'restaurant'}}') {
             courierSection = `
-        <a style="cursor:pointer;color: #ec691e">
-            <i class="fas fa-truck mr-1"></i> ${order.courier ? order.courier.name.substr(0, 10) : 'Kurye Yok'}
-        </a>`;
+            <a style="cursor:pointer;" class="flex items-center gap-2 text-brand font-black text-xs no-underline hover:opacity-80">
+                <div class="w-8 h-8 bg-brand/10 rounded-xl flex items-center justify-center"><i class="fas fa-truck text-[10px]"></i></div>
+                ${order.courier ? order.courier.name.substr(0, 10) : 'Kurye Yok'}
+            </a>`;
         } else {
             if (order.courier && order.courier.id) {
-                // Eğer kurye atanmışsa statüsüne bakalım
                 if (status === 'ASSIGNED') {
-                    // Statü ASSIGNED ise dükkandan teslim alınmış demektir
-                    courierStatusBadge = '<br><span class="badge bg-success" style="font-size: 10px;"><i class="fas fa-check-double"></i>  Paket Kabul Edildi</span>';
+                    courierStatusBadge = '<span class="inline-block mt-1 px-2 py-0.5 bg-green-500 text-white text-[9px] font-black rounded-lg uppercase tracking-tighter"><i class="fas fa-check-double text-[8px] mr-1"></i> Paket Kabul Edildi</span>';
                 } else if (status === 'PREPARED') {
-                    // Statü hala PREPARED ama kuryesi varsa (Bizim assigned sekmesine zorladığımız durum)
-                    courierStatusBadge = '<br><span class="badge bg-primary text-white" style="font-size: 10px;"><i class="fas fa-clock"></i> Teslimat Bekliyor</span>';
+                    courierStatusBadge = '<span class="inline-block mt-1 px-2 py-0.5 bg-brand text-white text-[9px] font-black rounded-lg uppercase tracking-tighter"><i class="fas fa-clock text-[8px] mr-1"></i> Teslimat Bekliyor</span>';
                 }
 
                 courierSection = `
-    <div style="display:flex; flex-direction:column; align-items:start;">
-        <a data-bs-toggle="modal" data-bs-target="#Courier${order.id}" style="cursor:pointer;color: #ec691e; font-weight:bold;">
-           <i class="fas fa-truck mr-1"></i> ${order.courier.name.substr(0, 15)}
-        </a>
-        ${courierStatusBadge}
-    </div>`;
+                <div class="flex flex-col items-start group">
+                    <a data-bs-toggle="modal" data-bs-target="#Courier${order.id}" style="cursor:pointer;" class="flex items-center gap-2 text-brand font-black text-xs no-underline group-hover:scale-105 transition-transform">
+                       <div class="w-8 h-8 bg-brand rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand/20"><i class="fas fa-truck text-[10px]"></i></div>
+                       ${order.courier.name.substr(0, 15)}
+                    </a>
+                    ${courierStatusBadge}
+                </div>`;
             } else {
-                // Kurye yoksa eski "Kurye Ata" butonu
                 courierSection = `
-    <a style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#Courier${order.id}" class="sharp text-secondary size-3 px-3 fw-bold">
-        <i class="fas fa-truck mr-1"></i> <small>Kurye Ata</small>
-    </a>`;
+                <button data-bs-toggle="modal" data-bs-target="#Courier${order.id}" class="flex items-center gap-2 px-4 py-2 bg-white border-2 border-dashed border-slate-200 text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:border-brand hover:text-brand transition-all">
+                    <i class="fas fa-plus-circle"></i> KURYE ATA
+                </button>`;
             }
         }
+
         return `
-<tr id="data_${order.id}">
-    <td>${platformHtml}
-        <input type="hidden" value="${trackingId}" id="tracking_${order.id}">
-    </td>
-    <td>${trackingId}</td>
-    <td>${order.platform_date ?? createdAt}</td>
-    <td style="width:200px;overflow: hidden;">${fullName}</td>
-    <td>
-        ${courierSection}
-        <!-- Kurye atama modal -->
-        <div class="modal fade" id="Courier${order.id}">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title"><span class="text-danger">(${trackingId})</span> Siparişe Kurye Ata</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body" style="padding: 1rem;">
-                        <div class="row">
-                            <div class="mb-1 col-md-12">
-                              <select class="single-select-placeholder js-states form-control" onchange="Courier(event, ${order.id})">
-    <option value="0">Kurye Seçiniz</option>
-
-    ${/* Eğer kurye atanmışsa (-1, 0 veya null değilse) Boşa Çıkar seçeneğini göster */
-            (order.courier_id && order.courier_id != -1 && order.courier_id != 0)
-                ? '<option value="-1" class="text-danger fw-bold">Kurye Boşa Çıkar</option>'
-                : ''
-        }
-
-    ${couriers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
-</select>
+        <tr id="data_${order.id}" class="hover:bg-slate-50/50 transition-colors border-b border-slate-50">
+            <td class="py-4 px-3">${platformHtml}<input type="hidden" value="${trackingId}" id="tracking_${order.id}"></td>
+            <td class="py-4 px-3"><span class="font-black text-slate-400 text-xs tracking-widest">#${trackingId}</span></td>
+            <td class="py-4 px-3 text-[11px] font-bold text-slate-500 italic">${order.platform_date ?? createdAt}</td>
+            <td class="py-4 px-3" style="width:200px;"><span class="font-black text-slate-800 text-xs uppercase tracking-tighter truncate block">${fullName}</span></td>
+            <td class="py-4 px-3">
+                ${courierSection}
+                <div class="modal fade" data-bs-backdrop="false"  id="Courier${order.id}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+                        <div class="modal-content !rounded-[32px] border-0 shadow-2xl">
+                            <div class="modal-header border-0 p-6 pb-0">
+                                <h5 class="text-sm font-black text-slate-800 tracking-tighter uppercase"><span class="text-brand">#${trackingId}</span> Kurye Ata</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-6">
+                                <select class="form-select !rounded-2xl border-0 bg-slate-100 font-bold text-slate-700 py-3 shadow-sm" onchange="Courier(event, ${order.id})">
+                                    <option value="0">Kurye Seçiniz</option>
+                                    ${(order.courier_id && order.courier_id != -1 && order.courier_id != 0) ? '<option value="-1" class="text-red-500 font-black italic">Kurye Boşa Çıkar</option>' : ''}
+                                    ${couriers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div class="modal-footer border-0 p-6 pt-0">
+                                <button type="button" class="w-full py-3 bg-slate-100 text-slate-500 rounded-2xl font-black text-[10px] uppercase tracking-widest border-0" data-bs-dismiss="modal">Kapat</button>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger light" data-bs-dismiss="modal">Kapat</button>
+                </div>
+            </td>
+            <td class="py-4 px-3 font-black text-slate-800 text-xs text-ov">${total} ₺</td>
+            <td class="py-4 px-3 font-bold text-red-400 text-[10px] italic text-ov">-${discount} ₺</td>
+            <td class="py-4 px-3 text-ov"><span class="px-3 py-1.5 bg-slate-900 text-white rounded-xl font-black text-xs shadow-lg shadow-slate-200">${amount} ₺</span></td>
+            <td class="py-4 px-3 text-ov"><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${order.payment_method}</span></td>
+            <td class="py-4 px-3 text-ov"><strong class="text-slate-900 font-black italic text-[10px]" id="distance${order.id}">${distanceStr}</strong></td>
+            <td class="py-4 px-3">
+                <input type="hidden" id="tracking_${order.id}" value="${trackingId}">
+                <input type="hidden" id="platform_${order.id}" value="${platform}">
+
+                <div class="flex flex-col gap-1 w-28" id="action-container-${order.id}">
+                    ${status === 'PENDING' ? `<button class="w-full py-2 bg-brand text-white rounded-xl font-black text-[10px] uppercase tracking-tighter shadow-lg shadow-brand/20 hover:scale-105 transition-transform border-0" onclick="updateStatusDirectly('${order.id}', 'PREPARED')">Hazırlandı</button>` : ''}
+                    ${status === 'HANDOVER' ? `<button class="w-full py-2 bg-green-500 text-white rounded-xl font-black text-[10px] uppercase tracking-tighter shadow-lg shadow-green-500/20 hover:scale-105 transition-transform border-0" onclick="updateStatusDirectly('${order.id}', 'DELIVERED')">Teslim Edildi</button>` : ''}
+                    ${status !== 'DELIVERED' && status !== 'UNSUPPLIED'
+            ? `<button class="w-full py-2 border border-red-100 text-red-500 rounded-xl font-black text-[10px] uppercase tracking-tighter hover:bg-red-50 transition-colors bg-white" onclick="handleCancelClick('${order.id}', '${platform}', '${trackingId}', event)">İptal Et</button>`
+            : `<span class="bg-slate-50 text-slate-300 text-center py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-slate-100">${status === 'DELIVERED' ? 'Tamamlandı' : 'İptal Edildi'}</span>`
+        }
+                </div>
+
+                 <div class="modal fade" id="cancelModal${order.id}"  tabindex="-1"  aria-hidden="true"  data-bs-backdrop="static" style="z-index: 9999;">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content !rounded-[32px] border-0 shadow-2xl overflow-hidden">
+                            <div class="modal-header bg-red-600 text-white border-0 p-6">
+                                <h5 class="text-sm font-black tracking-widest uppercase m-0">Siparişi İptal Et</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-6">
+                                <div id="reasonSelectionArea${order.id}" class="mb-4"></div>
+                                <div class="form-group">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Opsiyonel Not</label>
+                                    <textarea class="form-control !rounded-2xl border-0 bg-slate-100 p-4 font-bold text-slate-700 shadow-inner" id="cancelReason${order.id}" rows="3" placeholder="Eklemek istediğiniz notu yazın..."></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-0 p-6 pt-0 flex gap-2">
+                                <button type="button" class="flex-1 py-3 bg-slate-100 text-slate-500 rounded-2xl font-black text-[10px] uppercase tracking-widest border-0" data-bs-dismiss="modal">Vazgeç</button>
+                                <button type="button" class="flex-1 py-3 bg-red-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-red-600/20 border-0" onclick="confirmCancel('${order.id}','${order.tracking_id}','${order.platform}')">İptali Onayla</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </td>
-    <td class="text-ov">${total} ₺</td>
-    <td class="text-ov">${discount} ₺</td>
-    <td class="text-ov">${amount} ₺</td>
-    <td class="text-ov">${order.payment_method}</td>
-    <td class="text-ov">
-        <strong class="text-secondary fw-bold" id="distance${order.id}">
-            ${distanceStr}
-        </strong>
-    </td>
- <td>
-    <input type="hidden" id="tracking_${order.id}" value="${trackingId}">
-    <input type="hidden" id="platform_${order.id}" value="${platform}">
 
-    <div class="d-grid gap-1" id="action-container-${order.id}">
-        ${status === 'PENDING'
-            ? `<button class="btn btn-sm btn-primary" onclick="updateStatusDirectly('${order.id}', 'PREPARED')">Hazırlandı</button>`
-            : ''
-        }
 
-        ${status === 'HANDOVER'
-            ? `<button class="btn btn-sm btn-success" onclick="updateStatusDirectly('${order.id}', 'DELIVERED')">Teslim Edildi</button>`
-            : ''
-        }
-
-        ${status !== 'DELIVERED' && status !== 'UNSUPPLIED'
-            ? `<button class="btn btn-sm btn-outline-danger" onclick="handleCancelClick('${order.id}', '${platform}', '${trackingId}', event)">İptal Et</button>`
-            : `<span class="badge bg-light text-dark">${status === 'DELIVERED' ? 'Tamamlandı' : 'İptal Edildi'}</span>`
-        }
-    </div>
-
-  <div class="modal fade" id="cancelModal${order.id}" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title fw-bold">Siparişi İptal Et</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4">
-                <div id="reasonSelectionArea${order.id}" class="mb-3"></div>
-
-                <div class="form-group mt-3">
-                    <label class="form-label fw-bold text-muted small">OPSİYONEL NOT</label>
-                    <textarea class="form-control border-0 shadow-sm" id="cancelReason${order.id}" rows="3"
-                              placeholder="Eklemek istediğiniz notu yazın..."></textarea>
+            </td>
+            <td class="py-4 px-3">
+                <div class="flex items-center gap-1.5">
+                    <button class="w-9 h-9 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:text-brand hover:border-brand shadow-sm transition-all active:scale-90"
+                       onclick='openOrderModal(${JSON.stringify(order)})'>
+                        <i class="fas fa-eye text-xs"></i>
+                    </button>
+                    <button onclick="printOrder(${order.id})" class="w-9 h-9 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:text-red-500 hover:border-red-500 shadow-sm transition-all active:scale-90 cursor-pointer">
+                        <i class="fas fa-print text-xs"></i>
+                    </button>
                 </div>
-            </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Vazgeç</button>
-                <button type="button" class="btn btn-danger px-4 fw-bold"
-                        onclick="confirmCancel('${order.id}','${order.tracking_id}','${order.platform}')">
-                    İptali Onayla
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-</div>
-</td>
-    <td>
-        <!-- İşlem ikonları -->
-        <div class="d-flex">
-     <a href="#"
-   class="btn btn-secondary shadow btn-xs sharp me-1"
-   data-order='${JSON.stringify(order)}'
-   onclick="openOrderModal(JSON.parse(this.dataset.order))">
-   <i class="fas fa-eye"></i>
-</a>
-
-<div class="modal fade" id="OrdersModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Sipariş Bilgileri</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body" style="padding: 1rem;">
-        <p>Test Modal İçeriği</p>
-      </div>
-      <div class="modal-footer">
-    <button id="printOrderBtn" class="special-button">Yazdır</button>
-        <button type="button" class="special-ok-button" data-bs-dismiss="modal">Kapat</button>
-
-      </div>
-    </div>
-  </div>
-</div>
-
-         <a onclick="printOrder(${order.id})" class="btn btn-danger shadow btn-xs sharp me-1"><i class="fas fa-print"></i></a>
-            <!--a onclick="deleteOrder(${order.id})" class="btn btn-danger shadow btn-xs sharp me-1"><i class="fa fa-times" aria-hidden="true"></i></a-->
-        </div>
-    </td>
-</tr>`;
+            </td>
+        </tr>`;
     }
 </script>
+

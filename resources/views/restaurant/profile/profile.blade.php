@@ -1,173 +1,123 @@
 @extends('restaurant.layouts.app')
+
 @section('content')
     <script src="https://maps.googleapis.com/maps/api/js?key={{env('GOOGLE_MAPS_API_KEY')}}&libraries=places"></script>
 
-    <style>
-        .custom-range-slider {
-            height: 1.5rem;
-            padding: 0;
-            background: transparent;
-        }
-        .form-range::-webkit-slider-runnable-track {
-            background-color: #dee2e6;
-            border-radius: 1rem;
-            height: 0.5rem;
-        }
-        .form-range::-webkit-slider-thumb {
-            background-color: #259a38; /* Senin yeşil rengin */
-            margin-top: -0.25rem;
-        }
-
-        #userMap {
-            border: #259a38 solid 2px;
-            height: 500px;
-            width: 100%;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-        /* Harita üzerindeki arama kutusu için stil */
-        #map-search-input {
-            background-color: #fff;
-            font-family: Roboto;
-            font-size: 15px;
-            font-weight: 300;
-            margin-left: 12px;
-            padding: 0 11px 0 13px;
-            text-overflow: ellipsis;
-            width: 500px;
-            margin-top: 10px;
-            height: 40px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        }
-    </style>
-
-    @if(session()->has('message'))
-        <div class="custom-alert success">
-            <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-            <span class="alert-message">{{ session()->get('message') }}</span>
-        </div>
-    @endif
-
-    @if(session()->has('test') )
-        <div class="custom-alert error">
-            <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-            <span class="alert-message">{{ session()->get('test') }}</span>
-        </div>
-    @endif
-
-
-    <div class="container-fluid">
-        <div class="mb-sm-4 d-flex flex-wrap align-items-center text-head">
-            <h2 class="mb-3 me-auto">Profil Düzenle</h2>
+    <div class="container-fluid py-4 px-md-5">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/admin/couriers">Profil</a></li>
-                    <li class="breadcrumb-item"><a href="javascript:void(0)">Düzenle</a></li>
-                </ol>
+                <h1 class="text-2xl font-black tracking-tighter text-slate-800 uppercase leading-none italic">
+                    PROFİL <span class="text-indigo-600">AYARLARI</span>
+                </h1>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">
+                    Restoran lokasyon bilgileri ve operasyonel limitlerinizi güncelleyin.
+                </p>
             </div>
         </div>
 
         @if(session()->has('message'))
-            <div class="custom-alert success">
-                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <span class="alert-message">{{ session()->get('message') }}</span>
+            <div class="bg-indigo-50 border border-indigo-100 text-indigo-600 px-6 py-4 rounded-[20px] mb-6 flex items-center justify-between shadow-sm shadow-indigo-100/50">
+                <span class="text-xs font-black uppercase tracking-widest"><i class="fas fa-check-circle me-2"></i> {{ session()->get('message') }}</span>
+                <button type="button" class="border-0 bg-transparent text-indigo-400 hover:text-indigo-600" onclick="this.parentElement.style.display='none';">×</button>
             </div>
         @endif
 
-        <div class="row">
-            <div class="col-xl-10 col-lg-12">
-                <div class="mb-4 w-full ">
-                    <p class="text-primary fw-bold mb-3">
-                        <i class="fa fa-info-circle me-1"></i>
-                        Konumunuzu bulmak için harita üzerinden arama yapabilir veya haritaya tıklayarak kırmızı işareti taşıyabilirsiniz.
-                    </p>
+        <div class="row g-4">
+            <div class="col-xl-7">
+                <div class="bg-white !rounded-[40px] border border-slate-50 shadow-xl shadow-slate-200/50 p-6 overflow-hidden relative">
+                    <div class="mb-4">
+                        <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                            <i class="fas fa-map-location-dot text-indigo-600"></i> RESTORAN KONUMU
+                        </h4>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1 italic">Haritaya tıklayarak veya arama yaparak imleci tam yerinize taşıyın.</p>
+                    </div>
 
-                    <input id="map-search-input" type="text" placeholder="Restoran adresini arayın...">
-                    <div id="userMap"></div>
+                    <div class="relative group">
+                        <input id="map-search-input" type="text"
+                               class="absolute top-4 left-4 z-10 w-80 bg-white border-0 shadow-2xl rounded-2xl py-3 px-5 text-xs font-bold text-slate-600 focus:ring-2 focus:ring-indigo-500 transition-all"
+                               placeholder="Adres arayın...">
+                        <div id="userMap" style="height: 550px; width: 100%; border-radius: 30px;" class="border-4 border-slate-50 shadow-inner"></div>
+                    </div>
                 </div>
+            </div>
 
-                <div class="card">
-                    <div class="card-header border-0 pb-0">
-                        <h4 class="card-title fw-bold">Profil Bilgileri</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="basic-form">
-                            <form action="{{ route('restaurant.profile.update') }}" method="POST">
-                                @csrf
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label class="text-dark fw-bold" for="name">İsim</label>
-                                        <input type="text" name="name" class="form-control border border-light"
-                                               value="{{ old('name', auth()->user()->name) }}">
-                                    </div>
-
-                                    <div class="col-md-4 mb-3">
-                                        <label class="text-dark fw-bold" for="phone">Telefon</label>
-                                        @include('components.phone',['key' => 'phone', 'required' => true, 'value' => auth()->user()->phone])
-                                    </div>
-
-                                    <div class="col-md-4 mb-3">
-                                        <label class="text-dark fw-bold" for="password">Yeni Şifre (Boş bırakılırsa değişmez)</label>
-                                        <input type="password" name="password" class="form-control border border-light">
-                                    </div>
-
-                                    <div class="col-md-4 mb-3">
-                                        <label class="text-dark fw-bold" for="latitude">Enlem (Latitude)</label>
-                                        <input required type="text" name="latitude" id="latitude"
-                                               value="{{ old('latitude', auth()->user()->latitude) }}" class="form-control  border border-light" >
-                                    </div>
-
-                                    <div class="col-md-4 mb-3">
-                                        <label class="text-dark fw-bold" for="longitude">Boylam (Longitude)</label>
-                                        <input required type="text" name="longitude" id="longitude"
-                                               value="{{ old('longitude', auth()->user()->longitude) }}" class="form-control border border-light" >
-                                    </div>
-
-                                    <div class="row py-3">
-                                        <div class="col-md-6 mb-4">
-                                            <label class="text-dark fw-bold d-flex justify-content-between" for="distance_limit_km">
-                                                <span><i class="fa fa-map-marked-alt text-primary me-2"></i>Maksimum Sipariş Mesafesi</span>
-                                                <span id="dist_val" class="badge bg-primary rounded-pill">0 km</span>
-                                            </label>
-                                            <input required type="range" name="distance_limit_km" id="distance_limit_km"
-                                                   min="1" max="100" step="1"
-                                                   value="{{ old('distance_limit_km', auth()->user()->distance_limit_km ?? 20) }}"
-                                                   class="form-range custom-range-slider">
-                                            <div class="small text-muted mt-1">
-                                                <i class="fa fa-info-circle me-1"></i>
-                                                Restoranınızın hizmet vereceği **maksimum yarıçapı** belirler. Bu mesafeden uzak müşteriler sipariş veremez ve kurye ataması yapılmaz.
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6 mb-4">
-                                            <label class="text-dark fw-bold d-flex justify-content-between" for="max_package_limit">
-                                                <span><i class="fa fa-box-open text-warning me-2"></i>Maksimum Kurye Paket Ataması</span>
-                                                <span id="pkg_val" class="badge bg-warning text-dark rounded-pill">0 Paket</span>
-                                            </label>
-                                            <input required type="range" name="max_package_limit" id="max_package_limit"
-                                                   min="1" max="10" step="1"
-                                                   value="{{ old('max_package_limit', auth()->user()->max_package_limit ?? 4) }}"
-                                                   class="form-range custom-range-slider">
-                                            <div class="small text-muted mt-1">
-                                                <i class="fa fa-info-circle me-1"></i>
-                                                Bir kurye henüz **"Yola Çıkmadı"** durumundayken, üzerine atanabilecek **en fazla** sipariş sayısıdır. Bu sınıra ulaşıldığında kurye otomatik olarak yola çıkarılır.
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12 mt-3">
-                                        <button type="submit" class="special-button w-100">Profilimi Güncelle</button>
-                                    </div>
+            <div class="col-xl-5">
+                <div class="bg-white !rounded-[40px] border border-slate-50 shadow-xl shadow-slate-200/50 p-8 h-100">
+                    <form action="{{ route('restaurant.profile.update') }}" method="POST">
+                        @csrf
+                        <div class="mb-6">
+                            <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-6 border-s-4 border-indigo-500 ps-3">TEMEL BİLGİLER</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ps-1">İsim</label>
+                                    <input type="text" name="name" class="form-control !rounded-2xl border-0 bg-slate-50 p-3 font-bold text-slate-700 shadow-inner text-xs focus:bg-white" value="{{ old('name', auth()->user()->name) }}">
                                 </div>
-                            </form>
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ps-1">Telefon</label>
+                                    @include('components.phone',['key' => 'phone', 'required' => true, 'value' => auth()->user()->phone])
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ps-1">Yeni Şifre</label>
+                                    <input type="password" name="password" class="form-control !rounded-2xl border-0 bg-slate-50 p-3 font-bold text-slate-700 shadow-inner text-xs focus:bg-white" placeholder="Değiştirmek istemiyorsanız boş bırakın">
+                                </div>
+                            </div>
                         </div>
-                    </div>
+
+                        <div class="mb-8">
+                            <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-6 border-s-4 border-indigo-500 ps-3">OPERASYONEL LİMİTLER</h4>
+
+                            <div class="mb-6 p-5 bg-indigo-50/30 rounded-[25px] border border-indigo-50">
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Hizmet Yarıçapı</span>
+                                    <span id="dist_val" class="px-3 py-1 bg-indigo-600 text-white rounded-lg text-[10px] font-black tracking-tighter shadow-sm shadow-indigo-200">0 km</span>
+                                </div>
+                                <input type="range" name="distance_limit_km" id="distance_limit_km" min="1" max="100" step="1"
+                                       value="{{ old('distance_limit_km', auth()->user()->distance_limit_km ?? 20) }}"
+                                       class="form-range custom-slider-indigo">
+                            </div>
+
+                            <div class="mb-6 p-5 bg-slate-50/50 rounded-[25px] border border-slate-100">
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Maks. Paket Ataması</span>
+                                    <span id="pkg_val" class="px-3 py-1 bg-slate-900 text-white rounded-lg text-[10px] font-black tracking-tighter shadow-sm">0 Paket</span>
+                                </div>
+                                <input type="range" name="max_package_limit" id="max_package_limit" min="1" max="10" step="1"
+                                       value="{{ old('max_package_limit', auth()->user()->max_package_limit ?? 4) }}"
+                                       class="form-range custom-slider-dark">
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-8">
+                            <div class="col-6">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ps-1">Enlem</label>
+                                <input readonly type="text" name="latitude" id="latitude" class="form-control !rounded-xl border-0 bg-slate-50 p-3 font-bold text-slate-400 shadow-inner text-xs" value="{{ auth()->user()->latitude }}">
+                            </div>
+                            <div class="col-6">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ps-1">Boylam</label>
+                                <input readonly type="text" name="longitude" id="longitude" class="form-control !rounded-xl border-0 bg-slate-50 p-3 font-bold text-slate-400 shadow-inner text-xs" value="{{ auth()->user()->longitude }}">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-100 py-4 bg-indigo-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] border-0 shadow-xl shadow-indigo-100 transition-all hover:bg-indigo-700 active:scale-95">
+                            AYARLARI KAYDET
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+
+    <style>
+        /* Slider Indigo Stil */
+        .custom-slider-indigo { height: 6px; background: #e0e7ff; border-radius: 5px; -webkit-appearance: none; }
+        .custom-slider-indigo::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #4f46e5; cursor: pointer; border: 3px solid #fff; box-shadow: 0 0 12px rgba(79, 70, 229, 0.4); }
+
+        .custom-slider-dark { height: 6px; background: #e2e8f0; border-radius: 5px; -webkit-appearance: none; }
+        .custom-slider-dark::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #1e293b; cursor: pointer; border: 3px solid #fff; }
+
+        .form-control:focus { box-shadow: none !important; }
+        .gm-style-parent { border-radius: 30px !important; overflow: hidden; }
+    </style>
 
     <script>
         function updateRangeValues() {
@@ -179,80 +129,65 @@
             updateRangeValues();
         });
 
-        $(document).ready(function() {
-            updateRangeValues();
-        });
-    </script>
-
-    <script>
-        let map, marker, autocomplete;
-
         function initMap() {
-            // Kullanıcının mevcut koordinatları veya varsayılan (Urfa)
             const existingLat = parseFloat("{{ auth()->user()->latitude }}") || 37.1502;
             const existingLng = parseFloat("{{ auth()->user()->longitude }}") || 38.7790;
             const initialPos = { lat: existingLat, lng: existingLng };
 
-            // Harita Oluşturma
             map = new google.maps.Map(document.getElementById("userMap"), {
                 center: initialPos,
                 zoom: 15,
-                mapTypeControl: true,
-                streetViewControl: false,
-                fullscreenControl: true
+                mapTypeControl: false,
+                styles: [
+                    { "featureType": "poi.business", "stylers": [{"visibility": "off"}] }
+                ]
             });
 
-            // Marker Oluşturma
             marker = new google.maps.Marker({
                 position: initialPos,
                 map: map,
-                draggable: true, // Marker sürüklenebilir
+                draggable: true,
+                icon: {
+                    path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                    scale: 8,
+                    fillColor: "#4f46e5", // Indigo marker
+                    fillOpacity: 1,
+                    strokeWeight: 2,
+                    strokeColor: "#ffffff",
+                },
                 animation: google.maps.Animation.DROP
             });
 
-            // Inputları doldur
-            updateInputs(existingLat, existingLng);
-
-            // 1. Tıklama ile Konum Belirleme
-            map.addListener("click", (e) => {
-                const clickedPos = e.latLng;
-                marker.setPosition(clickedPos);
-                updateInputs(clickedPos.lat(), clickedPos.lng());
-            });
-
-            // 2. Marker Sürükleme Bittiğinde
-            marker.addListener("dragend", (e) => {
-                const draggedPos = marker.getPosition();
-                updateInputs(draggedPos.lat(), draggedPos.lng());
-            });
-
-            // 3. Arama Kutusu (Autocomplete)
             const input = document.getElementById("map-search-input");
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-            autocomplete = new google.maps.places.Autocomplete(input);
+            const autocomplete = new google.maps.places.Autocomplete(input);
             autocomplete.bindTo("bounds", map);
 
             autocomplete.addListener("place_changed", () => {
                 const place = autocomplete.getPlace();
                 if (!place.geometry) return;
-
-                if (place.geometry.viewport) {
-                    map.fitBounds(place.geometry.viewport);
-                } else {
-                    map.setCenter(place.geometry.location);
-                    map.setZoom(17);
-                }
+                map.setCenter(place.geometry.location);
                 marker.setPosition(place.geometry.location);
                 updateInputs(place.geometry.location.lat(), place.geometry.location.lng());
+            });
+
+            map.addListener("click", (e) => {
+                marker.setPosition(e.latLng);
+                updateInputs(e.latLng.lat(), e.latLng.lng());
+            });
+
+            marker.addListener("dragend", (e) => {
+                updateInputs(e.latLng.lat(), e.latLng.lng());
             });
         }
 
         function updateInputs(lat, lng) {
-            document.getElementById('latitude').value = lat.toFixed(8);
-            document.getElementById('longitude').value = lng.toFixed(8);
+            $('#latitude').val(lat.toFixed(8));
+            $('#longitude').val(lng.toFixed(8));
         }
 
-        // Sayfa yüklendiğinde haritayı başlat
-        google.maps.event.addDomListener(window, 'load', initMap);
+        $(document).ready(function() {
+            updateRangeValues();
+            initMap();
+        });
     </script>
 @endsection

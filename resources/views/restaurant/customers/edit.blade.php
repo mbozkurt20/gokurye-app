@@ -1,184 +1,183 @@
 @extends('restaurant.layouts.app')
 @section('content')
     <style>
-        #modalMap { height: 450px; width: 100%; border-radius: 10px; background-color: #eee; }
-        .pac-container { z-index: 10000 !important; }
-        .item-content {
-            background: #ffffff;
-            border: 1px solid #e0e0e0 !important;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            position: relative;
-        }
-        .address-header {
-            background: #f8f9fa;
-            margin: -1.5rem -1.5rem 1.5rem -1.5rem;
-            padding: 12px 20px;
-            border-bottom: 1px solid #eee;
-            border-radius: 8px 8px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .coord-badge { font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; }
-        .coord-missing { background: #ffebee; color: #c62828; }
-        .coord-ok { background: #e8f5e9; color: #2e7d32; }
+        #modalMap { height: 450px; width: 100%; border-radius: 20px; background-color: #f8fafc; }
+        .pac-container { z-index: 100000 !important; border-radius: 12px; border: none; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); padding: 8px; }
+        #mapModal { z-index: 9999 !important; }
+        .modal-backdrop { z-index: 9998 !important; }
     </style>
 
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-xl-12 col-lg-12">
-                <div class="card">
-                    <div class="card-header"><h4 class="card-title">Müşteri Düzenle: {{ $customer->name }}</h4></div>
-                    <div class="card-body">
-                        <form method="post" class="repeater" id="customerForm" action="{{ route('restaurant.customers.update') }}">
-                            @csrf
-                            <input type="hidden" name="id" value="{{ $customer->id }}">
+    <div class="container-fluid py-6 px-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-2">Müşteri Düzenle</h2>
+                <p class="text-slate-500 font-medium italic">{{ $customer->name }} kullanıcısını güncelliyorsunuz.</p>
+            </div>
+            <a href="/restaurant/customers" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-all shadow-sm">
+                <i class="fas fa-chevron-left text-xs"></i> Geri Dön
+            </a>
+        </div>
 
-                            <div class="row border-bottom pb-4 mb-4">
-                                <div class="mb-3 col-md-4">
-                                    <label class="form-label fw-bold">Müşteri Adı <small class="text-danger">*</small></label>
-                                    <input type="text" class="form-control" name="name" value="{{ old('name', $customer->name) }}" required>
+        <form method="post" class="repeater" id="customerForm" action="{{ route('restaurant.customers.update') }}">
+            @csrf
+            <input type="hidden" name="id" value="{{ $customer->id }}">
+
+            <div class="bg-white rounded-[32px] border border-slate-100 shadow-sm p-8 mb-10">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Müşteri Adı <small class="text-red-500">*</small></label>
+                        <input type="text" class="w-full px-5 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-slate-900 focus:ring-2 focus:ring-brand outline-none transition-all" name="name" value="{{ old('name', $customer->name) }}" required>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Telefon <small class="text-red-500">*</small></label>
+                        @include('components.phone',['key' => 'phone', 'required' => true, 'value' => old('phone', $customer->phone)])
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Telefon 2</label>
+                        @include('components.phone',['key' => 'mobile', 'required' => false, 'value' => old('mobile', $customer->mobile)])
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-end mb-6 px-2">
+                <div>
+                    <h5 class="text-2xl font-black text-slate-800 uppercase tracking-tight italic text-brand">Adres Bilgileri</h5>
+                    <p class="text-slate-400 text-sm font-medium mt-1">Konumu düzenleyerek adres detaylarını otomatik doldurabilirsiniz.</p>
+                </div>
+                <button type="button" class="px-6 py-3.5 bg-slate-900 text-white rounded-2xl font-black text-xs tracking-widest hover:bg-brand transition-all shadow-xl active:scale-95" data-repeater-create>
+                    <i class="fa fa-plus me-2"></i> YENİ ADRES EKLE
+                </button>
+            </div>
+
+            <div data-repeater-list="address" class="space-y-6">
+                @php
+                    $addresses = old('address') ? old('address') : \App\Models\CustomerAddress::where('customer_id', $customer->id)->get();
+                @endphp
+
+                @foreach ($addresses as $index => $address)
+                    <div data-repeater-item class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden transition-all hover:border-slate-200">
+                        <input type="hidden" name="id" value="{{ is_array($address) ? ($address['id'] ?? '') : $address->id }}">
+
+                        <div class="bg-slate-50/50 px-8 py-4 border-b border-slate-100 flex justify-between items-center text-xs">
+                            <div class="flex items-center gap-2">
+                                <i class="fa fa-map-pin text-red-500"></i>
+                                <span class="font-black text-slate-700 uppercase tracking-widest italic">Adres Kaydı</span>
+                            </div>
+                            @php
+                                $lat = is_array($address) ? ($address['latitude'] ?? '') : $address->latitude;
+                                $lng = is_array($address) ? ($address['longitude'] ?? '') : $address->longitude;
+                            @endphp
+                            <span class="status-badge px-4 py-1.5 rounded-full font-black uppercase tracking-tighter {{ $lat ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                            {{ $lat ? "Onaylandı (".round($lat, 4).")" : 'Konum Seçilmedi' }}
+                        </span>
+                        </div>
+
+                        <div class="p-8 flex flex-col lg:flex-row gap-8">
+                            <div class="flex-1 grid grid-cols-1 md:grid-cols-12 gap-5">
+                                <div class="md:col-span-4 space-y-1">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Başlık (Ev/İş)</label>
+                                    <input type="text" class="w-full px-4 py-3 bg-slate-50 border-0 rounded-xl font-bold text-slate-800" name="name" value="{{ is_array($address) ? $address['name'] : $address->name }}" required>
                                 </div>
-                                <div class="mb-3 col-md-4">
-                                    <label class="form-label fw-bold">Telefon <small class="text-danger">*</small></label>
-                                    @include('components.phone',['key' => 'phone', 'required' => true, 'value' => old('phone', $customer->phone)])
+                                <div class="md:col-span-4 space-y-1">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 text-brand">İlçe</label>
+                                    <select class="w-full px-4 py-3 bg-slate-50 border-0 rounded-xl font-bold text-slate-800 addr-ilce-select cursor-pointer" name="district_id" required>
+                                        <option value="">İlçe Seçiniz</option>
+                                        @foreach($districts as $dist)
+                                            <option value="{{ $dist->id }}" {{ (is_array($address) ? ($address['district_id'] ?? '') : $address->district_id) == $dist->id ? 'selected' : '' }}>
+                                                {{ $dist->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                                <div class="mb-3 col-md-4">
-                                    <label class="form-label fw-bold">Telefon 2</label>
-                                    @include('components.phone',['key' => 'mobile', 'required' => false, 'value' => old('mobile', $customer->mobile)])
+                                <div class="md:col-span-4 space-y-1">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mahalle</label>
+                                    <input type="text" class="w-full px-4 py-3 bg-slate-50 border-0 rounded-xl font-bold text-slate-800 addr-mahalle" name="mahalle" value="{{ is_array($address) ? $address['mahalle'] : $address->mahalle }}" required>
+                                </div>
+                                <div class="md:col-span-5 space-y-1">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Sokak/Cadde</label>
+                                    <input type="text" class="w-full px-4 py-3 bg-slate-50 border-0 rounded-xl font-bold text-slate-800 addr-sokak" name="sokak_cadde" value="{{ is_array($address) ? $address['sokak_cadde'] : $address->sokak_cadde }}" required>
+                                </div>
+                                <div class="md:col-span-3 space-y-1">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Bina/No</label>
+                                    <input type="text" class="w-full px-4 py-3 bg-slate-50 border-0 rounded-xl font-bold text-slate-800 addr-bina" name="bina_no" value="{{ is_array($address) ? $address['bina_no'] : $address->bina_no }}" required>
+                                </div>
+                                <div class="md:col-span-2 space-y-1">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kat</label>
+                                    <input type="text" class="w-full px-4 py-3 bg-slate-50 border-0 rounded-xl font-bold text-slate-800" name="kat" value="{{ is_array($address) ? ($address['kat'] ?? '') : $address->kat }}">
+                                </div>
+                                <div class="md:col-span-2 space-y-1">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Daire</label>
+                                    <input type="text" class="w-full px-4 py-3 bg-slate-50 border-0 rounded-xl font-bold text-slate-800" name="daire_no" value="{{ is_array($address) ? ($address['daire_no'] ?? '') : $address->daire_no }}">
+                                </div>
+                                <div class="md:col-span-12 space-y-1">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Adres Tarifi</label>
+                                    <input type="text" class="w-full px-4 py-3 bg-slate-50 border-0 rounded-xl font-bold text-slate-800 addr-tarif" name="adres_tarifi" value="{{ is_array($address) ? ($address['adres_tarifi'] ?? '') : $address->adres_tarifi }}">
                                 </div>
                             </div>
 
-                            <div class="repeater-heading d-flex justify-content-between align-items-center mb-4">
-                                <div>
-                                    <h5>Adres Bilgileri</h5>
-                                    <p><strong>Konumu Düzenle</strong> seçerek konumunuzu onaylayınız</p>
-                                </div>
-                                <button type="button" class="btn btn-primary btn-sm" data-repeater-create>
-                                    <i class="fa fa-plus me-1"></i> Yeni Adres Ekle
+                            <div class="lg:w-48 flex flex-col items-center justify-center gap-4 bg-slate-50/50 rounded-2xl p-6 border border-dashed border-slate-200">
+                                <button type="button" class="w-full py-4 bg-white border border-slate-200 rounded-2xl text-slate-600 font-black text-[10px] uppercase tracking-widest hover:border-brand hover:text-brand transition-all shadow-sm open-map-modal flex flex-col items-center gap-2">
+                                    <i class="fa fa-map-marker-alt text-lg"></i> Konumu Düzenle
+                                </button>
+
+                                <input type="hidden" class="input-lat" name="latitude" value="{{ $lat }}">
+                                <input type="hidden" class="input-lng" name="longitude" value="{{ $lng }}">
+
+                                <button type="button" class="text-red-400 hover:text-red-600 font-black text-[10px] uppercase tracking-widest transition-colors flex items-center gap-1" data-repeater-delete>
+                                    <i class="fa fa-trash-alt text-xs"></i> Adresi Kaldır
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
 
-                            <div data-repeater-list="address">
-                                @php
-                                    $addresses = old('address') ? old('address') : \App\Models\CustomerAddress::where('customer_id', $customer->id)->get();
-                                @endphp
+            <div class="mt-12 mb-10 flex justify-end">
+                <button type="submit" class="px-12 py-5 bg-brand text-white rounded-[24px] font-black text-xl tracking-tighter shadow-2xl shadow-brand/30 hover:bg-brand-dark transition-all active:scale-95">
+                    GÜNCELLEMEYİ TAMAMLA
+                </button>
+            </div>
+        </form>
+    </div>
 
-                                @foreach ($addresses as $index => $address)
-                                    <div data-repeater-item class="item-content p-4 rounded-3">
-                                        {{-- Mevcut adresin ID'sini sakla (Yeni eklenenlerde null gider) --}}
-                                        <input type="hidden" name="id" value="{{ is_array($address) ? ($address['id'] ?? '') : $address->id }}">
-
-                                        <div class="address-header">
-                                            <span class="fw-bold text-dark"><i class="fa fa-map-pin me-2 text-danger"></i>Adres Kaydı</span>
-                                            @php
-                                                $lat = is_array($address) ? ($address['latitude'] ?? '') : $address->latitude;
-                                                $lng = is_array($address) ? ($address['longitude'] ?? '') : $address->longitude;
-                                            @endphp
-                                            <span class="coord-badge {{ $lat ? 'coord-ok' : 'coord-missing' }} status-badge">
-                                                {{ $lat ? "Onaylandı (".round($lat, 4).", ".round($lng, 4).")" : 'Konum Seçilmedi' }}
-                                            </span>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-9">
-                                                <div class="row">
-                                                    <div class="mb-3 col-md-4">
-                                                        <label class="small fw-bold">Başlık (Ev/İş)</label>
-                                                        <input type="text" class="form-control border border-dark" name="name" value="{{ is_array($address) ? $address['name'] : $address->name }}" required>
-                                                    </div>
-                                                    <div class="mb-3 col-md-4">
-                                                        <label class="small fw-bold">İlçe {{ $address->district_id}}</label>
-                                                        <select class="form-control border border-dark addr-ilce-select" name="district_id" required>
-                                                            <option value="">İlçe Seçiniz</option>
-                                                            @foreach($districts as $dist)
-                                                                <option value="{{ $dist->id }}"
-                                                                    {{ (is_array($address) ? ($address['district_id'] ?? '') : $address->district_id) == $dist->id ? 'selected' : '' }}>
-                                                                    {{ $dist->name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-3 col-md-4">
-                                                        <label class="small fw-bold">Mahalle</label>
-                                                        <input type="text" class="form-control border border-dark addr-mahalle" name="mahalle" value="{{ is_array($address) ? $address['mahalle'] : $address->mahalle }}" required>
-                                                    </div>
-                                                    <div class="mb-3 col-md-4">
-                                                        <label class="small fw-bold">Sokak/Cadde</label>
-                                                        <input type="text" class="form-control border border-dark addr-sokak" name="sokak_cadde" value="{{ is_array($address) ? $address['sokak_cadde'] : $address->sokak_cadde }}" required>
-                                                    </div>
-                                                    <div class="mb-3 col-md-3">
-                                                        <label class="small fw-bold">Bina/No</label>
-                                                        <input type="text" class="form-control border border-dark addr-bina" name="bina_no" value="{{ is_array($address) ? $address['bina_no'] : $address->bina_no }}" required>
-                                                    </div>
-                                                    <div class="mb-3 col-md-2">
-                                                        <label class="small fw-bold">Kat</label>
-                                                        <input type="text" class="form-control border border-dark" name="kat" value="{{ is_array($address) ? ($address['kat'] ?? '') : $address->kat }}">
-                                                    </div>
-                                                    <div class="mb-3 col-md-2">
-                                                        <label class="small fw-bold">Daire</label>
-                                                        <input type="text" class="form-control border border-dark" name="daire_no" value="{{ is_array($address) ? ($address['daire_no'] ?? '') : $address->daire_no }}">
-                                                    </div>
-                                                    <div class="mb-3 col-md-5">
-                                                        <label class="small fw-bold">Adres Tarifi</label>
-                                                        <input type="text" class="form-control border border-dark addr-tarif" name="adres_tarifi" value="{{ is_array($address) ? ($address['adres_tarifi'] ?? '') : $address->adres_tarifi }}">
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-3 border-start d-flex flex-column justify-content-center align-items-center">
-                                                <button type="button" class="btn btn-outline-success btn-sm w-100 mb-3 open-map-modal">
-                                                    <i class="fa fa-map-marker-alt me-2"></i>Konumu Düzenle
-                                                </button>
-
-                                                <input type="hidden" class="input-lat" name="latitude" value="{{ $lat }}">
-                                                <input type="hidden" class="input-lng" name="longitude" value="{{ $lng }}">
-
-                                                <button type="button" class="btn btn-link text-danger btn-sm p-0" data-repeater-delete>
-                                                    <i class="fa fa-trash-alt me-1"></i> Adresi Kaldır
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-
-                            <button type="submit" class="btn btn-success float-end mt-4 px-5">Güncellemeyi Tamamla</button>
-                        </form>
+  <div class="modal fade" data-bs-backdrop="false" id="mapModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content !rounded-[32px] overflow-hidden border-0 shadow-2xl">
+                <div class="p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h5 class="text-2xl font-black text-slate-800 uppercase tracking-tighter">Konum Seçiniz</h5>
+                        <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400" data-bs-dismiss="modal">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="relative mb-4">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-slate-400"></i>
+                        </div>
+                        <input id="modal-search" class="w-full pl-11 pr-4 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-slate-900 focus:ring-2 focus:ring-brand outline-none shadow-inner" type="text" placeholder="Adres veya mekan arayın...">
+                    </div>
+                    <div id="modalMap" class="shadow-inner border border-slate-100"></div>
+                    <div class="mt-8 flex gap-3">
+                        <button type="button" class="flex-1 py-4 bg-slate-100 text-slate-500 rounded-2xl font-black uppercase tracking-widest" data-bs-dismiss="modal">Vazgeç</button>
+                        <button type="button" class="flex-[2] py-4 bg-brand text-white rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-brand/20 hover:bg-brand-dark transition-all" id="confirmLocation">Konumu Onayla</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="modal fade" id="mapModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Konum Seçiniz</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input id="modal-search" class="form-control mb-3" type="text" placeholder="Arama yapın...">
-                    <div id="modalMap"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Kapat</button>
-                    <button type="button" class="btn btn-success" id="confirmLocation">Konumu Onayla</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.repeater/1.2.1/jquery.repeater.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key={{env('GOOGLE_MAPS_API_KEY')}}&libraries=places"></script>
 
     <script>
+
         let map, marker, autocomplete, currentRow, geocoder;
 
         $(document).ready(function () {
+            $('#mapModal').on('shown.bs.modal', function () {
+                $(this).appendTo('body');
+            });
+
             geocoder = new google.maps.Geocoder();
 
             $('.repeater').repeater({

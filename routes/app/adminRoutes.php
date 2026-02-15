@@ -2,108 +2,120 @@
 
 use App\Helpers\NotificationHelper;
 use App\Http\Controllers\TamiPaymentController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\MyController;
+use App\Http\Controllers\PayTrPaymentController;
+use App\Http\Controllers\GpsYemekController;
+use App\Http\Controllers\Admin\SiparislerController;
+use App\Http\Controllers\Admin\RestaurantsController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ProgressPaymentController;
+use App\Http\Controllers\Admin\ExpensesController;
+use App\Http\Controllers\Admin\CourierController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'admin'], function () {
     Route::group(['middleware' => ['guest.admin']], function () {
         Route::view('login', 'auth.login')->name('admin.login');
-        Route::post('login', [App\Http\Controllers\AdminController::class, 'login'])->name('admin.auth');
+        Route::post('login', [AdminController::class, 'login'])->name('admin.auth');
     });
 
     Route::group(['middleware' => ['admin.auth']], function () {
-        Route::get('/get-districts/{cityId}', [App\Http\Controllers\AdminController::class, 'getDistricts'])->name('admin.get_districts');
-
-        //paytr
-        Route::post('/payment/paytr', [\App\Http\Controllers\PayTrPaymentController::class, 'payTrPayment'])->name('admin.payment.paytr.form');
-
-        //tami
-        Route::get('/payment/form', [TamiPaymentController::class, 'showForm'])->name('admin.payment.tami.form');
-        Route::post('/payment/start', [TamiPaymentController::class, 'start'])->name('payment.start');
-
-        Route::get('/printed/{orderId}', [App\Http\Controllers\OrderController::class, 'printed']);
-        Route::get('/statistics', [App\Http\Controllers\AdminController::class, 'statistics'])->name('admin.statistics');
-        Route::get('/orders/ajax', [App\Http\Controllers\AdminController::class, 'ajax'])->name('admin.orders.ajax');
-
-        Route::get('notifications/clear-all', [App\Http\Controllers\AdminController::class, 'notifications'])->name('admin.notifications');
-        Route::get('notifications/{id}', [App\Http\Controllers\AdminController::class, 'notificationDelete']);
-        Route::get('profile', [App\Http\Controllers\AdminController::class, 'profile'])->name('admin.profile');
-        Route::post('/profile', [App\Http\Controllers\AdminController::class, 'profileUpdate'])->name('admin.profile.update');
-
-        Route::get('/features', [App\Http\Controllers\AdminController::class, 'features'])->name('admin.features');
-        Route::get('/features/update/{id}', [App\Http\Controllers\AdminController::class, 'featuresUpdate'])->name('admin.features.update');
-
-        Route::get('/sms/entegrations', [App\Http\Controllers\MyController::class, 'smsEntegrations'])->name('admin.sms.entegrations');
-        Route::post('/sms/entegrations/update', [App\Http\Controllers\MyController::class, 'smsEntegrastionUpdate'])->name('admin.sms.entegrations.update');
-        Route::post('/sms/entegrations/test', [App\Http\Controllers\MyController::class, 'smsEntegrastionTest'])->name('admin.sms.entegrations.test');
-        Route::get('/update/entegrations/status', [App\Http\Controllers\MyController::class, 'smsEntegrastionStatus'])->name('admin.sms.entegrations.status');
-
-        Route::get('/', [App\Http\Controllers\AdminController::class, 'home'])->name('admin.index');
-
-        Route::get('/top-up-balance', [App\Http\Controllers\AdminController::class, 'balance'])->name('admin.balance');
-        Route::get('topup/talep', [App\Http\Controllers\AdminController::class, 'topupTalep'])->name('admin.topupTalep');
-
-        Route::get('/tt', [App\Http\Controllers\AdminController::class, 'tt']);
-        Route::post('logout', [App\Http\Controllers\AdminController::class, 'logout'])->name('admin.logout');
-        Route::get('/filter-by-date', [App\Http\Controllers\AdminController::class, 'filterByDate'])->name('admin.filterByDate');
-        Route::get('/orders/filter', [App\Http\Controllers\AdminController::class, 'filterOrders'])->name('admin.filter');
-
-        /* Siparisler */
-        Route::get('/deletedOrders', [App\Http\Controllers\Admin\SiparislerController::class, 'deletedOrders'])->name('admin.deletedOrders');
-        Route::get('/deliveredOrders', [App\Http\Controllers\Admin\SiparislerController::class, 'deliveredOrders'])->name('admin.deliveredOrders');
-
-        Route::post('/telefonsiparis/updateOrderStatus', [App\Http\Controllers\OrderController::class, 'updateOrderStatus']);
-        Route::get('/trendyol/get-orders', [App\Http\Controllers\TrendyolYemekController::class, 'index']);
-        Route::post('/trendyol/updateOrderStatus', [App\Http\Controllers\TrendyolYemekController::class, 'orderStatus']);
-        Route::post('/yemeksepeti/updateOrderStatus', [App\Http\Controllers\OrderController::class, 'updateOrderStatus']);
-        Route::post('/getir/updateOrderStatus', [App\Http\Controllers\OrderController::class, 'updateOrderStatus']);
-        Route::post('/adisyo/updateOrderStatus', [App\Http\Controllers\AdisyoController::class, 'updateOrder']);
-        Route::post('/gpsyemek/updateOrderStatus', [App\Http\Controllers\GpsYemekController::class, 'updateOrder']);
-
-        Route::post('/orders/message', [App\Http\Controllers\OrderController::class, 'message']);
-
-        /* Restaurants */
-        Route::get('/restaurants', [\App\Http\Controllers\Admin\RestaurantsController::class, 'index'])->name('admin.restaurants');
-        Route::get('/restaurants/new', [\App\Http\Controllers\Admin\RestaurantsController::class, 'new'])->name('admin.restaurants.new');
-        Route::get('/restaurants/edit/{id}', [App\Http\Controllers\Admin\RestaurantsController::class, 'edit'])->name('admin.restaurants.edit');
-        Route::get('/restaurants/delete/{id}', [App\Http\Controllers\Admin\RestaurantsController::class, 'delete'])->name('admin.restaurants.delete');
-        Route::post('/restaurants/create', [\App\Http\Controllers\Admin\RestaurantsController::class, 'create'])->name('admin.restaurants.create');
-        Route::post('/restaurants/update', [App\Http\Controllers\Admin\RestaurantsController::class, 'update'])->name('admin.restaurants.update');
-
-        Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('admin.reports');
-
-        //Giderler - hakedişler
-        Route::get('/progress-payment/restaurant', [\App\Http\Controllers\Admin\ProgressPaymentController::class, 'restaurant'])->name('admin.progress_payment.restaurant');
-        Route::get('/progress-payment/courier', [\App\Http\Controllers\Admin\ProgressPaymentController::class, 'courier'])->name('admin.progress_payment.courier');
-        Route::post('/progress-payment/records', [\App\Http\Controllers\Admin\ProgressPaymentController::class, 'storeRecords'])->name('admin.progress.payments.store');
-        Route::post('/progress-payment/restaurant', [\App\Http\Controllers\Admin\ProgressPaymentController::class, 'restaurantFilter']);
-        Route::post('/progress-payment/courier', [\App\Http\Controllers\Admin\ProgressPaymentController::class, 'courierFilter']);
-        Route::get('/progress-payment/record/delete/{recordId}', [\App\Http\Controllers\Admin\ProgressPaymentController::class, 'deleteRecords']);
-
-        /* GİDERLER */
-        Route::prefix('expenses')->group(function () {
-            Route::get('/',[\App\Http\Controllers\Admin\ExpensesController::class, 'index'])->name('admin.expenses.index');
-            Route::get('/new',[\App\Http\Controllers\Admin\ExpensesController::class, 'create'])->name('admin.expenses.new');
-            Route::get('/edit/{id}',[\App\Http\Controllers\Admin\ExpensesController::class, 'edit'])->name('admin.expenses.edit');
-            Route::post('/update/{id}',[\App\Http\Controllers\Admin\ExpensesController::class, 'update'])->name('admin.expenses.update');
-            Route::post('/',[\App\Http\Controllers\Admin\ExpensesController::class, 'store'])->name('admin.expenses.store');
-            Route::get('/delete/{id}',[\App\Http\Controllers\Admin\ExpensesController::class, 'destroy'])->name('admin.expenses.destroy');
+        Route::controller(AdminController::class)->group(function () {
+            Route::get('/', 'home')->name('admin.index');
+            Route::get('/get-districts/{cityId}', 'getDistricts')->name('admin.get_districts');
+            Route::get('/statistics', 'statistics')->name('admin.statistics');
+            Route::get('/orders/ajax', 'ajax')->name('admin.orders.ajax');
+            Route::get('notifications/clear-all', 'notifications')->name('admin.notifications');
+            Route::get('notifications/{id}', 'notificationDelete');
+            Route::get('profile', 'profile')->name('admin.profile');
+            Route::post('/profile', 'profileUpdate')->name('admin.profile.update');
+            Route::get('/features', 'features')->name('admin.features');
+            Route::get('/features/update/{id}', 'featuresUpdate')->name('admin.features.update');
+            Route::get('/top-up-balance', 'balance')->name('admin.balance');
+            Route::get('topup/talep', 'topupTalep')->name('admin.topupTalep');
+            Route::get('/tt', 'tt');
+            Route::post('logout', 'logout')->name('admin.logout');
+            Route::get('/filter-by-date', 'filterByDate')->name('admin.filterByDate');
+            Route::get('/orders/filter', 'filterOrders')->name('admin.filter');
+            Route::get('/order/auto_order/{status}', 'auto_order')->name('admin.couriers.auto_order');
         });
 
-        /* KURYELER */
-        Route::get('/courier-performance', [\App\Http\Controllers\Admin\CourierController::class, 'performance'])->name('admin.courier.performance');
-        Route::get('/get-couriers', [\App\Http\Controllers\Admin\CourierController::class, 'getCourier']);
-        Route::get('/couriers', [\App\Http\Controllers\Admin\CourierController::class, 'index'])->name('admin.couriers');
-        Route::get('/couriers/maps', [\App\Http\Controllers\Admin\CourierController::class, 'maps'])->name('admin.couriers.maps');
-        Route::get('/couriers/new', [App\Http\Controllers\Admin\CourierController::class, 'new'])->name('admin.couriers.new');
-        Route::get('/couriers/edit/{id}', [App\Http\Controllers\Admin\CourierController::class, 'edit'])->name('admin.couriers.edit');
-        Route::get('/couriers/delete/{id}', [App\Http\Controllers\Admin\CourierController::class, 'delete'])->name('admin.couriers.delete');
-        Route::get('/couriers/report/{id}', [App\Http\Controllers\Admin\CourierController::class, 'report'])->name('admin.couriers.report');
-        Route::post('/couriers/create', [App\Http\Controllers\Admin\CourierController::class, 'create'])->name('admin.couriers.create');
-        Route::post('/couriers/update', [App\Http\Controllers\Admin\CourierController::class, 'update'])->name('admin.couriers.update');
+        Route::post('/payment/paytr', [PayTrPaymentController::class, 'payTrPayment'])->name('admin.payment.paytr.form');
 
-        Route::get('/order/auto_order/{status}', [App\Http\Controllers\AdminController::class, 'auto_order'])->name('admin.couriers.auto_order');
-        Route::get('/orders/sendCourier/{orderId}/{courierId}', [\App\Http\Controllers\Admin\CourierController::class, 'sendCourier']);
-        Route::post('/reports/globalFilter', [App\Http\Controllers\Admin\ReportController::class, 'globalFilter']);
-        Route::get('orders/delete/{id}', [App\Http\Controllers\OrderController::class, 'deleteOrder']);
+        Route::controller(TamiPaymentController::class)->group(function () {
+            Route::get('/payment/form', 'showForm')->name('admin.payment.tami.form');
+            Route::post('/payment/start', 'start')->name('payment.start');
+        });
+
+        Route::controller(OrderController::class)->group(function () {
+            Route::get('/printed/{orderId}', 'printed');
+            Route::post('/telefonsiparis/updateOrderStatus', 'updateOrderStatus');
+            Route::post('/yemeksepeti/updateOrderStatus', 'updateOrderStatus');
+            Route::post('/getir/updateOrderStatus', 'updateOrderStatus');
+            Route::post('/orders/message', 'message');
+            Route::get('orders/delete/{id}', 'deleteOrder');
+        });
+
+        Route::controller(MyController::class)->group(function () {
+            Route::get('/sms/entegrations', 'smsEntegrations')->name('admin.sms.entegrations');
+            Route::post('/sms/entegrations/update', 'smsEntegrastionUpdate')->name('admin.sms.entegrations.update');
+            Route::post('/sms/entegrations/test', 'smsEntegrastionTest')->name('admin.sms.entegrations.test');
+            Route::get('/update/entegrations/status', 'smsEntegrastionStatus')->name('admin.sms.entegrations.status');
+        });
+
+        Route::controller(SiparislerController::class)->group(function () {
+            Route::get('/deletedOrders', 'deletedOrders')->name('admin.deletedOrders');
+            Route::get('/deliveredOrders', 'deliveredOrders')->name('admin.deliveredOrders');
+        });
+
+        Route::post('/gpsyemek/updateOrderStatus', [GpsYemekController::class, 'updateOrder']);
+
+        Route::controller(RestaurantsController::class)->prefix('restaurants')->group(function () {
+            Route::get('/', 'index')->name('admin.restaurants');
+            Route::get('/new', 'new')->name('admin.restaurants.new');
+            Route::get('/edit/{id}', 'edit')->name('admin.restaurants.edit');
+            Route::get('/delete/{id}', 'delete')->name('admin.restaurants.delete');
+            Route::post('/create', 'create')->name('admin.restaurants.create');
+            Route::post('/update', 'update')->name('admin.restaurants.update');
+        });
+
+        Route::controller(ReportController::class)->group(function () {
+            Route::get('/reports', 'index')->name('admin.reports');
+            Route::post('/reports/globalFilter', 'globalFilter');
+        });
+
+        Route::controller(ProgressPaymentController::class)->prefix('progress-payment')->group(function () {
+            Route::get('/restaurant', 'restaurant')->name('admin.progress_payment.restaurant');
+            Route::get('/courier', 'courier')->name('admin.progress_payment.courier');
+            Route::post('/records', 'storeRecords')->name('admin.progress.payments.store');
+            Route::post('/restaurant', 'restaurantFilter');
+            Route::post('/courier', 'courierFilter');
+            Route::get('/record/delete/{recordId}', 'deleteRecords');
+        });
+
+        Route::controller(ExpensesController::class)->prefix('expenses')->group(function () {
+            Route::get('/', 'index')->name('admin.expenses.index');
+            Route::get('/new', 'create')->name('admin.expenses.new');
+            Route::get('/edit/{id}', 'edit')->name('admin.expenses.edit');
+            Route::post('/update/{id}', 'update')->name('admin.expenses.update');
+            Route::post('/', 'store')->name('admin.expenses.store');
+            Route::get('/delete/{id}', 'destroy')->name('admin.expenses.destroy');
+        });
+
+        Route::controller(CourierController::class)->group(function () {
+            Route::get('/courier-performance', 'performance')->name('admin.courier.performance');
+            Route::get('/get-couriers', 'getCourier');
+            Route::get('/couriers', 'index')->name('admin.couriers');
+            Route::get('/couriers/maps', 'maps')->name('admin.couriers.maps');
+            Route::get('/couriers/new', 'new')->name('admin.couriers.new');
+            Route::get('/couriers/edit/{id}', 'edit')->name('admin.couriers.edit');
+            Route::get('/couriers/delete/{id}', 'delete')->name('admin.couriers.delete');
+            Route::get('/couriers/report/{id}', 'report')->name('admin.couriers.report');
+            Route::post('/couriers/create', 'create')->name('admin.couriers.create');
+            Route::post('/couriers/update', 'update')->name('admin.couriers.update');
+            Route::get('/orders/sendCourier/{orderId}/{courierId}', 'sendCourier');
+        });
     });
 });

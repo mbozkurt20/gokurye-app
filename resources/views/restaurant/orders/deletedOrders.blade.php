@@ -1,138 +1,140 @@
 @extends('restaurant.layouts.app')
 
 @section('content')
-    <div class="container-fluid">
-        <div class="mb-sm-4 d-flex flex-wrap align-items-center text-head">
-            <h2 class="mb-3 me-auto">İptal Edilen Siparişler</h2>
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item">Siparişler</li>
-                <li class="breadcrumb-item active">Liste</li>
-            </ol>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-            <div class="customer-search mb-3 mb-sm-0">
-                <div class="input-group search-area">
-                    <input type="text" class="form-control" id="custom-filter-delete" placeholder="Sipariş ara...">
-                    <span class="input-group-text"><i class="flaticon-381-search-2"></i></span>
+    <div class="container-fluid py-4 px-md-5">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+                <h1 class="text-2xl font-black tracking-tighter text-slate-800 uppercase leading-none italic">
+                    İPTAL <span class="text-red-500">KAYITLARI</span>
+                </h1>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">
+                    Sistem üzerinden veya restoran tarafından iptal edilen siparişler.
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <input type="text" id="custom-filter-delete"
+                           class="bg-white border-0 shadow-sm rounded-2xl py-3 px-5 ps-11 text-xs font-bold text-slate-600 focus:ring-2 focus:ring-red-100 transition-all w-64"
+                           placeholder="İptal edilenlerde ara...">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-xs"></i>
                 </div>
-            </div>
-            <div class="d-flex align-items-center flex-wrap">
-                <a href="javascript:void(0);" onclick="location.reload();" class="special-ok-button  mb-2">
-                    <i class="fas fa-sync"></i>
-                </a>
+                <button onclick="location.reload();" class="w-11 h-11 bg-white rounded-2xl flex items-center justify-center text-slate-400 hover:text-red-500 hover:rotate-180 transition-all duration-500 shadow-sm border-0">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
             </div>
         </div>
 
-        <div class="card card-body">
-            <div class="table-responsive">
-                <table id="example5" class="table table-hover text-black" style="min-width: 845px;">
+        <div class="bg-white !rounded-[40px] border border-slate-50 shadow-xl shadow-slate-200/50 overflow-hidden">
+            <div class="table-responsive p-4">
+                <table id="example5" class="table table-hover align-middle border-0">
                     <thead>
-                    <tr>
-                        <th>Platform</th>
-                        <th>Sipariş No</th>
-                        <th>Müşteri</th>
-                        <th>Telefon</th>
-                        <th>Tutar</th>
-                        <th>Ödeme Yön.</th>
-                        <th>İptal Sebebi</th>
-                        <th>Durum</th>
-                        <th>İşlem</th>
+                    <tr class="border-0">
+                        <th class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4 py-4">Kanal</th>
+                        <th class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4">Sipariş No</th>
+                        <th class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4">Müşteri</th>
+                        <th class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4">Tutar</th>
+                        <th class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4">İptal Sebebi</th>
+                        <th class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4 text-center">İşlem</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="border-0">
                     @foreach ($orders as $order)
-                        <tr id="data_{{ $order->id }}">
-                            <td>
-                                @switch($order->platform)
-                                    @case('yemeksepeti')
-                                        <img src="{{ asset('theme/images/platforms/yemeksepeti.png') }}" style="height: 18px;">
-                                        @break
-                                    @case('getir')
-                                        <img src="{{ asset('theme/images/platforms/getir.png') }}" style="height: 18px;">
-                                        @break
-                                    @case('migros')
-                                        <img src="{{ asset('theme/images/platforms/migros.png') }}" style="height: 18px;">
-                                        @break
-                                    @case('trendyol')
-                                        <img src="{{ asset('theme/images/platforms/trendyol.png') }}" style="height: 18px;">
-                                        @break
-                                    @case('adisyo')
-                                        <img src="{{ asset('theme/images/adisyoFull.png') }}" style="height: 22px;">
-                                        @break
-                                    @case('telefonsiparis')
-                                        <span class="badge bg-warning text-dark">POS</span>
-                                        @break
-                                @endswitch
+                        <tr id="data_{{ $order->id }}" class="group transition-all hover:bg-red-50/30 border-b border-slate-50 last:border-0">
+                            <td class="px-4 py-4">
+                                @php
+                                    $platformStyles = [
+                                        'getir' => ['img' => 'getiryemek.png', 'h' => '24px'],
+                                        'yemeksepeti' => ['img' => 'yemeksepeti.png', 'h' => '12px'],
+                                        'trendyol' => ['img' => 'trendyolyemek.png', 'h' => '14px'],
+                                        'migros' => ['img' => 'MigrosYemek_White_logo.png', 'h' => '14px'],
+                                        'adisyo' => ['img' => 'adisyoFull.png', 'h' => '14px']
+                                    ];
+                                    $style = $platformStyles[$order->platform] ?? null;
+                                @endphp
+                                <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-white transition-colors grayscale">
+                                    @if($style)
+                                        <img src="{{ asset('theme/images/platforms/' . $style['img']) }}" style="height: {{ $style['h'] }}; max-width: 80%;">
+                                    @else
+                                        <span class="text-[10px] font-black text-slate-400">POS</span>
+                                    @endif
+                                </div>
                             </td>
-                            <td>{{ $order->tracking_id }}</td>
-                            <td>{{ $order->full_name }}</td>
-                            <td>{{ $order->phone }}</td>
-                            <td>{{ number_format($order->amount, 2) }} TL</td>
-                            <td>{{ $order->payment_method === 'PAY_WITH_CARD' ? 'Kredi Kartı' : $order->payment_method }}</td>
-                            <td>{{ $order->message ?? '-' }}</td>
-                            <td>
-                                <span class="badge bg-info">{{ $order->status }}</span>
+                            <td class="px-4"><span class="text-xs font-black text-slate-400 tracking-tighter">#{{ $order->tracking_id }}</span></td>
+                            <td class="px-4">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-black text-slate-800 uppercase tracking-tighter">{{ $order->full_name }}</span>
+                                    <span class="text-[9px] font-bold text-slate-400 italic">{{ $order->phone }}</span>
+                                </div>
                             </td>
-                            <td>
-                                <div class="d-flex">
-                                    <button class="btn btn-secondary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#Orders{{ $order->id }}">
-                                        <i class="fas fa-eye"></i>
+                            <td class="px-4"><span class="text-xs font-black text-slate-800">{{ number_format($order->amount, 2) }} ₺</span></td>
+                            <td class="px-4">
+                                <div class="max-w-[200px]">
+                                    <span class="text-[10px] font-bold text-red-400 italic leading-tight block truncate group-hover:whitespace-normal">
+                                        <i class="fas fa-info-circle me-1"></i> {{ $order->message ?? 'Sebep belirtilmedi' }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-4">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button data-bs-toggle="modal" data-bs-target="#Orders{{ $order->id }}" class="w-9 h-9 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-800 hover:border-slate-800 transition-all shadow-sm">
+                                        <i class="fas fa-eye text-xs"></i>
                                     </button>
-                                    <button class="btn btn-danger btn-sm" onclick="printDiv({{ $order->id }})">
-                                        <i class="fas fa-print"></i>
+                                    <button onclick="printDiv({{ $order->id }})" class="w-9 h-9 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:text-red-500 hover:border-red-500 transition-all shadow-sm">
+                                        <i class="fas fa-print text-xs"></i>
                                     </button>
                                 </div>
 
-                                <!-- Modal -->
-                                <div class="modal fade" id="Orders{{ $order->id }}" tabindex="-1" aria-labelledby="modalLabel{{ $order->id }}" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg modal-dialog-centered">
-                                        <div class="modal-content" id="Printed{{ $order->id }}">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="modalLabel{{ $order->id }}">Sipariş Bilgileri</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="row">
-                                                    <div class="col-md-6 mb-2"><strong>Sipariş No:</strong> {{ $order->tracking_id }}</div>
-                                                    <div class="col-md-6 mb-2"><strong>Müşteri:</strong> {{ $order->full_name }}</div>
-                                                    <div class="col-md-4 mb-2"><strong>Telefon:</strong> {{ $order->phone }}</div>
-                                                    <div class="col-md-4 mb-2"><strong>Tutar:</strong> {{ number_format($order->amount, 2) }} TL</div>
-                                                    <div class="col-md-4 mb-2"><strong>Ödeme Yön.:</strong> {{ $order->payment_method === 'PAY_WITH_CARD' ? 'Kredi Kartı' : $order->payment_method }}</div>
-                                                    <div class="col-md-12 mb-3"><strong>Adres:</strong> {{ $order->address }}</div>
+                                <div class="modal fade" id="Orders{{ $order->id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content !rounded-[35px] border-0 shadow-2xl overflow-hidden">
 
-                                                    <div class="col-md-12">
-                                                        <table class="table table-sm">
-                                                            <thead>
-                                                            <tr>
-                                                                <th>Ürün</th>
-                                                                <th>Adet</th>
-                                                                <th>Fiyat</th>
-                                                            </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            @foreach (json_decode($order->items) as $item)
-                                                                <tr>
-                                                                    <td>{{ $item->name }}</td>
-                                                                    <td>1</td>
-                                                                    <td>{{ number_format($item->price, 2) }} TL</td>
-                                                                </tr>
-                                                            @endforeach
-                                                            </tbody>
-                                                        </table>
+                                            <div id="Printed{{ $order->id }}" class="p-8 bg-white">
+                                                <div class="flex justify-between items-start mb-6">
+                                                    <div>
+                                                        <h5 class="text-sm font-black text-slate-800 uppercase tracking-widest m-0">İptal Edilen Sipariş</h5>
+                                                        <span class="text-[10px] font-bold text-red-500 italic">#{{ $order->tracking_id }}</span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="bg-red-50 rounded-2xl p-4 border border-red-100 mb-6">
+                                                    <p class="text-[9px] font-black text-red-400 uppercase tracking-widest mb-1">İptal Açıklaması</p>
+                                                    <p class="text-xs font-bold text-red-700 m-0 italic">"{{ $order->message ?? 'Açıklama bulunmuyor.' }}"</p>
+                                                </div>
+
+                                                <div class="grid grid-cols-2 gap-4 mb-6">
+                                                    <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                                                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Müşteri</p>
+                                                        <p class="text-xs font-black text-slate-700 uppercase m-0">{{ $order->full_name }}</p>
+                                                    </div>
+                                                    <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 text-right">
+                                                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">İptal Edilen Tutar</p>
+                                                        <p class="text-lg font-black text-slate-900 m-0">{{ number_format($order->amount, 2) }} ₺</p>
+                                                    </div>
+                                                </div>
+
+                                                <div class="mb-4">
+                                                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 ps-1">Sipariş İçeriği</p>
+                                                    <div class="space-y-2">
+                                                        @foreach(json_decode($order->items) as $item)
+                                                            <div class="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+                                                                <span class="text-xs font-bold text-slate-500 uppercase tracking-tighter">1x {{ $item->name }}</span>
+                                                                <span class="text-xs font-black text-slate-400 tracking-tighter">{{ number_format($item->price, 2) }} TL</span>
+                                                            </div>
+                                                        @endforeach
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="modal-footer">
-                                                <button class="btn btn-primary" onclick="printDiv({{ $order->id }})">
-                                                    <i class="fa fa-print"></i> Yazdır
+                                            <div class="p-8 pt-0 flex gap-3">
+                                                <button onclick="printDiv({{ $order->id }})" class="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] border-0 transition-transform active:scale-95 shadow-lg shadow-slate-200">
+                                                    FİŞİ YAZDIR
                                                 </button>
-                                                <button class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                                                <button class="px-6 py-4 bg-slate-100 text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] border-0" data-bs-dismiss="modal">
+                                                    KAPAT
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Modal End -->
                             </td>
                         </tr>
                     @endforeach
@@ -142,45 +144,57 @@
         </div>
     </div>
 
-    <!-- JS -->
+    <style>
+        /* Backdrop Tıklanma Sorunu Çözümü */
+        .modal-backdrop { display: none !important; }
+        .modal { background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #ef4444 !important; color: white !important; border-radius: 12px; border: 0; font-weight: 900; font-size: 11px;
+        }
+
+        /* Yazıcı için özel ayarlar */
+        @media print {
+            body * { visibility: hidden; }
+            #PrintedContent, #PrintedContent * { visibility: visible; }
+            #PrintedContent { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+    </style>
+
     <script>
         $(document).ready(function () {
-            // Eğer daha önce DataTable başlatılmışsa önce yık
             if ($.fn.DataTable.isDataTable('#example5')) {
-                $('#example5').DataTable().clear().destroy();
+                $('#example5').DataTable().destroy();
             }
-
-            // DataTable başlat
             let table = $('#example5').DataTable({
                 order: [[1, 'desc']],
-                language: {
-                    url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/tr.json"
-                }
+                dom: 'rtip',
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/tr.json" }
             });
 
-            // Özel arama inputu bağla
             $('#custom-filter-delete').on('keyup', function () {
                 table.search(this.value).draw();
             });
         });
 
         function printDiv(id) {
-            const content = document.getElementById('Printed' + id).innerHTML;
-            const printWindow = window.open('', '', 'width=900,height=700');
-            printWindow.document.write(`
-                <html>
-                <head>
-                    <title>Yazdır</title>
-                    <link rel="stylesheet" href="{{ asset('theme/css/style.css') }}">
-                    <!-- Gerekirse diğer CSS dosyalarını ekleyin -->
-                </head>
-                <body>${content}</body>
-                </html>
-            `);
+            const printContents = document.getElementById('Printed' + id).innerHTML;
+            const originalContents = document.body.innerHTML;
+
+            // Yazdırma penceresi oluştur
+            const printWindow = window.open('', '', 'height=700,width=900');
+            printWindow.document.write('<html><head><title>Sipariş Fişi</title>');
+            printWindow.document.write('<style>body{font-family:sans-serif;padding:30px; line-height:1.5;} table{width:100%; border-collapse:collapse;} .mb-6{margin-bottom:20px;} .flex{display:flex; justify-content:space-between;}</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(printContents);
+            printWindow.document.write('</body></html>');
             printWindow.document.close();
-            printWindow.focus();
-            printWindow.print();
-            printWindow.close();
+
+            printWindow.onload = function() {
+                printWindow.focus();
+                printWindow.print();
+                printWindow.close();
+            };
         }
     </script>
 @endsection

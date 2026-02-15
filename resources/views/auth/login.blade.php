@@ -1,117 +1,117 @@
 <!DOCTYPE html>
-<html lang="tr" class="h-100">
-
+<html lang="tr" class="h-full">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{config('site.name')}} - {{config('site.name')}} Girişi</title>
-
-    <link rel="shortcut icon" type="image/png" href="{{config('site.logo')}}">
-    <link href="{{asset('theme/login/css/bootstrap.min.css')}}" rel="stylesheet">
-    <link href="{{asset('theme/login/css/style.css')}}" rel="stylesheet">
-    <link rel="stylesheet" href="{{asset('css/pages/restaurants/login/index.css')}}">
-
+    <title>{{config('site.name')}} - Giriş</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        .custom-alert {
-            padding: 10px 14px;
-            border-radius: 12px;
-            margin: 10px 0;
-            font-weight: 600;
-            font-size: 14px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            position: relative;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        .custom-alert.success {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            color: #fff;
-        }
-
-        .custom-alert.error {
-            background: linear-gradient(135deg, #f43f5e, #e11d48);
-            color: #fff;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 6px;
-            right: 8px;
-            font-size: 16px;
-            color: rgba(255,255,255,0.8);
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .close-btn:hover {
-            color: #fff;
-        }
-
-        /* küçük animasyon */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .pattern-bg {
+            background-color: #4f46e5;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M92.66 7.38c0 .11-.03.22-.09.32l-1.34 2.32c-.06.1-.16.16-.27.16s-.21-.06-.27-.16l-1.34-2.32c-.06-.1-.09-.21-.09-.32 0-.37.3-.67.67-.67h2.68c.37 0 .67.3.67.67zM7.34 92.62c0-.11.03-.22.09-.32l1.34-2.32c.06-.1.16-.16.27-.16s.21.06.27.16l1.34 2.32c.06.1.09.21.09.32 0 .37-.3.67-.67.67H7.34c-.37 0-.67-.3-.67-.67zm9.27-56.32c0 .11-.03.22-.09.32l-1.34 2.32c-.06.1-.16.16-.27.16s-.21-.06-.27-.16l-1.34-2.32c-.06-.1-.09-.21-.09-.32 0-.37.3-.67.67-.67h2.68c.37 0 .67.3.67.67zm76.72 13.7c0-.11.03-.22.09-.32l1.34-2.32c.06-.1.16-.16.27-.16s.21.06.27.16l1.34 2.32c.06.1.09.21.09.32 0 .37-.3.67-.67.67h-2.68c-.37 0-.67-.3-.67-.67z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
     </style>
 </head>
+<body class="h-full bg-white">
 
-<body>
+<div class="flex h-full min-h-screen">
 
-<div class="login-container">
-    <div class="login-box">
-        <div class="logo">
-            <img src="{{config('site.logo')}}" alt="Logo">
-        </div>
-
-        @if(session()->has('message'))
-            <div class="custom-alert success">
-                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <span class="alert-message">{{ session()->get('message') }}</span>
-            </div>
-        @endif
-
-        @if(session()->has('test') )
-            <div class="custom-alert error">
-                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <span class="alert-message">{{ session()->get('test') }}</span>
-            </div>
-        @endif
-
-        <h2 class="form-title" id="formTitle">Restaurant Girişi</h2>
-
-        <div class="user-type-selector">
-            <p class="selector-label">Giriş Türünü Seçin:</p>
-            <div class="button-group" id="userTypeButtons">
-                <button type="button" data-type="admin" class="type-btn">🗯️ Yönetici</button>
-                <button type="button" data-type="restaurant" class="type-btn active">🍽️ Restaurant</button>
+    <div class="relative hidden w-0 flex-1 lg:block pattern-bg">
+        <div class="absolute inset-0 bg-indigo-900/40 backdrop-blur-[2px]"></div>
+        <div class="relative flex h-full items-center p-16">
+            <div class="max-w-xl">
+                <img src="{{config('site.logo')}}" alt="Logo" class="h-16 mb-12 brightness-0 invert">
+                <h2 class="text-5xl font-extrabold tracking-tight text-white mb-6">
+                    Lojistiğin Geleceğine <br> <span class="text-indigo-300">Hoş Geldiniz.</span>
+                </h2>
+                <p class="text-xl text-indigo-100 font-medium leading-relaxed">
+                    {{config('site.name')}} ile operasyonlarınızı tek bir merkezden yönetin, teslimat hızınızı %40 artırın.
+                </p>
+                <div class="mt-12 grid grid-cols-2 gap-8">
+                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/20">
+                        <span class="block text-3xl font-bold text-white mb-1">24/7</span>
+                        <span class="text-indigo-200 text-sm font-bold uppercase tracking-wider">Canlı Takip</span>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/20">
+                        <span class="block text-3xl font-bold text-white mb-1">%100</span>
+                        <span class="text-indigo-200 text-sm font-bold uppercase tracking-wider">Entegrasyon</span>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
 
-        <form id="loginForm" method="POST" action="">
-            @csrf
-            <input type="hidden" name="user_type" id="userTypeInput" value="restaurant">
+    <div class="flex flex-1 flex-col justify-center px-8 py-12 sm:px-12 lg:flex-none lg:px-24 xl:px-32 bg-slate-50">
+        <div class="mx-auto w-full max-w-sm lg:w-96">
 
-            <div class="mb-3">
-                <input type="email" name="email" id="emailInput" class="form-control" placeholder="E-posta Adresiniz" required>
+            <div class="mb-10 lg:hidden">
+                <img src="{{config('site.logo')}}" alt="Logo" class="h-10">
             </div>
 
-            <div class="mb-4">
-                <input type="password" name="password" id="passwordInput" class="form-control" placeholder="Şifreniz" required>
+            <div class="mb-8">
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight">Giriş Yap</h1>
+                <p class="mt-3 text-sm font-bold text-slate-500">Hesabınıza erişmek için bilgilerinizi girin.</p>
             </div>
 
-            <button type="submit" class="btn btn-login">Giriş Yap</button>
-        </form>
+            <div class="mb-8 p-1 bg-slate-200/60 rounded-2xl flex">
+                <button type="button" data-type="restaurant" class="type-btn flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all bg-white text-indigo-600 shadow-sm">
+                    Restoran
+                </button>
+                <button type="button" data-type="admin" class="type-btn flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all text-slate-500 hover:text-slate-800">
+                    Yönetici
+                </button>
+            </div>
 
-        <a href="#" class="download-button"> Masaüstü Uygulamasını İndir</a>
+            @if(session()->has('message') || session()->has('test'))
+                <div class="mb-6 p-4 rounded-2xl text-xs font-black flex items-center gap-3 {{ session()->has('message') ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' }}">
+                    {{ session()->get('message') ?? session()->get('test') }}
+                </div>
+            @endif
+
+            <form id="loginForm" method="POST" class="space-y-5">
+                @csrf
+                <input type="hidden" name="user_type" id="userTypeInput" value="restaurant">
+
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">E-Posta Adresi</label>
+                    <input type="email" name="email" id="emailInput" required
+                           class="w-full px-5 py-4 bg-white border-2 border-slate-100 rounded-2xl outline-none transition-all font-bold text-slate-700 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-600/5 placeholder:text-slate-300"
+                           placeholder="isim@sirket.com">
+                </div>
+
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between ml-1">
+                        <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Şifre</label>
+                        <a href="#" class="text-[10px] font-black text-indigo-600 hover:underline uppercase tracking-widest">Unuttum?</a>
+                    </div>
+                    <input type="password" name="password" id="passwordInput" required
+                           class="w-full px-5 py-4 bg-white border-2 border-slate-100 rounded-2xl outline-none transition-all font-bold text-slate-700 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-600/5 placeholder:text-slate-300"
+                           placeholder="••••••••">
+                </div>
+
+                <button type="submit"
+                        class="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-indigo-200 transition-all active:scale-[0.98]">
+                    Sisteme Giriş Yap
+                </button>
+            </form>
+
+            <div class="mt-12 pt-8 border-t border-slate-200">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Masaüstü App</span>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Destek v2.0</span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
     const typeButtons = document.querySelectorAll('.type-btn');
     const userTypeInput = document.getElementById('userTypeInput');
-    const loginForm = document.getElementById('loginForm');
     const emailInput = document.getElementById('emailInput');
     const passwordInput = document.getElementById('passwordInput');
-    const formTitle = document.getElementById('formTitle');
 
     const routeMap = {
         admin: "{{ route('admin.auth') }}",
@@ -120,55 +120,31 @@
 
     const testMode = {{config('site.test_mode') ? 'true' : 'false' }};
 
-    function setTestCredentials(type) {
+    function setCredentials(type) {
         if (!testMode) return;
-
-        if (type === 'admin') {
-            emailInput.value = 'test@admin.com';
-            passwordInput.value = 'test';
-        } else if (type === 'restaurant') {
-            emailInput.value = 'test@restaurant.com';
-            passwordInput.value = 'test';
-        }
+        emailInput.value = type === 'admin' ? 'test@admin.com' : 'test@restaurant.com';
+        passwordInput.value = 'test';
     }
-
-    function updateFormTitle(type) {
-        const titles = {
-            admin: 'Yönetici Girişi',
-            restaurant: 'Restaurant Girişi'
-        };
-        formTitle.textContent = titles[type] || 'Giriş';
-    }
-
-    // Sayfa yüklendiğinde restaurant varsayılan olarak seçilsin ve test bilgileri ayarlansın
-    document.addEventListener('DOMContentLoaded', () => {
-        setTestCredentials('restaurant');
-    });
 
     typeButtons.forEach(button => {
         button.addEventListener('click', () => {
-            typeButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            const selectedType = button.getAttribute('data-type');
-            userTypeInput.value = selectedType;
-
-            setTestCredentials(selectedType);
-            updateFormTitle(selectedType); // ← bunu ekle
+            typeButtons.forEach(btn => {
+                btn.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm');
+                btn.classList.add('text-slate-500');
+            });
+            button.classList.add('bg-white', 'text-indigo-600', 'shadow-sm');
+            button.classList.remove('text-slate-500');
+            const type = button.getAttribute('data-type');
+            userTypeInput.value = type;
+            setCredentials(type);
         });
     });
 
-    loginForm.addEventListener('submit', function(e) {
-        const selectedType = userTypeInput.value;
-        if (!selectedType) {
-            e.preventDefault();
-            alert('Lütfen giriş türünü seçiniz.');
-            return;
-        }
-        this.action = routeMap[selectedType];
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        this.action = routeMap[userTypeInput.value];
     });
-</script>
 
-<script src="{{asset('theme/login/js/bootstrap.bundle.min.js')}}"></script>
+    document.addEventListener('DOMContentLoaded', () => setCredentials('restaurant'));
+</script>
 </body>
 </html>
