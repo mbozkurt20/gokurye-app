@@ -9,7 +9,7 @@
 
         </div>
         <div class="col-md-6">
-            <div class="card card-body " style="background: #ec691e">
+            <div class="card card-body " style="background: #4f46e5">
                 <h5 class="text-white fw-bold"> Molada: {{$data['break']}} Kurye</h5>
             </div>
 
@@ -21,7 +21,7 @@
 
         </div>
         <div class="col-md-6">
-            <div class="card card-body" style="background: #ec691e">
+            <div class="card card-body" style="background: #4f46e5">
                 <h5 class="text-white fw-bold"> Kapalı: {{$data['passive']}} Kurye</h5>
             </div>
         </div>

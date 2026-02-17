@@ -39,7 +39,7 @@
                  role="tabpanel"
                  aria-labelledby="{{ $statusId }}-tab">
 
-                <div class="neo-surface p-0 overflow-hidden border-0 shadow-sm">
+                <div class="neo-surface p-0 border-0 shadow-sm">
                     <div class="table-responsive">
                         <table class="table custom-modern-table m-0">
                             <thead>
@@ -68,7 +68,6 @@
 </div>
 
 <style>
-    /* JS'i bozmayan, sadece görseli değiştiren CSS */
     .neo-surface {
         background: rgba(255, 255, 255, 0.8);
         backdrop-filter: blur(10px);

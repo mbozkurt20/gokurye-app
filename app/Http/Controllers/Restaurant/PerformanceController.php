@@ -58,7 +58,7 @@ class PerformanceController extends Controller
                 [
                     'label' => 'Teslim Alma (dk)',
                     'data' => $this->mapDataToDates($dailyHandoverSpeed, $allDates),
-                    'borderColor' => '#ec691e',
+                    'borderColor' => '#4f46e5',
                     'backgroundColor' => 'rgba(236, 105, 30, 0.1)',
                 ],
                 [

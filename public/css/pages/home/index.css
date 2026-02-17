@@ -240,7 +240,7 @@ th {
 
 .date-filter:hover {
     padding: 1.5px 10px;
-    background-color: #ec691e;
+    background-color: #4f46e5;
     border: #fff;
     border-radius: 15px;
     transition: .5s all;
@@ -271,7 +271,7 @@ th {
 }
 
 .custom-input:focus {
-    border-color: #ec691e;
+    border-color: #4f46e5;
     box-shadow: 0 0 8px rgba(253, 104, 62, 0.4);
     background-color: white;
 }
@@ -288,7 +288,7 @@ th {
 
 .custom-btn:hover {
     background: #fff;
-    color: #ec691e;
+    color: #4f46e5;
     box-shadow: 0 4px 12px rgba(253, 104, 62, 0.3);
     transition: .8s all;
 }
@@ -307,12 +307,12 @@ th {
 
 .custom-link i {
     margin-right: 8px;
-    color: #ec691e;
+    color: #4f46e5;
 }
 
 .custom-link:hover {
     padding: 10px 15px;
-    background-color: #ec691e;
+    background-color: #4f46e5;
     color: white;
     box-shadow: 0 4px 8px rgba(253, 104, 62, 0.3);
 }
@@ -384,5 +384,5 @@ th {
 }
 
 .option[data-type="general"] .color-circle {
-    background-color: #ec691e;
+    background-color: #4f46e5;
 }

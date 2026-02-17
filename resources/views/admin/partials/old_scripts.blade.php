@@ -125,7 +125,7 @@
                     icon: 'success',
                     confirmButtonText: 'Tamam',
                     confirmButtonColor: '#259a38',
-                    cancelButtonColor: '#ec691e',
+                    cancelButtonColor: '#4f46e5',
                 })
                 $('#cancelModal').modal('hide');
 
@@ -523,7 +523,7 @@
             courierSection = `
         <div style="display:flex; align-items:center;">
 
-            <a data-bs-toggle="modal" data-bs-target="#Courier${order.id}" style="cursor:pointer;color: #ec691e">
+            <a data-bs-toggle="modal" data-bs-target="#Courier${order.id}" style="cursor:pointer;color: #4f46e5">
                <i class="fas fa-truck mr-1"></i> ${order.courier.name.substr(0, 10)}
             </a>
         </div>`;

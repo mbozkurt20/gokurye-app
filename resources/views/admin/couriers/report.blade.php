@@ -3,7 +3,7 @@
     <style>
         .card-custom { background: #fff; border-radius: 16px; box-shadow: 0 3px 12px rgba(0,0,0,0.05); border: none; margin-bottom: 24px; }
         .bg-primary2 { background: #259a38; color: white; }
-        .summary-box { background: #ec691e; color: white; border-radius: 12px; padding: 20px; text-align: center; font-weight: 600; margin-top: 16px; box-shadow: 0 4px 15px rgba(236,105,30,0.3); }
+        .summary-box { background: #4f46e5; color: white; border-radius: 12px; padding: 20px; text-align: center; font-weight: 600; margin-top: 16px; box-shadow: 0 4px 15px rgba(236,105,30,0.3); }
         .info-alert { background: #e3f2fd; color: #0d47a1; border: none; border-radius: 12px; padding: 15px; margin-bottom: 20px; font-size: 0.95rem; display: flex; align-items: center; }
         .table thead { background: #f8f9fa; color: #333; }
         .badge-payment { font-size: 0.85rem; padding: 5px 10px; border-radius: 8px; }

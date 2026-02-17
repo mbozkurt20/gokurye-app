@@ -24,24 +24,48 @@
                 </ol>
             </div>
         </div>
-        @if(session()->has('message'))
-            <div class="custom-alert success">
-                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <span class="alert-message">{{ session()->get('message') }}</span>
+         @if(session()->has('message'))
+        <div class="fixed top-5 right-5 z-[10000] max-w-sm w-full bg-white border-l-4 border-green-500 shadow-2xl rounded-2xl p-4 transform transition-all duration-500 ease-in-out animate-bounce-short">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-green-100 p-2 rounded-xl">
+                    <i class="fas fa-check-circle text-green-600 text-lg"></i>
+                </div>
+                <div class="ml-4 flex-1">
+                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">İşlem Başarılı</p>
+                    <p class="text-sm font-bold text-slate-700 leading-tight">
+                        {{ session()->get('message') }}
+                    </p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-slate-400 hover:text-slate-600 transition-colors">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
             </div>
-        @endif
+        </div>
+    @endif
 
-        @if(session()->has('test') )
-            <div class="custom-alert error">
-                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <span class="alert-message">{{ session()->get('test') }}</span>
+    @if(session()->has('test'))
+        <div class="fixed top-5 right-5 z-[10000] max-w-sm w-full bg-white border-l-4 border-red-500 shadow-2xl rounded-2xl p-4 transform transition-all duration-500 ease-in-out">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-red-100 p-2 rounded-xl">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-lg"></i>
+                </div>
+                <div class="ml-4 flex-1">
+                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Hata Oluştu</p>
+                    <p class="text-sm font-bold text-slate-700 leading-tight">
+                        {{ session()->get('test') }}
+                    </p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-slate-400 hover:text-slate-600 transition-colors">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
             </div>
-        @endif
+        </div>
+    @endif
 
         <div class="row">
             <div class="col-xl-4 col-lg-12">
                 <div class="card">
-                    <div class="card-header" style="background: #ec691e;color:#fff">
+                    <div class="card-header" style="background: #4f46e5;color:#fff">
                         <h4 class="card-title text-white">Vatan Sms Bilgileri</h4>
                     </div>
                     <div class="card-body">
@@ -84,7 +108,7 @@
             </div>
             <div class="col-xl-4 col-lg-12">
                 <div class="card">
-                    <div class="card-header" style="background: #ec691e;color:#fff">
+                    <div class="card-header" style="background: #4f46e5;color:#fff">
                         <h4 class="card-title text-white">Vatan Sms Test</h4>
                     </div>
                     <div class="card-body">

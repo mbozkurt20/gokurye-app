@@ -133,13 +133,13 @@
                         </div>
 
                         <div class="bg-slate-50/50 p-8 flex flex-col justify-center items-center gap-4 min-w-[200px] border-l border-slate-100">
-                            <button type="button" class="open-map-modal group w-full py-6 bg-white border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 hover:border-brand hover:text-brand transition-all flex flex-col items-center gap-2">
-                                <i class="fas fa-map-marker-alt text-2xl"></i>
-                                <span class="text-[10px] font-black uppercase">Konum Seç</span>
+                            <button type="button" class="open-map-modal group w-full py-6 bg-brand/10 border-2 border-dashed border-brand/40 rounded-2xl text-brand hover:bg-brand hover:text-white hover:border-brand transition-all flex flex-col items-center gap-3 animate-pulse hover:animate-none">
+                                <i class="fas fa-map-marker-alt text-3xl"></i>
+                                <span class="text-[11px] font-black uppercase tracking-wider">Konum Seç</span>
                             </button>
                             <input type="hidden" class="input-lat" name="latitude">
                             <input type="hidden" class="input-lng" name="longitude">
-                            <button type="button" data-repeater-delete class="text-red-400 hover:text-red-600 font-bold text-[10px] uppercase tracking-widest">
+                            <button type="button" class="btn-remove-address text-red-400 hover:text-red-600 font-bold text-[10px] uppercase tracking-widest">
                                 KALDIR
                             </button>
                         </div>
@@ -184,36 +184,75 @@
         $(document).ready(function () {
             geocoder = new google.maps.Geocoder();
 
-            // Repeater Tanımı
+            // Repeater Tanımı (sadece name indexleme için)
             var $repeater = $('.repeater').repeater({
                 initEmpty: false,
-                show: function () {
-                    $(this).slideDown();
-                    // Yeni eklenen satırda statüyü sıfırla
-                    $(this).find('.status-badge')
-                        .removeClass('bg-green-50 text-green-600')
-                        .addClass('bg-red-50 text-red-500')
-                        .html('<i class="fas fa-exclamation-triangle mr-1"></i> Konum Seçilmedi');
+                show: function () { $(this).slideDown(); },
+                hide: function (deleteElement) { $(this).slideUp(deleteElement); }
+            });
 
-                    // Hidden ve text inputları temizle
-                    $(this).find('input').val('');
-                },
-                hide: function (deleteElement) {
-                    if(confirm('Bu adresi silmek istediğinize emin misiniz?')) {
-                        $(this).slideUp(deleteElement);
+            // Repeater'ın kendi create handler'ını devre dışı bırak
+            $('[data-repeater-create]').removeAttr('data-repeater-create').addClass('btn-add-address');
+
+            // Manuel adres ekleme (tek seferde 1 tane)
+            $(document).on('click', '.btn-add-address', function() {
+                var $list = $('[data-repeater-list="address"]');
+                var $items = $list.children('[data-repeater-item]');
+                var newIndex = $items.length;
+                var $clone = $items.first().clone();
+
+                // Tüm inputları temizle
+                $clone.find('input[type="text"], input[type="hidden"]').val('');
+
+                // Name attribute'larını yeni index ile güncelle
+                $clone.find('[name]').each(function() {
+                    var name = $(this).attr('name');
+                    $(this).attr('name', name.replace(/\[\d+\]/, '[' + newIndex + ']'));
+                });
+
+                // Status badge sıfırla
+                $clone.find('.status-badge')
+                    .removeClass('bg-green-50 text-green-600')
+                    .addClass('bg-red-50 text-red-500')
+                    .html('<i class="fas fa-exclamation-triangle mr-1"></i> Konum Seçilmedi');
+
+                $clone.hide().appendTo($list).slideDown();
+            });
+
+            // Silme: Swal ile onay
+            $(document).on('click', '.btn-remove-address', function() {
+                var $item = $(this).closest('[data-repeater-item]');
+                Swal.fire({
+                    title: 'Emin misiniz?',
+                    text: 'Bu adresi silmek istediğinize emin misiniz?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Evet, Sil',
+                    cancelButtonText: 'İptal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $item.slideUp(function() { $(this).remove(); });
                     }
-                }
+                });
             });
 
             // Form Gönderim Kontrolü
             $('#customerForm').on('submit', function(e) {
                 let allSet = true;
-                $('.input-lat').each(function() {
+                $('[data-repeater-item]:visible .input-lat').each(function() {
                     if (!$(this).val()) { allSet = false; }
                 });
                 if (!allSet) {
                     e.preventDefault();
-                    alert("Lütfen her adres için haritadan konum seçerek 'Onayla' butonuna basınız!");
+                    Swal.fire({
+                        title: 'Konum Eksik!',
+                        text: "Lütfen her adres için haritadan konum seçerek 'Onayla' butonuna basınız!",
+                        icon: 'error',
+                        confirmButtonColor: '#ef4444',
+                        confirmButtonText: 'Tamam'
+                    });
                 }
             });
 

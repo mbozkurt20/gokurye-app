@@ -12,19 +12,19 @@
 </div>
 
 <div class="header">
-    <div class="row" style="background-color: #f3eded; color: #ec691e;">
+    <div class="row" style="background-color: #f3eded; color: #4f46e5;">
         <div class="text-center fw-bold py-2">
             <strong>{{config('site.name')}}</strong> Partner Paneli
         </div>
     </div>
 
     <div class="container-fluid py-2 px-3">
-        <div class="d-flex align-items-center justify-content-end w-100" style="color: #ec691e;">
+        <div class="d-flex align-items-center justify-content-end w-100" style="color: #4f46e5;">
             <!-- Profil -->
             <div class="dropdown">
                 <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
                     <img src="/theme/images/avatar.jpg" class="rounded-circle border border-2"
-                         style="height: 45px; width: 45px; border-color: #ec691e;" alt="Avatar">
+                         style="height: 45px; width: 45px; border-color: #4f46e5;" alt="Avatar">
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li>

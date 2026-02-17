@@ -22,7 +22,7 @@
         <div class="absolute inset-0 bg-indigo-900/40 backdrop-blur-[2px]"></div>
         <div class="relative flex h-full items-center p-16">
             <div class="max-w-xl">
-                <img src="{{config('site.logo')}}" alt="Logo" class="h-16 mb-12 brightness-0 invert">
+                <img src="{{config('site.logo')}}" alt="Logo" class="brightness-0 invert">
                 <h2 class="text-5xl font-extrabold tracking-tight text-white mb-6">
                     Lojistiğin Geleceğine <br> <span class="text-indigo-300">Hoş Geldiniz.</span>
                 </h2>

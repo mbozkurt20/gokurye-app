@@ -110,13 +110,13 @@ th {
 }
 
 .nav-tabs .nav-link:hover {
-    color: #ec691e;
+    color: #4f46e5;
     background-color: #f5f5f5;
 }
 
 .nav-tabs .nav-link.active {
     color: white;
-    background-color: #ec691e;
+    background-color: #4f46e5;
     font-weight: 600;
 }
 /* ========= TABS ========= */
@@ -353,12 +353,12 @@ th {
 }
 
 .custom-select option:hover {
-    background-color: #ec691e !important;
+    background-color: #4f46e5 !important;
     color: white;
 }
 
 .custom-select option:checked {
-    background-color: #ec691e !important;
+    background-color: #4f46e5 !important;
     color: white;
 }
 
@@ -418,7 +418,7 @@ th {
 }
 
 .date-filter:hover {
-    background-color: #ec691e;
+    background-color: #4f46e5;
     border-radius: 15px;
     transition: .5s all;
     color: #fff !important;
@@ -445,7 +445,7 @@ th {
 }
 
 .custom-input:focus {
-    border-color: #ec691e;
+    border-color: #4f46e5;
     box-shadow: 0 0 8px rgba(231, 0, 77, 0.4);
     background-color: white;
 }
@@ -470,11 +470,11 @@ th {
 
 .custom-link i {
     margin-right: 8px;
-    color: #ec691e;
+    color: #4f46e5;
 }
 
 .custom-link:hover {
-    background-color: #ec691e;
+    background-color: #4f46e5;
     color: white;
     box-shadow: 0 4px 8px rgba(231, 0, 77, 0.3);
 }

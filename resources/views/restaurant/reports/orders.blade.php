@@ -19,7 +19,6 @@
                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ps-1">Platform</label>
                     <select class="form-select !rounded-2xl border-0 bg-slate-100 p-3 font-bold text-slate-700 shadow-inner text-xs" id="platform">
                         <option value="0">Tüm Platformlar</option>
-                        <option value="gpsyemek">GpsYemek</option>
                         <option value="getir">GetirYemek</option>
                         <option value="trendyol">TrendyolYemek</option>
                         <option value="yemeksepeti">Yemeksepeti</option>

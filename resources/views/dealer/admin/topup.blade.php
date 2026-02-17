@@ -7,7 +7,7 @@
         .table thead tr th {
             color: #000; font-size: 15px; height: 20px; overflow: hidden;
         }
-        .bg-ok { background: #ec691e; }
+        .bg-ok { background: #4f46e5; }
     </style>
 
     <div class="container-fluid">
@@ -433,7 +433,7 @@
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#259a38',
-                cancelButtonColor: '#ec691e',
+                cancelButtonColor: '#4f46e5',
                 cancelButtonText: 'Hayır',
                 confirmButtonText: 'Evet, Onaylamak istiyorum!'
             }).then((result) => {
@@ -470,7 +470,7 @@
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#259a38',
-                cancelButtonColor: '#ec691e',
+                cancelButtonColor: '#4f46e5',
                 cancelButtonText: 'Hayır',
                 confirmButtonText: 'Evet, Onaylamak istiyorum!'
             }).then((result) => {
@@ -507,7 +507,7 @@
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#259a38',
-                cancelButtonColor: '#ec691e',
+                cancelButtonColor: '#4f46e5',
                 cancelButtonText: 'Hayır',
                 confirmButtonText: 'Evet, Onaylamak istiyorum!'
             }).then((result) => {

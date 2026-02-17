@@ -46,7 +46,7 @@
         @if ($order->courier)
             <div style="display:flex; align-items:center;">
                 <a class=" fw-bold" data-bs-toggle="modal" data-bs-target="#Courier{{ $order->id }}"
-                   style="cursor:pointer;color: #ec691e">
+                   style="cursor:pointer;color: #4f46e5">
                     <i class="fas fa-truck mr-1"></i> {{ $order->courier ? substr($order->courier->name,0,10) : 'Silinmiş Kurye' }}
                     ...
                 </a>
@@ -285,7 +285,7 @@
     }
 
     .inline-order-select:disabled {
-        background-color: #ec691e;
+        background-color: #4f46e5;
         color: white;
         cursor: not-allowed;
         opacity: 0.9;

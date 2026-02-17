@@ -144,7 +144,12 @@ class OrderController extends Controller
     {
         $couriers = Courier::where('status', 'active')->where('restaurant_id', Auth::user()->id)->get();
         $customers = Customer::where('status', 'active')->where('restaurant_id', Auth::user()->id)->get();
-        $categories = Categorie::where('status', 'active')->where('restaurant_id', Auth::user()->id)->get();
+        $categories = Categorie::where('status', 'active')
+            ->where('restaurant_id', Auth::user()->id)
+            ->with(['products' => function($q) {
+                $q->where('status', 'active')->where('restaurant_id', Auth::user()->id);
+            }])
+            ->get();
         return view('restaurant.orders.new', compact('customers', 'couriers', 'categories'));
     }
 

@@ -20,25 +20,40 @@
         </div>
 
         @if(session()->has('message'))
-            <div class="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-3 animate-fade-in">
-                <div class="w-8 h-8 rounded-xl bg-emerald-500 flex items-center justify-center text-white text-xs shadow-lg shadow-emerald-200">
-                    <i class="fa-solid fa-check"></i>
+            <div class="fixed top-5 right-5 z-[10000] max-w-sm w-full bg-white border-l-4 border-green-500 shadow-2xl rounded-2xl p-4 transform transition-all duration-500 ease-in-out animate-bounce-short">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-green-100 p-2 rounded-xl">
+                        <i class="fas fa-check-circle text-green-600 text-lg"></i>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest">İşlem Başarılı</p>
+                        <p class="text-sm font-bold text-slate-700 leading-tight">
+                            {{ session()->get('message') }}
+                        </p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-slate-400 hover:text-slate-600 transition-colors">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
                 </div>
-                <span class="text-xs font-black text-emerald-700 uppercase tracking-tight">{{ session()->get('message') }}</span>
             </div>
         @endif
 
         @if(session()->has('test'))
-            <div class="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-center gap-3 animate-fade-in">
-                <div class="w-8 h-8 rounded-xl bg-rose-500 flex items-center justify-center text-white text-xs shadow-lg shadow-rose-200">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
+            <div class="fixed top-5 right-5 z-[10000] max-w-sm w-full bg-white border-l-4 border-red-500 shadow-2xl rounded-2xl p-4 transform transition-all duration-500 ease-in-out">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-red-100 p-2 rounded-xl">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-lg"></i>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Hata Oluştu</p>
+                        <p class="text-sm font-bold text-slate-700 leading-tight">
+                            {{ session()->get('test') }}
+                        </p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-slate-400 hover:text-slate-600 transition-colors">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
                 </div>
-                <div class="flex-grow">
-                    <span class="text-xs font-black text-rose-700 uppercase tracking-tight">{{ session()->get('test') }}</span>
-                </div>
-                <button onclick="this.parentElement.style.display='none';" class="text-rose-300 hover:text-rose-500 transition-colors">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
             </div>
         @endif
 

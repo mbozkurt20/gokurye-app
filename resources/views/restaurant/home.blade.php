@@ -150,7 +150,7 @@
                     @php
                         $platforms = [
                             ['title' => 'Telefon', 'count' => count($telefonsiparis), 'icon' => 'fa-phone', 'color' => '#6366f1'],
-                            ['title' => 'GpsYemek', 'count' => count($gpsyemek), 'img' => 'gpsyemek.png'],
+
                             ['title' => 'Getir', 'count' => count($getiryemek), 'img' => 'getir.png'],
                             ['title' => 'Trendyol', 'count' => count($trendyol), 'img' => 'trendyol.png'],
                             ['title' => 'Y.Sepeti', 'count' => count($yemeksepeti), 'img' => 'yemeksepeti.png'],
@@ -206,7 +206,7 @@
             </div>
 
             <div class="col-12 fade-in-up" style="animation-delay: 0.4s">
-                <div class="neo-surface p-4 overflow-hidden shadow-sm border-0">
+                <div class="neo-surface p-4 shadow-sm border-0">
                     <div class="d-flex justify-content-between align-items-center mb-4 px-2">
                         <h4 class="fw-black m-0 tracking-tighter">SİPARİŞ AKIŞI</h4>
                         <a href="#" class="text-indigo fw-bold small text-decoration-none">Tümünü Gör <i class="fas fa-arrow-right ms-1"></i></a>

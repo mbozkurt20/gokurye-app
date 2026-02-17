@@ -84,7 +84,7 @@
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#259a38',
-                cancelButtonColor: '#ec691e',
+                cancelButtonColor: '#4f46e5',
                 cancelButtonText: 'Hayır',
                 confirmButtonText: 'Evet, Silmek istiyorum!',
             }).then((result) => {

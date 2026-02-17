@@ -4,7 +4,7 @@
         body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; }
         .page-header { background: #07004d; color: white; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(7,0,77,0.2); }
         .card-custom { background: #fff; border-radius: 16px; box-shadow: 0 3px 12px rgba(0,0,0,0.1); border: none; margin-bottom: 24px; }
-        .btn-primary { background-color: #ec691e; border: none; border-radius: 8px; font-weight: 600; }
+        .btn-primary { background-color: #4f46e5; border: none; border-radius: 8px; font-weight: 600; }
         .table thead { background: #259a38; color: white; }
 
         /* Özet Kutuları */
@@ -84,7 +84,7 @@
         <div id="summaryArea" style="display: none;">
             <div class="row g-3 mb-4">
                 <div class="col-md-4">
-                    <div class="summary-box shadow-sm" style="background: #ec691e;">
+                    <div class="summary-box shadow-sm" style="background: #4f46e5;">
                         <small class="d-block text-white-50 uppercase">Toplam Sipariş</small>
                         <span id="topsiparis">0</span>
                     </div>

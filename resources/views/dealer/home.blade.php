@@ -15,7 +15,7 @@
                             <input type="date" class="form-control custom-input" id="end_date" name="end_date" required>
                         </div>
                         <div class="d-flex align-items-end">
-                            <button style="background: #ec691e;color:#fff;font-size: 0.8rem" type="submit"
+                            <button style="background: #4f46e5;color:#fff;font-size: 0.8rem" type="submit"
                                     class="btn custom-btn">
                                 <i class="fas fa-calendar-day" style="padding-right:5px"></i>
                                 Filtrele</button>

@@ -70,7 +70,7 @@
 
         .breadcrumb-item + .breadcrumb-item::before {
             content: "›";
-            color: #ec691e;
+            color: #4f46e5;
             font-weight: bold;
             padding-right: 10px;
             font-size: 1rem;
@@ -135,7 +135,7 @@
         }
 
         .special-ok-button {
-            background-color: #ec691e; /* Indigo-600 */
+            background-color: #4f46e5; /* Indigo-600 */
             color: white;
             padding: 0.75rem 1.5rem;
             font-size: 1rem;
@@ -148,7 +148,7 @@
         }
 
         .special-ok-button:hover {
-            background-color: #ec691e; /* Indigo-700 */
+            background-color: #4f46e5; /* Indigo-700 */
             transform: translateY(-2px);
             color: white;
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);

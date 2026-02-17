@@ -48,7 +48,7 @@
 
         /* Seçili olan kart */
         .template-card input:checked + .card {
-            border: 3px solid #ec691e;
+            border: 3px solid #4f46e5;
             box-shadow: 0 0 12px rgba(13, 110, 253, 0.4);
         }
 

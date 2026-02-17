@@ -54,14 +54,14 @@ body {
     padding: 12px;
     font-size: 16px;
     border-radius: 8px;
-    background-color: #ec691e;
+    background-color: #4f46e5;
     border: none;
     color: #fff;
     font-weight: 500;
 }
 
 .btn-login:hover {
-    background-color: #ec691e;
+    background-color: #4f46e5;
     color: white;
 }
 
@@ -109,9 +109,9 @@ body {
     font-size: 16px;
 }
 .type-btn.active {
-    background-color: #ec691e;
-    border-color: #ec691e;
+    background-color: #4f46e5;
+    border-color: #4f46e5;
 }
 .type-btn:hover {
-    background-color: #ec691e;
+    background-color: #4f46e5;
 }

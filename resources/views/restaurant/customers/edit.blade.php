@@ -18,6 +18,44 @@
             </a>
         </div>
 
+        @if(session()->has('message'))
+            <div class="fixed top-5 right-5 z-[10000] max-w-sm w-full bg-white border-l-4 border-green-500 shadow-2xl rounded-2xl p-4 transform transition-all duration-500 ease-in-out animate-bounce-short">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-green-100 p-2 rounded-xl">
+                        <i class="fas fa-check-circle text-green-600 text-lg"></i>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest">İşlem Başarılı</p>
+                        <p class="text-sm font-bold text-slate-700 leading-tight">
+                            {{ session()->get('message') }}
+                        </p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-slate-400 hover:text-slate-600 transition-colors">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        @endif
+
+        @if(session()->has('test'))
+            <div class="fixed top-5 right-5 z-[10000] max-w-sm w-full bg-white border-l-4 border-red-500 shadow-2xl rounded-2xl p-4 transform transition-all duration-500 ease-in-out">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-red-100 p-2 rounded-xl">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-lg"></i>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Hata Oluştu</p>
+                        <p class="text-sm font-bold text-slate-700 leading-tight">
+                            {{ session()->get('test') }}
+                        </p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-slate-400 hover:text-slate-600 transition-colors">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        @endif
+
         <form method="post" class="repeater" id="customerForm" action="{{ route('restaurant.customers.update') }}">
             @csrf
             <input type="hidden" name="id" value="{{ $customer->id }}">
@@ -116,14 +154,14 @@
                             </div>
 
                             <div class="lg:w-48 flex flex-col items-center justify-center gap-4 bg-slate-50/50 rounded-2xl p-6 border border-dashed border-slate-200">
-                                <button type="button" class="w-full py-4 bg-white border border-slate-200 rounded-2xl text-slate-600 font-black text-[10px] uppercase tracking-widest hover:border-brand hover:text-brand transition-all shadow-sm open-map-modal flex flex-col items-center gap-2">
+                                <button type="button" class="w-full py-4 bg-brand/10 border-2 border-dashed border-brand/40 rounded-2xl text-brand font-black text-[10px] uppercase tracking-widest hover:bg-brand hover:text-white hover:border-brand transition-all shadow-sm open-map-modal flex flex-col items-center gap-2 animate-pulse hover:animate-none">
                                     <i class="fa fa-map-marker-alt text-lg"></i> Konumu Düzenle
                                 </button>
 
                                 <input type="hidden" class="input-lat" name="latitude" value="{{ $lat }}">
                                 <input type="hidden" class="input-lng" name="longitude" value="{{ $lng }}">
 
-                                <button type="button" class="text-red-400 hover:text-red-600 font-black text-[10px] uppercase tracking-widest transition-colors flex items-center gap-1" data-repeater-delete>
+                                <button type="button" class="btn-remove-address text-red-400 hover:text-red-600 font-black text-[10px] uppercase tracking-widest transition-colors flex items-center gap-1">
                                     <i class="fa fa-trash-alt text-xs"></i> Adresi Kaldır
                                 </button>
                             </div>
@@ -180,16 +218,76 @@
 
             geocoder = new google.maps.Geocoder();
 
+            // Repeater Tanımı (sadece name indexleme için)
             $('.repeater').repeater({
                 initEmpty: false,
-                show: function () {
-                    $(this).slideDown();
-                    $(this).find('.status-badge').removeClass('coord-ok').addClass('coord-missing').text('Konum Seçilmedi');
-                    $(this).find('input[type="hidden"]').val('');
-                    $(this).find('input[type="text"]').val('');
-                },
-                hide: function (deleteElement) {
-                    if(confirm('Bu adresi silmek istediğinize emin misiniz?')) { $(this).slideUp(deleteElement); }
+                show: function () { $(this).slideDown(); },
+                hide: function (deleteElement) { $(this).slideUp(deleteElement); }
+            });
+
+            // Repeater'ın kendi create handler'ını devre dışı bırak
+            $('[data-repeater-create]').removeAttr('data-repeater-create').addClass('btn-add-address');
+
+            // Manuel adres ekleme (tek seferde 1 tane)
+            $(document).on('click', '.btn-add-address', function() {
+                var $list = $('[data-repeater-list="address"]');
+                var $items = $list.children('[data-repeater-item]');
+                var newIndex = $items.length;
+                var $clone = $items.first().clone();
+
+                // Tüm inputları temizle
+                $clone.find('input[type="text"], input[type="hidden"]').val('');
+                $clone.find('select').val('').trigger('change');
+
+                // Name attribute'larını yeni index ile güncelle
+                $clone.find('[name]').each(function() {
+                    var name = $(this).attr('name');
+                    $(this).attr('name', name.replace(/\[\d+\]/, '[' + newIndex + ']'));
+                });
+
+                // Status badge sıfırla
+                $clone.find('.status-badge')
+                    .removeClass('bg-green-100 text-green-700')
+                    .addClass('bg-red-100 text-red-700')
+                    .html('<i class="fas fa-exclamation-triangle mr-1"></i> Konum Seçilmedi');
+
+                $clone.hide().appendTo($list).slideDown();
+            });
+
+            // Silme: Swal ile onay
+            $(document).on('click', '.btn-remove-address', function() {
+                var $item = $(this).closest('[data-repeater-item]');
+                Swal.fire({
+                    title: 'Emin misiniz?',
+                    text: 'Bu adresi silmek istediğinize emin misiniz?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Evet, Sil',
+                    cancelButtonText: 'İptal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $item.slideUp(function() { $(this).remove(); });
+                    }
+                });
+            });
+
+            // Form Gönderim Kontrolü
+            $('#customerForm').on('submit', function(e) {
+                let allSet = true;
+                $('[data-repeater-item]:visible .input-lat').each(function() {
+                    if (!$(this).val()) { allSet = false; }
+                });
+                if (!allSet) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Konum Eksik!',
+                        text: "Lütfen her adres için haritadan konum seçerek 'Onayla' butonuna basınız!",
+                        icon: 'error',
+                        confirmButtonColor: '#ef4444',
+                        confirmButtonText: 'Tamam'
+                    });
                 }
             });
 

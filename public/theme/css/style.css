@@ -2805,7 +2805,7 @@ textarea.form-control-lg {
   border-color: #f72b50; }
   .btn-outline-danger:hover {
     color: #000;
-    background-color: #ec691e;
+    background-color: #4f46e5;
     border-color: #f72b50; }
   .btn-check:focus + .btn-outline-danger, .btn-outline-danger:focus {
     box-shadow: 0 0 0 0.25rem rgba(247, 43, 80, 0.5); }
@@ -9285,7 +9285,7 @@ label {
     margin-bottom: 1.5rem !important; } }
 /* Editable */
 :root {
-    --accent: #ec691e;
+    --accent: #4f46e5;
 }
 
 /* Preloader ekran kaplama */
@@ -9933,7 +9933,7 @@ svg.pulse-svg {
       z-index: -1;
       margin: -0.1875rem;
       border-radius: inherit;
-      background: linear-gradient(to right, #ec691e, rgb(231, 0, 77)); }
+      background: linear-gradient(to right, #4f46e5, rgb(231, 0, 77)); }
   .navbar-expand .header-profile:after {
     content: "";
     height: 3.5rem;
@@ -12831,7 +12831,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
       transition: all 0.5s; }
   [data-sidebar-style="full"][data-layout="vertical"] .deznav .metismenu > li.mm-active > a i, [data-sidebar-style="full"][data-layout="vertical"] .deznav .metismenu > li:hover > a i {
     font-weight: 300;
-    background: #ec691e;
+    background: #4f46e5;
     color: #fff;
     box-shadow: 0 0.5625rem 0.5625rem var(--rgba-primary-3);
     margin-right: 10px; }
@@ -12885,7 +12885,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
   [data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .deznav .metismenu li {
     position: relative; }
     [data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .deznav .metismenu li a {
-      background: #ec691e;
+      background: #4f46e5;
       margin: 0.125rem 0; }
       [data-sidebar-style="full"][data-layout="vertical"] .menu-toggle .deznav .metismenu li a svg {
         max-width: 1.5rem;
@@ -20854,7 +20854,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
     background: #fff; }
 
 .form-check-input:checked {
-  background-color: #ec691e;
+  background-color: #4f46e5;
   border-color: var(--primary); }
 .form-check-input:focus {
   border-color: var(--primary);
@@ -21080,7 +21080,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
   border-radius: 0; }
 
 .select2-container--default .select2-results__option--highlighted[aria-selected] {
-  background-color: #ec691e
+  background-color: #4f46e5
 }
 
 .select2-container--default.select2-container--focus .select2-selection--multiple {
@@ -26843,7 +26843,7 @@ svg.vert-move {
     font-size: 1rem; }
   .customer-search .input-group-text i {
     font-size: 1.5rem;
-    color: #ec691e
+    color: #4f46e5
   }
   @media only screen and (max-width: 1400px) {
     .customer-search .input-group-text i {
