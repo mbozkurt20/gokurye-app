@@ -1,149 +1,140 @@
 @extends('admin.layouts.app')
 @section('content')
-    <style>
-        body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; }
-        .page-header { background: #07004d; color: white; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(7,0,77,0.2); }
-        .card-custom { background: #fff; border-radius: 16px; box-shadow: 0 3px 12px rgba(0,0,0,0.1); border: none; margin-bottom: 24px; }
-        .btn-primary { background-color: #4f46e5; border: none; border-radius: 8px; font-weight: 600; }
-        .table thead { background: #259a38; color: white; }
-
-        /* Özet Kutuları */
-        .summary-box { color: white; padding: 16px; text-align: center; font-weight: 700; border-radius: 12px; font-size: 1.1rem; }
-        .payment-stat-card { background: #fdfdfd; border: 1px solid #eee; padding: 12px; text-align: center; border-radius: 10px; transition: all 0.3s; height: 100%; }
-        .payment-stat-card small { color: #666; font-weight: 600; display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 0.75rem; }
-        .payment-stat-card strong { color: #07004d; font-size: 0.95rem; }
-    </style>
-
-    <div class="container-fluid">
-        <div class="mb-sm-4 d-flex flex-wrap align-items-center text-head">
-            <h2 class="mb-3 me-auto">Global Raporlar</h2>
+    <div class="container-fluid pb-5">
+        <div class="mb-4 d-flex align-items-center justify-content-between">
             <div>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="javascript:void(0)">Raporlar</a></li>
-                    <li class="breadcrumb-item active">Filtreleme</li>
-                </ol>
+                <h2 class="font-black text-slate-800 uppercase tracking-tighter mb-0">Global Raporlar</h2>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Veriye Dayalı Performans Analizi</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="w-10 h-10 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-red-500 hover:bg-red-50 transition-all shadow-sm" id="pdfBtn" title="PDF İndir">
+                    <i class="fa fa-file-pdf"></i>
+                </button>
+                <button class="w-10 h-10 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-green-600 hover:bg-green-50 transition-all shadow-sm" id="excelBtn" title="Excel İndir">
+                    <i class="fa fa-file-excel"></i>
+                </button>
             </div>
         </div>
 
-        <div class="card card-custom mb-4">
-            <div class="card-body">
-                <div class="row g-3 align-items-end">
+        <div class="card border-0 shadow-sm !rounded-[32px] overflow-hidden mb-4">
+            <div class="card-body p-5">
+                <div class="row g-3">
                     <div class="col-md-2">
-                        <label class="form-label fw-bold">Kurye</label>
-                        <select class="form-control select2" id="courier">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Kurye Seçimi</label>
+                        <select class="form-select select2 !rounded-xl border-slate-200" id="courier">
                             <option value="0">Tümü</option>
                             @foreach ($couriers as $courier)
                                 <option value="{{ $courier->id }}">{{ $courier->name }}</option>
                             @endforeach
                         </select>
                     </div>
-
                     <div class="col-md-2">
-                        <label class="form-label fw-bold">Restaurant</label>
-                        <select class="form-control select2" id="restaurant">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Restoran</label>
+                        <select class="form-select select2 !rounded-xl border-slate-200" id="restaurant">
                             <option value="0">Tümü</option>
                             @foreach ($restaurants as $restaurant)
                                 <option value="{{ $restaurant->id }}">{{ $restaurant->restaurant_name }}</option>
                             @endforeach
                         </select>
                     </div>
-
                     <div class="col-md-2">
-                        <label class="form-label fw-bold">Durum</label>
-                        <select class="form-control" id="status_filter">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Sipariş Durumu</label>
+                        <select class="form-select !rounded-xl border-slate-200 font-bold text-xs" id="status_filter">
                             <option value="all">Tümü (İptaller Dahil)</option>
                             <option value="delivered" selected>Sadece Teslim Edilenler</option>
                             <option value="cancelled">Sadece İptal Edilenler</option>
                         </select>
                     </div>
-
                     <div class="col-md-2">
-                        <label class="form-label fw-bold">Başlangıç</label>
-                        <input type="date" value="{{ date('Y-m-d') }}" class="form-control" id="start_date">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Başlangıç Tarihi</label>
+                        <input type="date" value="{{ date('Y-m-d') }}" class="form-control !rounded-xl border-slate-200 font-bold text-xs" id="start_date">
                     </div>
-
                     <div class="col-md-2">
-                        <label class="form-label fw-bold">Bitiş</label>
-                        <input type="date" value="{{ date('Y-m-d') }}" class="form-control" id="end_date">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Bitiş Tarihi</label>
+                        <input type="date" value="{{ date('Y-m-d') }}" class="form-control !rounded-xl border-slate-200 font-bold text-xs" id="end_date">
                     </div>
-
                     <div class="col-md-2">
-                        <button class="btn btn-primary w-100 py-2" onclick="ReportFilter()">
-                            <i class="fa fa-filter me-1"></i> Filtrele
+                        <label class="mb-2 block invisible">Buton</label>
+                        <button class="w-full py-2.5 bg-indigo-600 text-white rounded-xl font-black text-[11px] uppercase tracking-widest shadow-lg shadow-indigo-100 border-0 transition-all hover:scale-[1.02] active:scale-95" onclick="ReportFilter()">
+                            FİLTRELE
                         </button>
                     </div>
-                </div>
-
-                <div class="mt-4 d-flex justify-content-end gap-2">
-                    <button class="btn btn-outline-danger btn-sm" id="pdfBtn"><i class="fa fa-file-pdf"></i> PDF</button>
-                    <button class="btn btn-outline-success btn-sm" id="excelBtn"><i class="fa fa-file-excel"></i> Excel</button>
                 </div>
             </div>
         </div>
 
         <div id="summaryArea" style="display: none;">
-            <div class="row g-3 mb-4">
+            <div class="row g-4 mb-4">
                 <div class="col-md-4">
-                    <div class="summary-box shadow-sm" style="background: #4f46e5;">
-                        <small class="d-block text-white-50 uppercase">Toplam Sipariş</small>
-                        <span id="topsiparis">0</span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="summary-box shadow-sm" style="background: #259a38;">
-                        <small class="d-block text-white-50">Teslim Edilen</small>
-                        <span id="count_delivered">0</span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="summary-box shadow-sm" style="background: #dc3545;">
-                        <small class="d-block text-white-50">İptal Edilen</small>
-                        <span id="count_cancelled">0</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row row-cols-2 row-cols-md-4 row-cols-lg-7 g-2 mb-4">
-                @php
-                    $methods = [
-                        'online' => 'Online', 'nakit' => 'Nakit', 'kkarti' => 'K.Kartı',
-                        'ticket' => 'Ticket', 'sodexo' => 'Sodexo', 'multinet' => 'Multinet', 'pluxee' => 'Pluxee'
-                    ];
-                @endphp
-                @foreach($methods as $key => $label)
-                    <div class="col">
-                        <div class="payment-stat-card shadow-sm">
-                            <small>{{ $label }}</small>
-                            <strong id="top{{ $key }}">0.00 TL</strong>
+                    <div class="bg-white p-5 !rounded-[32px] shadow-sm flex items-center gap-4 border-b-4 border-indigo-600">
+                        <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600"><i class="fas fa-shopping-basket"></i></div>
+                        <div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest m-0">Toplam Sipariş</p>
+                            <h3 class="font-black text-slate-800 m-0" id="topsiparis">0</h3>
                         </div>
                     </div>
-                @endforeach
+                </div>
+                <div class="col-md-4">
+                    <div class="bg-white p-5 !rounded-[32px] shadow-sm flex items-center gap-4 border-b-4 border-green-500">
+                        <div class="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center text-green-600"><i class="fas fa-check-circle"></i></div>
+                        <div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest m-0">Teslim Edilen</p>
+                            <h3 class="font-black text-slate-800 m-0" id="count_delivered">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="bg-white p-5 !rounded-[32px] shadow-sm flex items-center gap-4 border-b-4 border-red-500">
+                        <div class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center text-red-600"><i class="fas fa-times-circle"></i></div>
+                        <div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest m-0">İptal Edilen</p>
+                            <h3 class="font-black text-slate-800 m-0" id="count_cancelled">0</h3>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="alert alert-success d-flex justify-content-between align-items-center mb-4">
-                <p class="mb-0 fw-bold text-black">GENEL TOPLAM CİRO:</p>
-                <h2 class="mb-0 fw-bold" id="topciro">0.00 TL</h2>
+            <div class="bg-white p-5 !rounded-[32px] shadow-sm mb-4 border border-slate-50">
+                <p class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-4">Ödeme Yöntemi Dağılımı</p>
+                <div class="row row-cols-2 row-cols-md-4 row-cols-lg-7 g-3">
+                    @foreach(['online' => 'Online', 'nakit' => 'Nakit', 'kkarti' => 'K.Kartı', 'ticket' => 'Ticket', 'sodexo' => 'Sodexo', 'multinet' => 'Multinet', 'pluxee' => 'Pluxee'] as $key => $label)
+                        <div class="col">
+                            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center">
+                                <small class="text-[9px] font-black text-slate-400 uppercase block mb-1">{{ $label }}</small>
+                                <strong class="text-xs font-black text-slate-800 block" id="top{{ $key }}">0.00 TL</strong>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                <div class="mt-5 p-4 bg-indigo-600 rounded-2xl flex justify-between items-center shadow-lg shadow-indigo-100">
+                    <span class="text-xs font-black text-white uppercase tracking-widest">GENEL TOPLAM CİRO</span>
+                    <h2 class="text-2xl font-black text-white m-0" id="topciro">0.00 TL</h2>
+                </div>
             </div>
         </div>
 
-        <div class="card card-custom">
-            <div class="card-body" id="reportList">
-                <div class="table-responsive">
-                    <table class="table  align-middle">
-                        <thead>
+        <div class="card border-0 shadow-sm !rounded-[32px] overflow-hidden">
+            <div class="card-body p-0">
+                <div class="table-responsive" id="reportList">
+                    <table class="table align-middle m-0">
+                        <thead class="bg-slate-50">
                         <tr>
-                            <th>Platform</th>
-                            <th>Sipariş No</th>
-                            <th>Kurye</th>
-                            <th>Müşteri</th>
-                            <th>Ödeme</th>
-                            <th>Tutar</th>
-                            <th>Tarih</th>
+                            <th class="py-4 px-4 text-[10px] font-black text-slate-400 uppercase border-0">Platform</th>
+                            <th class="py-4 px-4 text-[10px] font-black text-slate-400 uppercase border-0">Sipariş No</th>
+                            <th class="py-4 px-4 text-[10px] font-black text-slate-400 uppercase border-0">Kurye / Müşteri</th>
+                            <th class="py-4 px-4 text-[10px] font-black text-slate-400 uppercase border-0">Ödeme</th>
+                            <th class="py-4 px-4 text-[10px] font-black text-slate-400 uppercase border-0">Tutar</th>
+                            <th class="py-4 px-4 text-[10px] font-black text-slate-400 uppercase border-0 text-end">Tarih</th>
                         </tr>
                         </thead>
-                        <tbody id="report">
+                        <tbody id="report" class="border-0 text-xs">
                         <tr id="no-data">
-                            <td colspan="8" class="text-center py-5 text-muted italic">Verileri görmek için filtreleme yapın.</td>
+                            <td colspan="6" class="text-center py-10">
+                                <div class="flex flex-col items-center opacity-20">
+                                    <i class="fas fa-filter fa-3x mb-3"></i>
+                                    <p class="font-black uppercase tracking-widest">Verileri Görmek İçin Filtreleyin</p>
+                                </div>
+                            </td>
                         </tr>
                         </tbody>
                     </table>
@@ -172,54 +163,50 @@
                 url: '/admin/reports/globalFilter',
                 data: data,
                 beforeSend: function () {
-                    $('#report').html('<tr><td colspan="8" class="text-center py-4"><i class="fa fa-spinner fa-spin"></i> Yükleniyor...</td></tr>');
+                    $('#report').html('<tr><td colspan="6" class="text-center py-10 font-bold text-slate-400 uppercase tracking-widest animate-pulse">Veriler Hazırlanıyor...</td></tr>');
                     Swal.showLoading();
                 },
                 success: function (response) {
                     Swal.close();
-                    $('#summaryArea').fadeIn();
+                    $('#summaryArea').fadeIn(400);
                     $('#report').empty();
 
                     if (response.data.length === 0) {
-                        $('#report').html('<tr><td colspan="8" class="text-center py-4">Sonuç bulunamadı.</td></tr>');
+                        $('#report').html('<tr><td colspan="6" class="text-center py-10 font-black text-red-400 uppercase">Kriterlere Uygun Sonuç Bulunamadı.</td></tr>');
                     } else {
                         response.data.forEach((item) => {
-                            let statusBadge = item.status === 'İptal Edildi' ? 'bg-danger' : 'bg-success';
                             $('#report').append(`
-                                <tr>
-                                    <td><span class="badge border border-dark text-dark border">${item.platform}</span></td>
-                                    <td><strong>${item.tracking_id}</strong></td>
-                                    <td>${item.courier}</td>
-                                    <td>${item.full_name}</td>
-                                    <td><small>${item.payment}</small></td>
-
-                                    <td class="fw-bold text-primary">${item.amount}</td>
-                                    <td><small>${item.time}</small></td>
+                                <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-50">
+                                    <td class="py-4 px-4"><span class="px-2 py-1 bg-slate-100 text-slate-600 rounded text-[9px] font-black uppercase tracking-tighter border border-slate-200">${item.platform}</span></td>
+                                    <td class="py-4 px-4 font-black text-slate-800">#${item.tracking_id}</td>
+                                    <td class="py-4 px-4">
+                                        <div class="font-black text-slate-800 uppercase text-[10px]">${item.courier}</div>
+                                        <div class="text-[9px] text-slate-400 font-bold">${item.full_name}</div>
+                                    </td>
+                                    <td class="py-4 px-4 text-[10px] font-bold text-slate-500 uppercase">${item.payment}</td>
+                                    <td class="py-4 px-4 font-black text-indigo-600">${item.amount}</td>
+                                    <td class="py-4 px-4 text-end text-[10px] font-bold text-slate-400 uppercase">${item.time}</td>
                                 </tr>
                             `);
                         });
                     }
 
-                    // İstatistikler
-                    const fmt = (v) => Number(v).toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL';
+                    const fmt = (v) => Number(v).toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' ₺';
                     let t = response.totals;
 
                     $('#topsiparis').text(t.topsiparis);
                     $('#count_delivered').text(t.count_delivered || 0);
                     $('#count_cancelled').text(t.count_cancelled || 0);
 
-                    $('#toponline').text(fmt(t.online));
-                    $('#topnakit').text(fmt(t.nakit));
-                    $('#topkkarti').text(fmt(t.kkarti));
-                    $('#topticket').text(fmt(t.ticket));
-                    $('#topsodexo').text(fmt(t.sodexo));
-                    $('#topmultinet').text(fmt(t.multinet));
-                    $('#toppluxee').text(fmt(t.pluxee));
+                    ['online', 'nakit', 'kkarti', 'ticket', 'sodexo', 'multinet', 'pluxee'].forEach(key => {
+                        $(`#top${key}`).text(fmt(t[key]));
+                    });
                     $('#topciro').text(fmt(t.topciro));
                 }
             });
         }
 
+        // PDF ve Excel butonları aynı kalıyor
         document.getElementById("pdfBtn").addEventListener("click", function() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('l', 'mm', 'a4');

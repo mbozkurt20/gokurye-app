@@ -4,117 +4,134 @@
 
     <style>
         #map {
-            border: #259a38 solid 2px;
-            height: 500px;
+            height: 450px;
             width: 100%;
-            border-radius: 15px;
-            margin-bottom: 20px;
+            border-radius: 24px;
+            border: 4px solid #fff;
+            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.08);
         }
         #map-search {
-            margin-top: 10px;
-            margin-left: 10px;
-            width: 500px;
-            height: 40px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
+            margin-top: 15px;
+            margin-left: 15px;
+            width: 350px;
+            height: 45px;
+            border-radius: 12px;
+            border: none;
             padding: 0 15px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             z-index: 5;
+            font-weight: 600;
+            font-size: 13px;
         }
+        .gm-style-mtc, .gm-svpc { display: none !important; } /* Harita butonlarını temizle */
     </style>
 
     <div class="container-fluid">
-        <div class="mb-sm-4 d-flex flex-wrap align-items-center text-head">
-            <h2 class="mb-3 me-auto">Profil Düzenle</h2>
+        <div class="mb-4 d-flex align-items-center justify-content-between">
             <div>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/admin/couriers">Profil</a></li>
-                    <li class="breadcrumb-item"><a href="javascript:void(0)">Düzenle</a></li>
-                </ol>
+                <h2 class="font-black text-slate-800 uppercase tracking-tighter mb-0">Profil Bilgileri</h2>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Hesap ve Konum Ayarlarınızı Yönetin</p>
             </div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-slate-100 px-4 py-2 !rounded-2xl m-0">
+                    <li class="breadcrumb-item text-[10px] font-black uppercase tracking-widest"><a href="/admin/couriers" class="text-slate-500">Profil</a></li>
+                    <li class="breadcrumb-item text-[10px] font-black uppercase tracking-widest text-indigo-600 active" aria-current="page">Düzenle</li>
+                </ol>
+            </nav>
         </div>
 
         @if(session()->has('message'))
-            <div class="custom-alert success">
-                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                <span class="alert-message">{{ session()->get('message') }}</span>
+            <div class="bg-indigo-600 text-white p-4 !rounded-2xl mb-4 flex items-center justify-between shadow-lg shadow-indigo-100">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-check-circle"></i>
+                    <span class="text-xs font-black uppercase tracking-widest">{{ session()->get('message') }}</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white shadow-none" onclick="this.parentElement.style.display='none';"></button>
             </div>
         @endif
 
-        <div class="row">
-            <div class="col-xl-10 col-lg-12">
-                <div class="mb-4">
-                    <p class="text-primary fw-bold mb-3">
-                        <i class="fa fa-map-marker-alt me-1"></i> Konumunuzu arayarak veya haritaya tıklayarak güncelleyebilirsiniz.
-                    </p>
-                    <input id="map-search" type="text" placeholder="Adres veya mekan ara..." class="form-control">
-                    <div id="map"></div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header border-0 pb-0">
-                        <h4 class="card-title fw-bold">Bilgileri Güncelle</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="basic-form">
-                            <form action="{{ route('admin.profile.update') }}" method="POST">
-                                @csrf
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label class="text-dark fw-bold">İsim</label>
-                                        <input type="text" name="name" class="form-control" value="{{ old('name', auth()->user()->name) }}">
-                                    </div>
-
-                                    <div class="col-md-4 mb-3">
-                                        <label class="text-dark fw-bold">Telefon</label>
-                                        @include('components.phone',['key' => 'phone', 'required' => true, 'value' => auth()->user()->phone])
-                                    </div>
-
-                                    <div class="col-md-4 mb-3">
-                                        <label class="text-dark fw-bold">Yeni Şifre</label>
-                                        <input type="password" name="password" class="form-control" placeholder="Değiştirmek istemiyorsanız boş bırakın">
-                                    </div>
-
-                                    <div class="mb-3 col-md-6">
-                                        <label class="form-label fw-bold">Şehir</label>
-                                        <select required class="form-control select2" name="city_id" id="city_id">
-                                            <option value="">Şehir Seç</option>
-                                            @foreach(\App\Models\City::all() as $city)
-                                                <option {{$city->id == auth()->user()->city_id ? 'selected' : '' }}
-                                                        value="{{$city->id}}"
-                                                        data-lat="{{$city->lat}}"
-                                                        data-lng="{{$city->lng}}">
-                                                    {{$city->name}}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-3 col-md-6">
-                                        <label class="form-label fw-bold">İlçe</label>
-                                        <select required class="form-control select2" name="district_id" id="district_id">
-                                            <option value="">İlçe Seç</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="text-dark fw-bold">Enlem (Latitude)</label>
-                                        <input type="text" name="latitude" id="latitude" class="form-control border-dark" readonly
-                                               value="{{ old('latitude', auth()->user()->latitude) }}">
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="text-dark fw-bold">Boylam (Longitude)</label>
-                                        <input type="text" name="longitude" id="longitude" class="form-control border-dark" readonly
-                                               value="{{ old('longitude', auth()->user()->longitude) }}">
-                                    </div>
-
-                                    <div class="col-12 mt-3">
-                                        <button type="submit" class="special-button w-100">Profili Güncelle</button>
-                                    </div>
-                                </div>
-                            </form>
+        <div class="row g-4">
+            <div class="col-xl-6 col-lg-12">
+                <div class="card border-0 shadow-sm !rounded-[32px] overflow-hidden h-100">
+                    <div class="card-body p-4">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                                <i class="fas fa-map-marked-alt"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-black text-slate-800 uppercase m-0">İşletme Konumu</h4>
+                                <p class="text-[10px] font-bold text-slate-400 m-0">Haritadan seçim yaparak güncelleyin</p>
+                            </div>
                         </div>
+
+                        <input id="map-search" type="text" placeholder="Adres veya mekan ara..." class="form-control">
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-6 col-lg-12">
+                <div class="card border-0 shadow-sm !rounded-[32px] h-100">
+                    <div class="card-body p-5">
+                        <form action="{{ route('admin.profile.update') }}" method="POST">
+                            @csrf
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Tam İsim</label>
+                                    <input type="text" name="name" class="form-control !rounded-xl border-slate-200 py-3 font-bold text-slate-700" value="{{ old('name', auth()->user()->name) }}">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Telefon Numarası</label>
+                                    @include('components.phone',['key' => 'phone', 'required' => true, 'value' => auth()->user()->phone])
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Şifre Güncelleme</label>
+                                    <input type="password" name="password" class="form-control !rounded-xl border-slate-200 py-3 font-bold text-slate-700" placeholder="Aynı kalacaksa boş bırakın">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Şehir</label>
+                                    <select required class="form-select select2 !rounded-xl" name="city_id" id="city_id">
+                                        <option value="">Şehir Seç</option>
+                                        @foreach(\App\Models\City::all() as $city)
+                                            <option {{$city->id == auth()->user()->city_id ? 'selected' : '' }}
+                                                    value="{{$city->id}}"
+                                                    data-lat="{{$city->lat}}"
+                                                    data-lng="{{$city->lng}}">
+                                                {{$city->name}}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">İlçe</label>
+                                    <select required class="form-select select2 !rounded-xl" name="district_id" id="district_id">
+                                        <option value="">İlçe Seç</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Enlem (LAT)</label>
+                                    <input type="text" required name="latitude" id="latitude" class="form-control !rounded-xl bg-slate-50 border-slate-100 font-bold text-indigo-600" readonly
+                                           value="{{ old('latitude', auth()->user()->latitude) }}">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Boylam (LNG)</label>
+                                    <input required type="text" name="longitude" id="longitude" class="form-control !rounded-xl bg-slate-50 border-slate-100 font-bold text-indigo-600" readonly
+                                           value="{{ old('longitude', auth()->user()->longitude) }}">
+                                </div>
+
+                                <div class="col-12 mt-4">
+                                    <button type="submit" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-indigo-100 border-0 transition-all hover:scale-[1.01] active:scale-95">
+                                        DEĞİŞİKLİKLERİ KAYDET
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -133,27 +150,22 @@
                 center: initialPos,
                 zoom: 14,
                 mapTypeControl: false,
-                streetViewControl: false
+                streetViewControl: false,
+                styles: [ /* Google Maps Silver Theme Style opsiyonel olarak buraya eklenebilir */ ]
             });
 
             marker = new google.maps.Marker({
                 position: initialPos,
                 map: map,
                 draggable: true,
-                animation: google.maps.Animation.DROP
+                icon: {
+                    url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                }
             });
 
-            // Tıklama ile konum güncelleme
-            map.addListener("click", (e) => {
-                updatePosition(e.latLng);
-            });
+            map.addListener("click", (e) => updatePosition(e.latLng));
+            marker.addListener("dragend", (e) => updatePosition(marker.getPosition()));
 
-            // Sürükleme ile konum güncelleme
-            marker.addListener("dragend", (e) => {
-                updatePosition(marker.getPosition());
-            });
-
-            // Arama Kutusu (Autocomplete)
             const input = document.getElementById("map-search");
             map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
             autocomplete = new google.maps.places.Autocomplete(input);
@@ -161,7 +173,6 @@
             autocomplete.addListener("place_changed", () => {
                 const place = autocomplete.getPlace();
                 if (!place.geometry) return;
-
                 map.setCenter(place.geometry.location);
                 map.setZoom(17);
                 updatePosition(place.geometry.location);
@@ -177,9 +188,7 @@
         $(document).ready(function () {
             $('.select2').select2();
 
-            // Şehir değişince haritayı kaydır ve ilçeleri yükle
             $('#city_id').on('change', function () {
-                const cityId = $(this).val();
                 const selected = $(this).find('option:selected');
                 const lat = parseFloat(selected.data('lat'));
                 const lng = parseFloat(selected.data('lng'));
@@ -187,33 +196,24 @@
                 if (lat && lng) {
                     const newPos = { lat: lat, lng: lng };
                     map.setCenter(newPos);
-                    map.setZoom(12);
                     updatePosition(new google.maps.LatLng(lat, lng));
                 }
-                loadDistricts(cityId);
+                loadDistricts($(this).val());
             });
 
             function loadDistricts(cityId, selectedDistrictId = null) {
                 if (cityId) {
-                    $.ajax({
-                        url: '/admin/get-districts/' + cityId,
-                        type: 'GET',
-                        success: function (data) {
-                            $('#district_id').empty().append('<option value="">İlçe Seç</option>');
-                            $.each(data, function (key, value) {
-                                var selected = (value.id == selectedDistrictId) ? 'selected' : '';
-                                $('#district_id').append('<option value="' + value.id + '" ' + selected + '>' + value.name + '</option>');
-                            });
-                        }
+                    $.get('/admin/get-districts/' + cityId, function (data) {
+                        $('#district_id').empty().append('<option value="">İlçe Seç</option>');
+                        $.each(data, function (key, value) {
+                            var selected = (value.id == selectedDistrictId) ? 'selected' : '';
+                            $('#district_id').append('<option value="' + value.id + '" ' + selected + '>' + value.name + '</option>');
+                        });
                     });
                 }
             }
 
-            const initialCityId = $('#city_id').val();
-            const initialDistrictId = "{{ auth()->user()->district_id }}";
-            if (initialCityId) loadDistricts(initialCityId, initialDistrictId);
-
-            // Google Maps Başlat
+            loadDistricts($('#city_id').val(), "{{ auth()->user()->district_id }}");
             initMap();
         });
     </script>

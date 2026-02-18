@@ -1,123 +1,179 @@
 @extends('admin.layouts.app')
 
 @section('content')
-    <div class="container-fluid">
-        <div class="mb-sm-4 d-flex flex-wrap align-items-center text-head">
-            <h2 class="mb-3 me-auto">Giderler</h2>
+    <div class="container-fluid py-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="javascript:void(0)">Giderler</a></li>
-                    <li class="breadcrumb-item"><a href="javascript:void(0)">Liste</a></li>
-                </ol>
+                <h1 class="text-2xl font-black tracking-tighter text-slate-800 uppercase leading-none">
+                    GİDER <span class="text-slate-400">YÖNETİMİ</span>
+                </h1>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">
+                    Toplam {{ count($expenses) }} kayıtlı gider kaydı bulunmaktadır.
+                </p>
             </div>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-            <div class="customer-search mb-sm-0 mb-3">
-                <div class="input-group search-area">
-                    <input type="text" class="form-control" id="custom-filter-expenses" placeholder="Giderler ara..">
-                    <span class="input-group-text">
-                    <a href="javascript:void(0)"><i class="flaticon-381-search-2"></i></a>
-                </span>
-                </div>
-            </div>
-            <div class="d-flex align-items-center flex-wrap">
-                <a href="{{ route('admin.expenses.new') }}" class="special-button me-3">
-                    <i class="fas fa-plus me-2"></i> Gider Ekle
-                </a>
-                <a href="javascript:void(0);" onclick="location.reload();" class="special-ok-button  mb-2">
-                    <i class="fas fa-sync"></i>
+            <div class="flex items-center gap-3">
+                <button onclick="location.reload()" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-100 shadow-sm text-slate-400 hover:text-indigo-600 transition-all">
+                    <i class="fa-solid fa-rotate text-sm"></i>
+                </button>
+                <a href="{{ route('admin.expenses.new') }}"
+                   class="inline-flex items-center gap-3 bg-[#0f172a] text-white px-8 py-3.5 !rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg shadow-slate-200 hover:scale-105 transition-all">
+                    <i class="fas fa-plus text-indigo-400"></i>
+                    YENİ GİDER EKLE
                 </a>
             </div>
         </div>
 
-        <div class="row card">
-            <div class="col-xl-12 card-body">
-                <div class="table-responsive">
-                    <table id="example315" class="order-table shadow-hover card-table text-black" style="min-width: 845px">
-                        <thead>
-                        <tr>
-                            <th>Gider Başlığı <i class="fa fa-filter text-danger"></i></th>
-                            <th>Gider Tarihi <i class="fa fa-filter text-danger"></i></th>
-                            <th>Gider Türü <i class="fa fa-filter text-danger"></i></th>
-                            <th>Ödeme Method <i class="fa fa-filter text-danger"></i></th>
-                            <th>İşlem</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($expenses as $expense)
-                            <tr id="data_{{ $expense->id }}">
-                                <td>{{ $expense->title }}</td>
-                                <td>{{ $expense->date }}</td>
-                                <td>{{ $expense->expense_type }}</td>
-                                <td>{{ $expense->payment_method }}</td>
-                                <td>
-                                    <div class="d-flex">
-                                        <a href="{{ route('admin.expenses.edit', ['id' => $expense->id]) }}" class="special-button shadow btn-xs sharp me-1">
-                                            <i class="fas fa-pencil-alt"></i>
-                                        </a>
-                                        <a onclick="DeleteFunction({{ $expense->id }})" class="btn btn-danger shadow btn-xs sharp">
-                                            <i class="fa fa-trash"></i>
-                                        </a>
+        <div class="mb-8">
+            <div class="relative group">
+                <input type="text" id="custom-filter-expenses"
+                       class="w-full !rounded-[24px] border-0 bg-white shadow-sm p-5 pl-14 font-bold text-slate-500 focus:ring-2 focus:ring-slate-100 transition-all placeholder:text-slate-300"
+                       placeholder="Gider başlığı, türü veya ödeme yöntemi ile ara...">
+                <i class="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-slate-400 transition-colors"></i>
+            </div>
+        </div>
+
+        <div class="bg-white !rounded-[40px] shadow-sm border border-slate-50 overflow-hidden">
+            <div class="table-responsive p-4">
+                <table id="expenses-table" class="table !mb-0 border-0">
+                    <thead>
+                    <tr class="border-0">
+                        <th class="py-6 px-8 text-[11px] font-black text-slate-800 uppercase tracking-widest border-0">Gider Bilgisi</th>
+                        <th class="py-6 px-8 text-[11px] font-black text-slate-800 uppercase tracking-widest border-0 text-center">Tür / Ödeme</th>
+                        <th class="py-6 px-8 text-[11px] font-black text-slate-800 uppercase tracking-widest border-0 text-center">Tarih</th>
+                        <th class="py-6 px-8 text-[11px] font-black text-slate-800 uppercase tracking-widest border-0 text-right">Yönetim</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                    @foreach($expenses as $expense)
+                        <tr id="data_{{ $expense->id }}" class="group transition-all hover:bg-slate-50/50">
+                            <td class="py-6 px-8 border-0">
+                                <div class="flex items-center gap-5">
+                                    <div class="w-12 h-12 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center font-black text-sm group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors">
+                                        <i class="fa-solid fa-file-invoice-dollar"></i>
                                     </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                                    <div>
+                                        <p class="text-sm font-black text-slate-700 m-0 uppercase tracking-tight">{{ $expense->title }}</p>
+                                        <p class="text-[10px] font-bold text-slate-300 m-0 uppercase mt-1">Gider Kaydı</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-6 px-8 border-0 text-center">
+                                <span class="px-3 py-1 bg-slate-100 text-slate-500 rounded-lg text-[9px] font-black uppercase tracking-widest mb-1 inline-block">
+                                    {{ $expense->expense_type }}
+                                </span>
+                                <p class="text-[10px] font-bold text-slate-300 m-0 uppercase">{{ $expense->payment_method }}</p>
+                            </td>
+                            <td class="py-6 px-8 border-0 text-center">
+                                <p class="text-xs font-black text-slate-600 m-0">{{ $expense->date }}</p>
+                            </td>
+                            <td class="py-6 px-8 border-0">
+                                <div class="flex justify-end gap-3">
+                                    <a href="{{ route('admin.expenses.edit', ['id' => $expense->id]) }}"
+                                       class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-indigo-600 transition-all">
+                                        <i class="fa-solid fa-pencil text-xs"></i>
+                                    </a>
+                                    <button onclick="DeleteFunction({{ $expense->id }})"
+                                            class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all border-0">
+                                        <i class="fa-solid fa-trash text-xs"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="custom-pagination-container" class="px-10 py-8 flex flex-col md:flex-row items-center justify-between gap-4 border-t border-slate-50">
+                <div id="table-info-box" class="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]"></div>
+                <div id="table-pagination-box" class="flex items-center gap-2"></div>
             </div>
         </div>
     </div>
 
-    <!-- Search & Delete Scripts -->
-    <script type="text/javascript">
-        $(document).ready(function () {
-            var table = $('#example315').DataTable({
-                order: [[3, "desc"]], // created_at sütunu
-                language: {
-                    search: "Ara:",
-                    url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/tr.json",
-                    lengthMenu: "Sayfa başına _MENU_ kayıt",
-                    info: "_TOTAL_ kayıttan _START_ - _END_ arası gösteriliyor",
-                    infoEmpty: "Gösterilecek kayıt yok",
-                    paginate: {
-                        next: "Sonraki",
-                        previous: "Önceki"
-                    }
+    <style>
+        #expenses-table_wrapper .dataTables_filter,
+        #expenses-table_wrapper .dataTables_info,
+        #expenses-table_wrapper .dataTables_paginate { display: none; }
+
+        .paginate_button {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-width: 38px !important;
+            height: 38px !important;
+            border-radius: 12px !important;
+            font-size: 11px !important;
+            font-weight: 900 !important;
+            background: transparent !important;
+            border: 0 !important;
+            margin: 0 2px !important;
+            cursor: pointer !important;
+            color: #cbd5e1 !important;
+            transition: all 0.2s;
+        }
+        .paginate_button.current {
+            background: #0f172a !important;
+            color: white !important;
+            box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2) !important;
+        }
+        .paginate_button:hover:not(.current) {
+            background: #f8fafc !important;
+            color: #4f46e5 !important;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function() {
+            var table = $('#expenses-table').DataTable({
+                order: [[2, 'desc']],
+                dom: 'rtip',
+                pageLength: 10,
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/tr.json" },
+                drawCallback: function() {
+                    $('#table-pagination-box').html($('.dataTables_paginate').html());
+                    const info = table.page.info();
+                    $('#table-info-box').html(`Showing ${info.start + 1} to ${info.end} of ${info.recordsTotal} entries`);
                 }
             });
 
-            $('#custom-filter-expenses').on('keyup', function () {
+            $('#custom-filter-expenses').on('keyup', function() {
                 table.search(this.value).draw();
+            });
+
+            $(document).on('click', '#table-pagination-box .paginate_button', function() {
+                if($(this).hasClass('next')) table.page('next').draw('page');
+                else if($(this).hasClass('previous')) table.page('previous').draw('page');
+                else table.page($(this).data('dt-idx')).draw('page');
             });
         });
 
         function DeleteFunction(id) {
             Swal.fire({
-                title: 'Silmek istediğinizden emin misiniz?',
-                text: "Bu işlemi geri alamazsınız!",
+                title: 'KAYIT SİLME',
+                html: '<p class="text-slate-400 font-bold text-[11px] uppercase tracking-widest">Bu gider kaydını silmek istediğinize emin misiniz?</p>',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#259a38',
-                cancelButtonColor: '#4f46e5',
-                cancelButtonText: 'Hayır',
-                confirmButtonText: 'Evet, Silmek istiyorum!'
+                confirmButtonText: 'EVET, SİL',
+                cancelButtonText: 'VAZGEÇ',
+                background: '#ffffff',
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-[40px] border-0 p-12 shadow-2xl',
+                    title: 'font-black tracking-tighter text-slate-800 text-2xl uppercase',
+                    confirmButton: 'bg-slate-900 text-white px-10 py-4 !rounded-2xl font-black text-[11px] uppercase tracking-widest mx-2 hover:bg-rose-500 transition-all',
+                    cancelButton: 'bg-slate-100 text-slate-400 px-10 py-4 !rounded-2xl font-black text-[11px] uppercase tracking-widest mx-2'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
                         type: 'GET',
                         url: '/admin/expenses/delete/' + id,
-                        success: function (data) {
+                        success: function(data) {
                             if (data === "OK") {
-                                Swal.fire("Silindi!", "Silme işlemi başarılı.", "success");
-                                $("#data_" + id).fadeOut(() => $(this).remove());
-                            } else if (data === "NO") {
-                                Swal.fire("Uyarı!", "Bu gideri silemezsiniz.", "warning");
+                                Swal.fire({ title: 'SİLİNDİ', icon: 'success', customClass: { popup: 'rounded-[40px]' } });
+                                $("#data_" + id).fadeOut();
                             }
-                        },
-                        error: function () {
-                            Swal.fire("Hata!", "Silme sırasında bir sorun oluştu.", "error");
                         }
                     });
                 }

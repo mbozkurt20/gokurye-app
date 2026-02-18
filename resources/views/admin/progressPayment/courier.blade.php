@@ -1,188 +1,136 @@
 @extends('admin.layouts.app')
 
 @section('content')
-    <style type="text/css">
-        .tops {
-            padding: 20px 10px;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        .tops span {
-            font-size: 15px;
-        }
-
-        .table thead tr {
-            background: #ddd;
-        }
-
-
-        .table thead tr th {
-            color: #000;
-            font-size: 15px;
-            height: 20px;
-            overflow: hidden;
-        }
-
-        .bg-ok {
-            background: #4f46e5;
-        }
-    </style>
-
-    <div class="container-fluid">
-        <div class="mb-sm-4 d-flex flex-wrap align-items-center text-head">
-            <h2 class="mb-3 me-auto">Kurye Hakedişler</h2>
+    <div class="container-fluid py-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="javascript:void(0)">Kurye Hakediş</a></li>
-                    <li class="breadcrumb-item"><a href="javascript:void(0)">Filtrele</a></li>
-                </ol>
+                <h1 class="text-2xl font-black tracking-tighter text-slate-800 uppercase leading-none m-0">
+                    KURYE <span class="text-slate-400">HAKEDİŞ YÖNETİMİ</span>
+                </h1>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">
+                    Kurye performansını izleyin ve ödeme süreçlerini yönetin.
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="location.reload()" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-100 shadow-sm text-slate-400 hover:text-indigo-600 transition-all">
+                    <i class="fa-solid fa-rotate text-sm"></i>
+                </button>
+                <button onclick="$('#paymentFormCard').toggle('slow')" class="inline-flex items-center gap-3 bg-[#0f172a] text-white px-8 py-3.5 !rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg shadow-slate-200 hover:scale-105 transition-all border-0">
+                    <i class="fas fa-plus text-indigo-400"></i>
+                    YENİ ÖDEME EKLE
+                </button>
             </div>
         </div>
 
-        <div class="row gap-4">
-            <div class="col-md-6">
-                @if(session()->has('message'))
-                    <div class="custom-alert success">
-                        <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                        <span class="alert-message">{{ session()->get('message') }}</span>
-                    </div>
-                @endif
-
-                @if(session()->has('test') )
-                    <div class="custom-alert error">
-                        <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                        <span class="alert-message">{{ session()->get('test') }}</span>
-                    </div>
-                @endif
-
-                <div class="row">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4 class="card-title">Ödeme Kaydı Ekle</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="basic-form">
-                                <form method="POST" action="{{ route('admin.progress.payments.store') }}">
-                                    @csrf
-                                    <input style="display: none" type="text" name="payable_type" value="courier">
-
-                                    <div class="mb-4 text-dark">
-                                        <label>Kurye Seçiniz</label>
-                                        <select class="form-control" name="payable_id">
-                                            @foreach($courierss as $courier)
-                                                <option value="{{$courier->id}}">{{$courier->name}}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-4 text-dark">
-                                        <label>Ödeme Tarihi Seçiniz</label>
-                                        <input class="form-control" type="date"  value="{{date('Y-m-d',strtotime(\Carbon\Carbon::now()))}}" name="payment_date" required>
-                                    </div>
-
-                                    <div class="mb-4 text-dark">
-                                        <x-money-input
-                                            name="amount"
-                                            label="Ödeme Tutarı"
-                                            required="true"
-                                        />
-                                    </div>
-
-                                    <div class="mb-4 text-dark">
-                                        <label>Eklemek İstediğiniz Detay (opsiyonel)</label>
-                                        <textarea  class="form-control" name="note" placeholder="Not"></textarea>
-                                    </div>
-
-                                    <button class="special-button" type="submit">Kaydet</button>
-                                </form>
+        <div class="row mb-8" id="paymentFormCard" style="display: none;">
+            <div class="col-12">
+                <div class="bg-white !rounded-[40px] shadow-sm border border-slate-50 p-8">
+                    <h4 class="text-xs font-black text-slate-800 uppercase tracking-widest mb-6">ÖDEME KAYDI OLUŞTUR</h4>
+                    <form method="POST" action="{{ route('admin.progress.payments.store') }}">
+                        @csrf
+                        <input type="hidden" name="payable_type" value="courier">
+                        <div class="row g-4">
+                            <div class="col-md-3">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Kurye Seçimi</label>
+                                <select class="form-control !rounded-xl border-slate-100 font-bold text-xs p-3 shadow-none" name="payable_id">
+                                    @foreach($courierss as $courier)
+                                        <option value="{{$courier->id}}">{{$courier->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Ödeme Tarihi</label>
+                                <input class="form-control !rounded-xl border-slate-100 font-bold text-xs p-3 shadow-none" type="date" value="{{date('Y-m-d')}}" name="payment_date" required>
+                            </div>
+                            <div class="col-md-3">
+                                <x-money-input name="amount" label="Ödeme Tutarı" required="true" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Not</label>
+                                <input type="text" class="form-control !rounded-xl border-slate-100 font-bold text-xs p-3 shadow-none" name="note" placeholder="Örn: Haftalık hakediş">
+                            </div>
+                            <div class="col-md-12 flex justify-end mt-4">
+                                <button class="bg-indigo-600 text-white px-10 py-3.5 !rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-indigo-900/10 border-0" type="submit">
+                                    SİSTEME KAYDET
+                                </button>
                             </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
+        </div>
 
-            <div class="col-md-5 card card-body">
-                <div class="row" >
-                    <div class="col-lg-4">
-                        <select class="form-control" id="courier">
+        <div class="row g-4 mb-8">
+            <div class="col-xl-4">
+                <div class="bg-white !rounded-[40px] shadow-sm border border-slate-50 p-8 h-100">
+                    <h4 class="text-xs font-black text-slate-800 uppercase tracking-widest mb-6">FİLTRELEME</h4>
+                    <div class="space-y-4">
+                        <select class="form-control !rounded-xl border-slate-100 font-bold text-xs" id="courier">
                             <option value="0">Kurye Seçiniz</option>
                             @foreach($courierss as $courier)
                                 <option value="{{$courier->id}}">{{$courier->name}}</option>
                             @endforeach
                         </select>
-                    </div>
-                    <div class="col-lg-4">
-                        <input type="date" value="{{date('Y-m-d')}}" class="form-control" id="start_date">
-                    </div>
-                    <div class="col-lg-4">
-                        <input type="date" value="{{date('Y-m-d')}}" class="form-control" id="end_date">
-                    </div>
-                    <div class="col-lg-4 mt-4 float-end">
-                        <button class="special-button" onclick="ReportFilter()"><i class="fa fa-filter"></i>
-                            Filtrele
+                        <div class="grid grid-cols-2 gap-3">
+                            <input type="date" value="{{date('Y-m-d')}}" class="form-control !rounded-xl border-slate-100 font-bold text-xs" id="start_date">
+                            <input type="date" value="{{date('Y-m-d')}}" class="form-control !rounded-xl border-slate-100 font-bold text-xs" id="end_date">
+                        </div>
+                        <button class="w-full bg-[#0f172a] text-white py-4 !rounded-2xl font-black text-[10px] uppercase tracking-widest border-0" onclick="ReportFilter()">
+                            <i class="fa fa-filter me-2"></i> RAPORU GETİR
                         </button>
                     </div>
+                </div>
+            </div>
 
-                    <div class="col-xl-12 mt-5" id="reportList">
-                        <div class="card shadow-sm border-0">
-                            <div class="card-body">
-                                <h4 class="card-title mb-4 text-center" id="selected-courier" style="font-weight: 700;"></h4>
+            <div class="col-xl-8">
+                <div class="bg-white !rounded-[40px] shadow-sm border border-slate-50 p-8 h-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <h4 class="text-xs font-black text-slate-800 uppercase tracking-widest m-0">KURYE PERFORMANS ÖZETİ</h4>
+                        <span id="selected-courier" class="text-[10px] font-black text-indigo-600 uppercase"></span>
+                    </div>
 
-                                <div id="calculation_info_box" class="alert alert-info shadow-sm mb-4" style="display: none;">
-                                    <i class="fa fa-calculator me-2"></i> <span id="calculation_info_text"></span>
-                                </div>
+                    <div id="calculation_info_box" class="bg-slate-50 border border-slate-100 p-4 rounded-2xl mb-6 flex items-center gap-3" style="display: none;">
+                        <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-indigo-500 shadow-sm">
+                            <i class="fa fa-calculator text-xs"></i>
+                        </div>
+                        <span id="calculation_info_text" class="text-[10px] font-bold text-slate-500 uppercase tracking-tight"></span>
+                    </div>
 
-                                <p id="fixed_price_text" style="display: none" class="size-7 text-danger">Aşağıda ki Kalan Ödeme ve Toplam Hakediş, Sabit Ücret hariç km üzerinden hesaplanmaktadır.</p>
-                                <div class="row text-center">
-                                    <div id="fixed_price" style="display: none" class=" col-md-6 mb-3">
-                                        <div class="p-3 border rounded bg-ok">
-                                            <h6 class="mb-1 text-white">Sabit Ücret</h6>
-                                            <h4 class="text-white mb-0" id="fixed-amount">0₺</h4>
-                                        </div>
-                                    </div>
-                                    <div id="km_price_card" style="display: none" class=" col-md-6 mb-3">
-                                        <div class="p-3 border rounded bg-ok">
-                                            <p class="fw-bold mb-1 text-white">Km Başı Ücret</p>
-                                            <h4 class="text-white mb-0" id="km-amount">0₺</h4>
-                                        </div>
-                                    </div>
-                                    <div id="km_distance_later_card" style="display: none" class=" col-md-6 mb-3">
-                                        <div class="p-3 border rounded bg-ok">
-                                            <p class="fw-bold mb-1 text-white">Muaf KM (Sonrası)</p>
-                                            <h4 class="text-white mb-0" id="later-amount">0 KM</h4>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <div class="p-3 border rounded bg-ok">
-                                            <h6 class="mb-1 text-white">Sipariş Sayısı</h6>
-                                            <h4 class="text-white mb-0" id="order-count">0 Adet</h4>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <div class="p-3 border rounded bg-ok">
-                                            <h6 class="mb-1 text-white">Toplam Hakediş</h6>
-                                            <h4 class="text-white mb-0" id="total-progress-payment">0₺</h4>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <div class="p-3 border rounded bg-ok">
-                                            <h6 class="mb-1 text-white">Yapılan Ödeme</h6>
-                                            <h4 class="text-white mb-0" id="paid-amount">0₺</h4>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <div class="p-3 border rounded bg-ok">
-                                            <h6 class="mb-1 text-white">Kalan Ödeme</h6>
-                                            <h4 class="text-white mb-0" id="remaining-amount">0₺</h4>
-                                        </div>
-                                    </div>
-
-                                </div>
+                    <div class="row g-3">
+                        <div id="fixed_price" style="display: none" class="col-md-4">
+                            <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Sabit Ücret</p>
+                                <h4 class="text-base font-black text-slate-800 m-0" id="fixed-amount">0₺</h4>
+                            </div>
+                        </div>
+                        <div id="km_price_card" style="display: none" class="col-md-4">
+                            <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Km Başı</p>
+                                <h4 class="text-base font-black text-slate-800 m-0" id="km-amount">0₺</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Sipariş</p>
+                                <h4 class="text-base font-black text-slate-800 m-0" id="order-count">0 Adet</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Top. Hakediş</p>
+                                <h4 class="text-base font-black text-slate-800 m-0" id="total-progress-payment">0.00₺</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                                <p class="text-[9px] font-black text-emerald-500 uppercase mb-1">Yapılan Ödeme</p>
+                                <h4 class="text-base font-black text-emerald-700 m-0" id="paid-amount">0.00₺</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-4 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-900/10">
+                                <p class="text-[9px] font-black text-indigo-100 uppercase mb-1">Kalan Bakiye</p>
+                                <h4 class="text-base font-black text-white m-0" id="remaining-amount">0.00₺</h4>
                             </div>
                         </div>
                     </div>
@@ -190,61 +138,132 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="row card">
-                <div class="col-xl-12 card-body">
-                    <div class="table-responsive">
-                        <table id="paymentsTable" class="order-table shadow-hover card-table text-black"
-                               style="min-width: 845px">
-                            <thead>
-                            <tr>
-                                <th>Alıcı Adı <i class="fa fa-filter text-danger"></i></th>
-                                <th>Ödeme Tarihi <i class="fa fa-filter text-danger"></i></th>
-                                <th>Tutar <i class="fa fa-filter text-danger"></i></th>
-                                <th>Not</th>
-                                <th>Kayıt Tarihi</th>
-                                <th>İşlem</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach($records as $record)
-                                <tr id="data_{{ $record->id }}">
-                                    <td>{{ \App\Models\Courier::where('id',$record->payable_id)->first()->name }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($record->payment_date)->format('d.m.Y') }}</td>
-                                    <td>{{ number_format($record->amount, 2) }} ₺</td>
-                                    <td>{{ $record->note ?? '-' }}</td>
-                                    <td>{{ date('d-m-Y H:i', strtotime($record->created_at)) }}</td>
-                                    <td>
-                                        <div class="d-flex">
-                                            <a onclick="DeleteFunction({{ $record->id }})"
-                                               class="btn btn-danger shadow btn-xs sharp">
-                                                <i class="fa fa-trash"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+        <div class="bg-white !rounded-[40px] shadow-sm border border-slate-50 overflow-hidden mt-4">
+            <div class="p-8 border-b border-slate-50 flex items-center justify-between">
+                <h4 class="text-xs font-black text-slate-800 uppercase tracking-widest m-0">ÖDEME GEÇMİŞİ</h4>
+                <div class="relative">
+                    <input type="text" id="custom-filter-payments" class="text-[10px] font-bold !rounded-xl border-slate-100 px-4 py-2" placeholder="Tabloda ara...">
                 </div>
+            </div>
+            <div class="table-responsive p-4">
+                <table id="paymentsTable" class="table !mb-0 border-0">
+                    <thead>
+                    <tr class="border-0">
+                        <th class="py-6 px-8 text-[11px] font-black text-slate-800 uppercase tracking-widest border-0">KURYE BİLGİSİ</th>
+                        <th class="py-6 px-8 text-[11px] font-black text-slate-800 uppercase tracking-widest border-0 text-center">ÖDEME TARİHİ</th>
+                        <th class="py-6 px-8 text-[11px] font-black text-slate-800 uppercase tracking-widest border-0 text-center">TUTAR</th>
+                        <th class="py-6 px-8 text-[11px] font-black text-slate-800 uppercase tracking-widest border-0 text-center">KAYIT</th>
+                        <th class="py-6 px-8 text-[11px] font-black text-slate-800 uppercase tracking-widest border-0 text-right">İŞLEM</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                    @foreach($records as $record)
+                        <tr id="data_{{ $record->id }}" class="group transition-all hover:bg-slate-50/50">
+                            <td class="py-6 px-8 border-0">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-indigo-50 text-indigo-500 rounded-xl flex items-center justify-center font-black text-xs uppercase">
+                                        {{ substr(\App\Models\Courier::find($record->payable_id)->name, 0, 1) }}
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-black text-slate-700 m-0 uppercase tracking-tight">{{ \App\Models\Courier::where('id',$record->payable_id)->first()->name }}</p>
+                                        <p class="text-[10px] font-bold text-slate-300 m-0 uppercase mt-1">{{ $record->note ?? 'Detay yok' }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-6 px-8 border-0 text-center">
+                                <p class="text-xs font-black text-slate-600 m-0">{{ \Carbon\Carbon::parse($record->payment_date)->format('d.m.Y') }}</p>
+                            </td>
+                            <td class="py-6 px-8 border-0 text-center">
+                                <span class="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-xs font-black tracking-tight">
+                                    {{ number_format($record->amount, 2) }} ₺
+                                </span>
+                            </td>
+                            <td class="py-6 px-8 border-0 text-center">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{ date('d.m.Y H:i', strtotime($record->created_at)) }}</p>
+                            </td>
+                            <td class="py-6 px-8 border-0">
+                                <div class="flex justify-end gap-3">
+                                    <button onclick="DeleteFunction({{ $record->id }})"
+                                            class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all border-0">
+                                        <i class="fa-solid fa-trash text-xs"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="custom-pagination-container" class="px-10 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div id="table-info-box" class="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]"></div>
+                <div id="table-pagination-box" class="flex items-center gap-2"></div>
             </div>
         </div>
     </div>
 
+    <style>
+        /* DataTables UI Gizleme */
+        #paymentsTable_wrapper .dataTables_filter,
+        #paymentsTable_wrapper .dataTables_info,
+        #paymentsTable_wrapper .dataTables_paginate { display: none; }
+
+        /* Paginate Butonları Styling */
+        .paginate_button {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-width: 38px !important;
+            height: 38px !important;
+            border-radius: 12px !important;
+            font-size: 11px !important;
+            font-weight: 900 !important;
+            background: transparent !important;
+            border: 0 !important;
+            margin: 0 2px !important;
+            cursor: pointer !important;
+            color: #cbd5e1 !important;
+            transition: all 0.2s;
+        }
+        .paginate_button.current {
+            background: #0f172a !important;
+            color: white !important;
+            box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2) !important;
+        }
+    </style>
+
     <script type="text/javascript">
+        $(document).ready(function () {
+            var table = $('#paymentsTable').DataTable({
+                order: [[3, "desc"]],
+                dom: 'rtip',
+                pageLength: 10,
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/tr.json" },
+                drawCallback: function() {
+                    $('#table-pagination-box').html($('.dataTables_paginate').html());
+                    const info = table.page.info();
+                    $('#table-info-box').html(`GÖSTERİLEN: ${info.start + 1} - ${info.end} / TOPLAM: ${info.recordsTotal}`);
+                }
+            });
+
+            $('#custom-filter-payments').on('keyup', function () {
+                table.search(this.value).draw();
+            });
+
+            $(document).on('click', '#table-pagination-box .paginate_button', function() {
+                if($(this).hasClass('next')) table.page('next').draw('page');
+                else if($(this).hasClass('previous')) table.page('previous').draw('page');
+                else table.page($(this).data('dt-idx')).draw('page');
+            });
+        });
+
         function ReportFilter() {
             var courier = $('#courier').val();
             var start = $('#start_date').val();
             var end = $('#end_date').val();
 
             if (courier === '0') {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Uyarı',
-                    text: 'Lütfen bir kurye seçiniz.',
-                    confirmButtonText: 'Tamam'
-                });
+                Swal.fire({ icon: 'warning', title: 'UYARI', text: 'Lütfen bir kurye seçiniz.', confirmButtonColor: '#0f172a' });
                 return;
             }
 
@@ -253,7 +272,6 @@
                 url: '/admin/progress-payment/courier' + '?_token=' + '{{ csrf_token() }}',
                 data: {courier: courier, start: start, end: end},
                 success: function (response) {
-                    // 1. Bilgilendirme Metni
                     if (response.calculation_info) {
                         $("#calculation_info_text").text(response.calculation_info);
                         $("#calculation_info_box").fadeIn();
@@ -261,91 +279,45 @@
                         $("#calculation_info_box").hide();
                     }
 
-                    // 2. Fiyat Tipine Göre Alanları Gizle/Göster
-                    if (response.courier.price_type !== 'package'){
-                        document.getElementById('fixed_price').style.display = 'block';
-                        document.getElementById('fixed_price_text').style.display = 'block';
-                        document.getElementById('km_price_card').style.display = 'block';
-                        document.getElementById('km_distance_later_card').style.display = 'block';
-                    } else {
-                        document.getElementById('fixed_price').style.display = 'none';
-                        document.getElementById('fixed_price_text').style.display = 'none';
-                        document.getElementById('km_price_card').style.display = 'none';
-                        document.getElementById('km_distance_later_card').style.display = 'none';
-                    }
+                    // Fiyat Tipine Göre Alanlar
+                    const isKmBased = response.courier.price_type !== 'package';
+                    $("#fixed_price, #km_price_card").toggle(isKmBased);
 
-                    // 3. Verileri Yazdır
+                    // Verileri Yazdır
                     $("#selected-courier").text(response.courier.name);
-                    $("#order-count").html(response.order_count + ' Adet');
+                    $("#order-count").text(response.order_count + ' Adet');
 
-                    // Formatlama yardımcı fonksiyonu
-                    const formatNum = (num) => Number(num).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    const formatNum = (num) => Number(num).toLocaleString('tr-TR', { minimumFractionDigits: 2 });
 
-                    $("#fixed-amount").html(formatNum(response.fixed_amount) + ' ₺');
-                    $("#km-amount").html(formatNum(response.courier.km_price) + ' ₺');
-                    $("#later-amount").html(response.courier.km_distance_later + ' KM');
-
-                    $("#total-progress-payment").html(formatNum(response.total_progress_payment) + ' ₺');
-                    $("#paid-amount").html(formatNum(response.paidAmount) + ' ₺');
+                    $("#fixed-amount").text(formatNum(response.fixed_amount) + ' ₺');
+                    $("#km-amount").text(formatNum(response.courier.km_price) + ' ₺');
+                    $("#total-progress-payment").text(formatNum(response.total_progress_payment) + ' ₺');
+                    $("#paid-amount").text(formatNum(response.paidAmount) + ' ₺');
 
                     let remaining = Number(response.total_progress_payment) - Number(response.paidAmount);
-                    $("#remaining-amount").html(formatNum(remaining) + ' ₺');
+                    $("#remaining-amount").text(formatNum(remaining) + ' ₺');
 
-                    // 4. Tabloyu güncelle
                     $("#paymentsTable tbody").html(response.records_html);
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Başarılı',
-                        text: 'Rapor başarıyla getirildi.',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                },
-                error: function (xhr, status, error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Hata',
-                        text: 'Bir hata oluştu: ' + error,
-                        confirmButtonText: 'Tamam'
-                    });
+                    Swal.fire({ icon: 'success', title: 'BAŞARILI', text: 'Veriler güncellendi.', timer: 1500, showConfirmButton: false });
                 }
             });
         }
 
-    </script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            var table = $('#paymentsTable').DataTable({
-                order: [[3, "desc"]],
-                language: {
-                    search: "Ara:",
-                    url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/tr.json",
-                    lengthMenu: "Sayfa başına _MENU_ kayıt",
-                    info: "_TOTAL_ kayıttan _START_ - _END_ arası gösteriliyor",
-                    infoEmpty: "Gösterilecek kayıt yok",
-                    paginate: {
-                        next: "Sonraki",
-                        previous: "Önceki"
-                    }
-                }
-            });
-
-            $('#custom-filter-payments').on('keyup', function () {
-                table.search(this.value).draw();
-            });
-        });
-
         function DeleteFunction(id) {
             Swal.fire({
-                title: 'Silmek istediğinizden emin misiniz?',
-                text: "Bu işlemi geri alamazsınız!",
+                title: 'SİLME İŞLEMİ',
+                html: '<p class="text-slate-400 font-bold text-[11px] uppercase tracking-widest">Bu ödeme kaydını silmek istediğinize emin misiniz?</p>',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#259a38',
-                cancelButtonColor: '#4f46e5',
-                cancelButtonText: 'Hayır',
-                confirmButtonText: 'Evet, Silmek istiyorum!'
+                confirmButtonText: 'EVET, SİL',
+                cancelButtonText: 'VAZGEÇ',
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'rounded-[40px] border-0 p-12 shadow-2xl',
+                    title: 'font-black tracking-tighter text-slate-800 text-2xl uppercase',
+                    confirmButton: 'bg-slate-900 text-white px-10 py-4 !rounded-2xl font-black text-[11px] uppercase tracking-widest mx-2 hover:bg-rose-500 transition-all',
+                    cancelButton: 'bg-slate-100 text-slate-400 px-10 py-4 !rounded-2xl font-black text-[11px] uppercase tracking-widest mx-2'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
@@ -353,21 +325,12 @@
                         url: '/admin/progress-payment/record/delete/' + id,
                         success: function (data) {
                             if (data === "OK") {
-                                Swal.fire("Silindi!", "Silme işlemi başarılı.", "success");
-                                $("#data_" + id).fadeOut(() => $(this).remove());
-                            } else if (data === "NO") {
-                                Swal.fire("Uyarı!", "Bu kaydı silemezsiniz.", "warning");
+                                $("#data_" + id).fadeOut();
                             }
-                        },
-                        error: function () {
-                            Swal.fire("Hata!", "Silme sırasında bir sorun oluştu.", "error");
                         }
                     });
                 }
             });
         }
     </script>
-
-
-
 @endsection

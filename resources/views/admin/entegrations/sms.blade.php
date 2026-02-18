@@ -1,141 +1,115 @@
 @extends('admin.layouts.app')
 @section('content')
-    <style>
-        #phone-input {
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #30d760;
-            border-radius: 5px;
-            width: 200px;
-        }
-
-        #phone-input:invalid {
-            border-color: #242323;
-        }
-    </style>
-
     <div class="container-fluid">
-        <div class="mb-sm-4 d-flex flex-wrap align-items-center text-head">
-            <h2 class="mb-3 me-auto">Sms Entegrasyon</h2>
+        <div class="mb-4 d-flex align-items-center justify-content-between">
             <div>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="javascript:void(0)">Sms Entegrasyon</a></li>
-                    <li class="breadcrumb-item"><a href="javascript:void(0)">Güncelle</a></li>
+                <h2 class="font-black text-slate-800 uppercase tracking-tighter mb-0">SMS Entegrasyonu</h2>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Vatan SMS API Ayarları</p>
+            </div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-slate-100 px-4 py-2 !rounded-2xl m-0">
+                    <li class="breadcrumb-item text-[10px] font-black uppercase tracking-widest"><a href="javascript:void(0)" class="text-slate-500">Sistem</a></li>
+                    <li class="breadcrumb-item text-[10px] font-black uppercase tracking-widest text-indigo-600 active">Entegrasyon</li>
                 </ol>
-            </div>
+            </nav>
         </div>
-         @if(session()->has('message'))
-        <div class="fixed top-5 right-5 z-[10000] max-w-sm w-full bg-white border-l-4 border-green-500 shadow-2xl rounded-2xl p-4 transform transition-all duration-500 ease-in-out animate-bounce-short">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 bg-green-100 p-2 rounded-xl">
-                    <i class="fas fa-check-circle text-green-600 text-lg"></i>
-                </div>
-                <div class="ml-4 flex-1">
-                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">İşlem Başarılı</p>
-                    <p class="text-sm font-bold text-slate-700 leading-tight">
-                        {{ session()->get('message') }}
-                    </p>
-                </div>
-                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-slate-400 hover:text-slate-600 transition-colors">
-                    <i class="fas fa-times text-xs"></i>
-                </button>
-            </div>
-        </div>
-    @endif
 
-    @if(session()->has('test'))
-        <div class="fixed top-5 right-5 z-[10000] max-w-sm w-full bg-white border-l-4 border-red-500 shadow-2xl rounded-2xl p-4 transform transition-all duration-500 ease-in-out">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 bg-red-100 p-2 rounded-xl">
-                    <i class="fas fa-exclamation-triangle text-red-600 text-lg"></i>
-                </div>
-                <div class="ml-4 flex-1">
-                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Hata Oluştu</p>
-                    <p class="text-sm font-bold text-slate-700 leading-tight">
-                        {{ session()->get('test') }}
-                    </p>
-                </div>
-                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-slate-400 hover:text-slate-600 transition-colors">
-                    <i class="fas fa-times text-xs"></i>
-                </button>
-            </div>
-        </div>
-    @endif
-
-        <div class="row">
-            <div class="col-xl-4 col-lg-12">
-                <div class="card">
-                    <div class="card-header" style="background: #4f46e5;color:#fff">
-                        <h4 class="card-title text-white">Vatan Sms Bilgileri</h4>
+        @if(session()->has('message'))
+            <div class="fixed top-5 right-5 z-[10000] max-w-sm w-full bg-white border-l-4 border-indigo-500 shadow-2xl rounded-2xl p-4 transform transition-all duration-500 animate-bounce-short">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-indigo-100 p-2 rounded-xl text-indigo-600">
+                        <i class="fas fa-check-circle text-lg"></i>
                     </div>
-                    <div class="card-body">
-                        <form method="post" class="repeater" action="{{ route('admin.sms.entegrations.update') }}">
-                            @csrf
+                    <div class="ml-4 flex-1">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Başarılı</p>
+                        <p class="text-xs font-bold text-slate-700 leading-tight">{{ session()->get('message') }}</p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-slate-300 hover:text-slate-600"><i class="fas fa-times text-[10px]"></i></button>
+                </div>
+            </div>
+        @endif
 
-                            <div class="basic-form">
-                                <div class="row">
-                                    <div class="mb-3 col-md-12">
-                                        <label class="form-label">Customer (45***)</label>
-                                        <input required type="text" class="form-control" name="vatan_sms_customer"
-                                               placeholder="Müşteri Giriniz"
-                                               value="{{ $admin->vatan_sms_customer }}">
-                                    </div>
-                                    <div class="mb-3 col-md-12">
-                                        <label class="form-label">Username (905***5**8**)</label>
-                                        <input required type="text" class="form-control" name="vatan_sms_username"
-                                               placeholder="Kullanıcı Adı Giriniz"
-                                               value="{{ $admin->vatan_sms_username }}">
-                                    </div>
-                                    <div class="mb-3 col-md-12">
-                                        <label class="form-label">Password</label>
-                                        <input required type="text" class="form-control" name="vatan_sms_password"
-                                               placeholder="Şifre Giriniz"
-                                               value="{{ $admin->vatan_sms_password }}">
-                                    </div>
-                                    <div class="mb-3 col-md-12">
-                                        <label class="form-label">Orginator (8*0**3*3**)</label>
-                                        <input required type="text" class="form-control" name="vatan_sms_orginator"
-                                               placeholder="Başlatıcı Giriniz"
-                                               value="{{ $admin->vatan_sms_orginator }}">
-                                    </div>
+        <div class="row g-4">
+            <div class="col-xl-5 col-lg-12">
+                <div class="card border-0 shadow-sm !rounded-[32px] overflow-hidden">
+                    <div class="bg-indigo-600 p-5 flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-white">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <h4 class="text-sm font-black text-white uppercase m-0 tracking-widest">Vatan SMS Bilgileri</h4>
+                    </div>
+                    <div class="card-body p-5">
+                        <form method="post" action="{{ route('admin.sms.entegrations.update') }}">
+                            @csrf
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Customer ID (45***)</label>
+                                    <input required type="text" class="form-control !rounded-xl border-slate-200 py-3 font-bold text-slate-700" name="vatan_sms_customer" placeholder="Müşteri No" value="{{ $admin->vatan_sms_customer }}">
+                                </div>
+                                <div class="col-12">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Username</label>
+                                    <input required type="text" class="form-control !rounded-xl border-slate-200 py-3 font-bold text-slate-700" name="vatan_sms_username" placeholder="905XXXXXXXXX" value="{{ $admin->vatan_sms_username }}">
+                                </div>
+                                <div class="col-12">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Password</label>
+                                    <input required type="text" class="form-control !rounded-xl border-slate-200 py-3 font-bold text-slate-700" name="vatan_sms_password" placeholder="API Şifreniz" value="{{ $admin->vatan_sms_password }}">
+                                </div>
+                                <div class="col-12">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Orginator (Başlık)</label>
+                                    <input required type="text" class="form-control !rounded-xl border-slate-200 py-3 font-bold text-slate-700" name="vatan_sms_orginator" placeholder="SMS Başlığı" value="{{ $admin->vatan_sms_orginator }}">
+                                </div>
+                                <div class="col-12 mt-4">
+                                    <button type="submit" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-indigo-100 border-0 transition-all hover:scale-[1.01]">GÜNCELLE</button>
                                 </div>
                             </div>
-                            <button type="submit" class="special-button">Bilgileri Güncelle</button>
                         </form>
                     </div>
                 </div>
-
             </div>
-            <div class="col-xl-4 col-lg-12">
-                <div class="card">
-                    <div class="card-header" style="background: #4f46e5;color:#fff">
-                        <h4 class="card-title text-white">Vatan Sms Test</h4>
+
+            <div class="col-xl-5 col-lg-12">
+                <div class="card border-0 shadow-sm !rounded-[32px] overflow-hidden">
+                    <div class="bg-slate-800 p-5 flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-white">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                        <h4 class="text-sm font-black text-white uppercase m-0 tracking-widest">Hızlı Test Paneli</h4>
                     </div>
-                    <div class="card-body">
-                        <div class="basic-form">
-                            <div class="row">
-                                <p>Sol tarafta <strong>VatanSms</strong> bilgilerinizi giriniz.</p>
-                                <p>Doğru olduğunu düşünüyorsanız Telefon No girip test messajı gönderiniz.</p>
+                    <div class="card-body p-5">
+                        <div class="bg-amber-50 border border-amber-100 p-4 rounded-2xl mb-5">
+                            <p class="text-amber-700 text-xs font-bold leading-relaxed m-0">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                <strong>Önemli:</strong> Test mesajı telefonunuza ulaşmadan sistemi aktif etmeyiniz. Hatalı bilgiler kontör kaybına yol açabilir.
+                            </p>
+                        </div>
 
-                                <p class="bg-danger-light text-danger">Uyarı:: Test mesajı size ulaşmadan sms aktif etmeyiniz!!!</p>
-                                <form method="post" action="{{route('admin.sms.entegrations.test')}}">
-                                    @csrf
+                        <form method="post" action="{{route('admin.sms.entegrations.test')}}" class="mb-5">
+                            @csrf
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Test Telefon Numarası</label>
+                            <div class="d-flex gap-2">
+                                <div class="flex-grow-1">
                                     @include('components.phone',['key' => 'phone', 'required' => true, 'value' => null])
-                                    <button class="special-button" type="submit">Gönder</button>
-                                </form>
-
-
-                                <div class="absolute bottom-0 mt-5">
-                                    <p class="size-3 py-2  text-dark fw-bold rounded-xl">
-                                        Test mesajımız size iletildi ise <strong class="text-success">Aktif Et</strong> diyerek siparişlerinizin kurye teslimini sms doğrulama ile yapabilirsiniz...</p>
-
-                                    <a id="toggle-button"
-                                       onclick="DeleteFunction()"
-                                       class="{{ \Illuminate\Support\Facades\Auth::guard('admin')->user()->is_sms ? 'special-ok-button' : 'special-button' }}"
-                                       data-status="{{ \Illuminate\Support\Facades\Auth::guard('admin')->user()->is_sms ? 'active' : 'passive' }}">
-                                        {{ \Illuminate\Support\Facades\Auth::guard('admin')->user()->is_sms ? 'Pasif Et' : 'Aktif Et' }}
-                                    </a>
                                 </div>
+                                <button class="px-4 bg-slate-800 text-white rounded-xl font-black text-[10px] uppercase border-0 transition-all hover:bg-slate-900" type="submit">GÖNDER</button>
+                            </div>
+                        </form>
+
+                        <hr class="border-slate-100 my-5">
+
+                        <div class="text-center">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">SİSTEM DURUMU</p>
+
+                            @php $isSms = \Illuminate\Support\Facades\Auth::guard('admin')->user()->is_sms; @endphp
+
+                            <div class="bg-slate-50 p-6 rounded-[24px] border border-slate-100">
+                                <p class="text-xs font-bold text-slate-600 mb-4">SMS Doğrulama şu an <strong>{{ $isSms ? 'AKTİF' : 'PASİF' }}</strong></p>
+
+                                <button id="toggle-button"
+                                        onclick="DeleteFunction()"
+                                        class="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] border-0 transition-all {{ $isSms ? 'bg-red-50 text-red-600 shadow-lg shadow-red-100' : 'bg-green-50 text-green-600 shadow-lg shadow-green-100' }}"
+                                        data-status="{{ $isSms ? 'active' : 'passive' }}">
+                                    {{ $isSms ? 'SİSTEMİ DURDUR' : 'SİSTEMİ AKTİF ET' }}
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -144,71 +118,37 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function DeleteFunction() {
             const button = document.getElementById('toggle-button');
-            const currentStatus = button.getAttribute('data-status'); // "active" or "passive"
-            const willActivate = currentStatus === 'passive';
-
-            const newText = willActivate ? 'Pasif Et' : 'Aktif Et';
-            const newClass = willActivate ? 'special-ok-button' : 'special-button';
-            const oldClass = willActivate ? 'special-button' : 'special-ok-button';
+            const isActivating = button.getAttribute('data-status') === 'passive';
 
             Swal.fire({
-                title: `${willActivate ? 'Aktif' : 'Pasif'} etmek istediğinizden emin misiniz?`,
-                icon: 'warning',
+                title: `<span class="text-lg font-black uppercase text-slate-800">${isActivating ? 'AKTİF ET' : 'PASİF ET'}</span>`,
+                html: `<p class="text-xs font-bold text-slate-500 uppercase">SMS Entegrasyon durumunu değiştirmek üzeresiniz.</p>`,
+                icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#259a38',
-                cancelButtonColor: '#3057d7',
-                cancelButtonText: 'Hayır',
-                confirmButtonText: 'Evet İstiyorum!',
+                confirmButtonColor: isActivating ? '#10b981' : '#ef4444',
+                cancelButtonColor: '#cbd5e1',
+                confirmButtonText: 'Evet, Onaylıyorum',
+                cancelButtonText: 'Vazgeç',
+                customClass: {
+                    popup: '!rounded-[32px] border-0 shadow-2xl',
+                    confirmButton: 'py-3 px-6 !rounded-xl font-black text-xs uppercase',
+                    cancelButton: 'py-3 px-6 !rounded-xl font-black text-xs uppercase'
+                }
             }).then(function (result) {
                 if (result.value) {
-                    $.ajax({
-                        type: 'GET',
-                        url: '/admin/update/entegrations/status',
-                        success: function (data) {
-                            if (data === "OK") {
-                                Swal.fire("Güncellendi!", "Güncelleme İşlemi Başarılı.", "success");
-
-                                // 🔄 Butonun text, class ve data-status'unu değiştir
-                                button.textContent = newText;
-                                button.classList.remove(oldClass);
-                                button.classList.add(newClass);
-                                button.setAttribute('data-status', willActivate ? 'active' : 'passive');
-
-                            } else {
-                                Swal.fire("Uyarı !!", "Üzgünüz, Güncelleme Yapılamadı.", "warning");
-                            }
-                        },
-                        error: function () {
-                            Swal.fire("Hata!", "Sunucuya bağlanılamadı.", "error");
+                    $.get('/admin/update/entegrations/status', function (data) {
+                        if (data === "OK") {
+                            location.reload(); // Tasarımı anlık güncellemek için reload en temizi
+                        } else {
+                            Swal.fire("Hata", "İşlem başarısız.", "error");
                         }
                     });
                 }
             });
         }
-
-        const phoneInput = document.getElementById('phone-input');
-
-        phoneInput.addEventListener('input', function (e) {
-            // Sadece rakam girilmesine izin ver
-            this.value = this.value.replace(/\D/g, '');
-
-            // Max 10 hane olacak şekilde sınırla
-            if (this.value.length > 10) {
-                this.value = this.value.slice(0, 10);
-            }
-        });
-
-        // Form gönderilmeden önce validasyon
-        document.querySelector('form').addEventListener('submit', function (e) {
-            const phone = phoneInput.value;
-
-            if (!/^5\d{9}$/.test(phone)) {
-                alert("Lütfen geçerli bir telefon numarası girin (5453455125 formatında).");
-                e.preventDefault();
-            }
-        });
     </script>
 @endsection

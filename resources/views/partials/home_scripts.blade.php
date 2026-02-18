@@ -153,28 +153,37 @@
         let html = '';
         couriers.forEach(courier => {
             const activeOrders = courier.active_order_count || 0;
-            const isOnline = courier.is_online;
-            const dotColor = isOnline ? '#10b981' : '#cbd5e1';
-            const statusText = isOnline ? 'Aktif' : 'Çevrimdışı';
-            const avatarBg = isOnline ? '#4f46e5' : '#94a3b8';
+            const statusMap = {
+                'active': { dot: '#10b981', bg: '#4f46e5', text: 'Müsait' },
+                'service': { dot: '#3b82f6', bg: '#6366f1', text: 'Serviste' },
+                'passive': { dot: '#ef4444', bg: '#94a3b8', text: 'Pasif' },
+                'break': { dot: '#f59e0b', bg: '#64748b', text: 'Molada' },
+                'handover': { dot: '#8b5cf6', bg: '#4338ca', text: 'Yolda' }
+            };
+
+            const currentStatus = statusMap[courier.status] || { dot: '#cbd5e1', bg: '#94a3b8', text: 'Bilinmiyor' };
+
+            const dotColor = currentStatus.dot;
+            const statusText = currentStatus.text;
+            const avatarBg = currentStatus.bg;
 
             html += `
-            <div class="d-flex align-items-center justify-content-between p-3 mb-2 bg-white border rounded-3" style="cursor:pointer; transition:all 0.2s; border-color:#e2e8f0;" onclick="assignCourierToOrder(${courier.id})" onmouseover="this.style.borderColor='#4f46e5';this.style.boxShadow='0 2px 8px rgba(79,70,229,0.1)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="d-flex align-items-center justify-content-center text-white" style="width:38px;height:38px;background:${avatarBg};border-radius:12px;font-size:14px;font-weight:800;">
-                        ${courier.name ? courier.name.charAt(0).toUpperCase() : '?'}
-                    </div>
-                    <div>
-                        <div style="font-size:13px; font-weight:800; color:#0f172a;">${courier.name}</div>
-                        <div class="d-flex align-items-center gap-1 mt-1">
-                            <span style="width:7px;height:7px;background:${dotColor};border-radius:50%;display:inline-block;"></span>
-                            <span style="font-size:10px; font-weight:700; color:#94a3b8;">${statusText}</span>
-                            ${activeOrders > 0 ? `<span style="font-size:9px; font-weight:800; color:#d97706; background:#fef3c7; padding:1px 6px; border-radius:6px; margin-left:4px;">${activeOrders} sipariş</span>` : ''}
-                        </div>
-                    </div>
+    <div class="d-flex align-items-center justify-content-between p-3 mb-2 bg-white border rounded-3" style="cursor:pointer; transition:all 0.2s; border-color:#e2e8f0;" onclick="assignCourierToOrder(${courier.id})" onmouseover="this.style.borderColor='#4f46e5';this.style.boxShadow='0 2px 8px rgba(79,70,229,0.1)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center justify-content-center text-white" style="width:38px;height:38px;background:${avatarBg};border-radius:12px;font-size:14px;font-weight:800;">
+                ${courier.name ? courier.name.charAt(0).toUpperCase() : '?'}
+            </div>
+            <div>
+                <div style="font-size:13px; font-weight:800; color:#0f172a;">${courier.name}</div>
+                <div class="d-flex align-items-center gap-1 mt-1">
+                    <span style="width:7px;height:7px;background:${dotColor};border-radius:50%;display:inline-block;"></span>
+                    <span style="font-size:10px; font-weight:700; color:#94a3b8;">${statusText}</span>
+                    ${activeOrders > 0 ? `<span style="font-size:9px; font-weight:800; color:#d97706; background:#fef3c7; padding:1px 6px; border-radius:6px; margin-left:4px;">${activeOrders} sipariş</span>` : ''}
                 </div>
-                <i class="fas fa-arrow-right" style="font-size:9px; color:#cbd5e1;"></i>
-            </div>`;
+            </div>
+        </div>
+        <i class="fas fa-arrow-right" style="font-size:9px; color:#cbd5e1;"></i>
+    </div>`;
         });
 
         container.innerHTML = html;
