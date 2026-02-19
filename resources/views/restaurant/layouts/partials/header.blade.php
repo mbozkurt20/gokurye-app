@@ -1,9 +1,15 @@
-@if(config('site.test_mode') === true)
+@php
+    $restaurantParentAdmin = auth()->check() && auth()->user()->admin_id
+        ? \App\Models\Admin::find(auth()->user()->admin_id)
+        : null;
+    $isTestRestaurant = config('site.test_mode') === true || ($restaurantParentAdmin && $restaurantParentAdmin->is_test);
+@endphp
+@if($isTestRestaurant)
     <div class="bg-amber-50 border-b border-amber-200 py-2.5">
         <div class="container mx-auto px-6 flex justify-center items-center gap-3">
             <span class="flex h-2 w-2 rounded-full bg-amber-500 animate-ping"></span>
             <p class="text-[11px] font-black uppercase tracking-widest text-amber-700">
-                <span class="font-extrabold">{{ config('site.name') }}</span> Test Modu Hesabı Kullanmaktasınız
+                <span class="font-extrabold">TEST HESABI</span> — Her kategoriden en fazla 2 kayıt ekleyebilirsiniz.
             </p>
         </div>
     </div>

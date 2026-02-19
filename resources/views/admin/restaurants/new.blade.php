@@ -68,7 +68,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Paket Fiyatı (₺)</label>
-                                <input type="text" class="form-control !rounded-2xl !py-3.5 border-slate-100 font-bold text-slate-700 focus:border-indigo-500 shadow-none" name="package_price" placeholder="0.00">
+                                <input type="text" required class="form-control !rounded-2xl !py-3.5 border-slate-100 font-bold text-slate-700 focus:border-indigo-500 shadow-none" name="package_price" placeholder="0.00">
                             </div>
                             <div class="col-md-6">
                                 <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Vergi Dairesi</label>

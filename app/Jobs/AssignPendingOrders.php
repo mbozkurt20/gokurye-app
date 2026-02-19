@@ -2,8 +2,6 @@
 
 namespace App\Jobs;
 
-namespace App\Jobs;
-
 use App\Helpers\CourierStatus;
 use App\Helpers\MapHelper;
 use App\Helpers\OrdersHelper;
@@ -28,7 +26,6 @@ class AssignPendingOrders implements ShouldQueue
     {
         Log::info('--- OTOMATİK KURYE ATAMA DÖNGÜSÜ BAŞLADI ---');
 
-        // Eager loading (with) kullanarak her döngüde veritabanına gitmeyi engelliyoruz
         $orders = Order::with('restaurant.admin')
             ->where('courier_id', -1)
             ->where('status', OrderStatus::PREPARED)
@@ -46,81 +43,84 @@ class AssignPendingOrders implements ShouldQueue
 
             if (!$restaurant) continue;
 
-            $distLimit = $restaurant->distance_limit_km ?? 50;
-            $maxPackageLimit = $restaurant->max_package_limit ?? 4;
+            $admin = $restaurant->admin;
+            $distLimit       = $admin->distance_limit    ?? 50;
+            $maxPackageLimit = $admin->max_package_limit ?? 4;
 
-            // KRİTİK DEĞİŞİKLİK: Sadece tek bir kurye değil, o adminin TÜM aktif kuryelerini alıyoruz.
-            // Çünkü en eski kurye uzaktaysa, daha yakındaki bir kuryeye şans vermeliyiz.
-            $availableCouriers = Courier::where('status', CourierStatus::active)
+            // Adminin tüm aktif kuryelerini çek
+            $allCouriers = Courier::where('status', CourierStatus::active)
                 ->where('admin_id', $restaurant->admin_id)
-                ->orderBy('last_assigned_at', 'asc')
                 ->get();
 
-            if ($availableCouriers->isEmpty()) {
-                Log::warning("Sipariş #{$order->id} için şu an HİÇ MÜSAİT KURYE YOK. Diğer siparişlere bakılıyor.");
-                continue; // BREAK YERİNE CONTINUE: Bu sipariş için kurye yoksa, belki diğeri için vardır.
-            }
-
-            $assignedCourier = null;
-
-            foreach ($availableCouriers as $courier) {
-                // Mesafe Kontrolü
-                $distanceToRest = MapHelper::getGoogleDistance(
-                    $courier->latitude, $courier->longitude,
-                    $restaurant->latitude, $restaurant->longitude
-                ) ?? OrdersHelper::haversineDistance($courier->latitude, $courier->longitude, $restaurant->latitude, $restaurant->longitude);
-
-                $distToRestKm = $distanceToRest / 1000;
-
-                if ($distToRestKm <= $distLimit) {
-                    $assignedCourier = $courier;
-                    break; // Uygun kuryeyi bulduk, iç döngüden çık.
-                }
-
-                Log::info("Kurye #{$courier->id} mesafe dışındaydı, sonraki kurye deneniyor.");
-            }
-
-            if (!$assignedCourier) {
-                Log::warning("Sipariş #{$order->id} için uygun mesafede kurye bulunamadı.");
+            if ($allCouriers->isEmpty()) {
+                Log::warning("Sipariş #{$order->id} için müsait kurye yok.");
                 continue;
             }
+
+            // 1. Adım: Her kurye için restorana mesafeyi hesapla ve limiti aşanları filtrele
+            $couriersWithinRange = $allCouriers->filter(function ($courier) use ($restaurant, $distLimit) {
+                $distanceMeters = MapHelper::getGoogleDistance(
+                    $courier->latitude, $courier->longitude,
+                    $restaurant->latitude, $restaurant->longitude
+                );
+
+                if ($distanceMeters === null) {
+                    $distanceMeters = OrdersHelper::haversineDistance(
+                        $courier->latitude, $courier->longitude,
+                        $restaurant->latitude, $restaurant->longitude
+                    );
+                }
+
+                $distKm = ($distanceMeters ?? PHP_INT_MAX) / 1000;
+
+                Log::info("Kurye #{$courier->id}: restoran mesafesi {$distKm} km (limit: {$distLimit} km)");
+
+                return $distKm <= $distLimit;
+            });
+
+            if ($couriersWithinRange->isEmpty()) {
+                Log::warning("Sipariş #{$order->id} için uygun mesafede kurye bulunamadı (limit: {$distLimit} km).");
+                continue;
+            }
+
+            // 2. Adım: Mesafe içindeki kuryeler arasından en uzun bekleyeni seç (adil rotasyon)
+            $assignedCourier = $couriersWithinRange->sortBy('last_assigned_at')->first();
 
             // --- ATAMA İŞLEMİ ---
             try {
                 $order->update([
-                    'courier_id' => $assignedCourier->id,
-                    'assigned_at' => now()
+                    'courier_id'  => $assignedCourier->id,
+                    'assigned_at' => now(),
                 ]);
 
                 $assignedCourier->update(['last_assigned_at' => now()]);
 
                 CourierOrder::firstOrCreate([
                     'courier_id' => $assignedCourier->id,
-                    'order_id' => $order->id
+                    'order_id'   => $order->id,
                 ]);
 
-                // Paket limit kontrolü
+                // Atama sonrası aktif paket sayısını kontrol et
                 $activePackagesCount = Order::where('courier_id', $assignedCourier->id)
                     ->whereNotIn('status', [OrderStatus::DELIVERED, OrderStatus::UNSUPPLIED])
                     ->count();
 
                 if ($activePackagesCount >= $maxPackageLimit) {
                     $assignedCourier->update(['status' => CourierStatus::service]);
-                    Log::info("Kurye #{$assignedCourier->id} paket limiti doldu: BUSY yapıldı.");
+                    Log::info("Kurye #{$assignedCourier->id} paket limitine ulaştı ({$maxPackageLimit}): servis moduna alındı.");
                 }
 
-                // Bildirimler
                 CheckCourierTimeoutJob::dispatch($order->id)->delay(now()->addMinutes(2));
 
                 if ($assignedCourier->fcm_token) {
                     (new PushNotificationService())->sendNotification(
                         $assignedCourier->fcm_token,
-                        $restaurant->restaurant_name . ' - Yeni Sipariş',
+                        ($restaurant->restaurant_name ?? $restaurant->name) . ' - Yeni Sipariş',
                         'Takip: ' . $order->tracking_id
                     );
                 }
 
-                Log::info("BAŞARILI: Sipariş #{$order->id}, Kurye #{$assignedCourier->id} kişisine atandı.");
+                Log::info("BAŞARILI: Sipariş #{$order->id} → Kurye #{$assignedCourier->id}");
 
             } catch (\Exception $e) {
                 Log::error("Atama Hatası (Sipariş #{$order->id}): " . $e->getMessage());

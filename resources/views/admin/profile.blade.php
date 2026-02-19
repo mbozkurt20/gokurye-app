@@ -125,6 +125,34 @@
                                            value="{{ old('longitude', auth()->user()->longitude) }}">
                                 </div>
 
+                                <div class="mb-8">
+                                    <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-6 border-s-4 border-indigo-500 ps-3">OPERASYONEL LİMİTLER</h4>
+
+                                    <div class="mb-6 p-5 bg-indigo-50/30 rounded-[25px] border border-indigo-50">
+                                        <div class="flex justify-between items-center mb-4">
+                                            <span class="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Hizmet Yarıçapı</span>
+                                            <span id="dist_val" class="px-3 py-1 bg-indigo-600 text-white rounded-lg text-[10px] font-black tracking-tighter shadow-lg shadow-indigo-200 transition-all duration-300">{{ old('distance_limit', auth()->user()->distance_limit ?? 20) }} km</span>
+                                        </div>
+                                        <input type="range" name="distance_limit" id="distance_limit" min="1" max="100" step="1"
+                                               value="{{ old('distance_limit', auth()->user()->distance_limit ?? 20) }}"
+                                               oninput="updateVal('distance_limit', 'dist_val', ' km')"
+                                               class="form-range custom-slider-indigo w-full cursor-pointer">
+                                    </div>
+
+                                    <div class="mb-6 p-5 bg-slate-50/50 rounded-[25px] border border-slate-100">
+                                        <div class="flex justify-between items-center mb-4">
+                                            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Maks. Paket Ataması</span>
+                                            <span id="pkg_val" class="px-3 py-1 bg-slate-900 text-white rounded-lg text-[10px] font-black tracking-tighter shadow-lg transition-all duration-300">
+                                                {{ old('max_package_limit', auth()->user()->max_package_limit ?? 4) }} Paket
+                                            </span>
+                                        </div>
+                                        <input type="range" name="max_package_limit" id="max_package_limit" min="1" max="10" step="1"
+                                               value="{{ old('max_package_limit', auth()->user()->max_package_limit ?? 4) }}"
+                                               oninput="updateVal('max_package_limit', 'pkg_val', ' Paket')"
+                                               class="form-range custom-slider-dark w-full cursor-pointer">
+                                    </div>
+                                </div>
+
                                 <div class="col-12 mt-4">
                                     <button type="submit" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-indigo-100 border-0 transition-all hover:scale-[1.01] active:scale-95">
                                         DEĞİŞİKLİKLERİ KAYDET
@@ -215,6 +243,51 @@
 
             loadDistricts($('#city_id').val(), "{{ auth()->user()->district_id }}");
             initMap();
+        });
+    </script>
+
+    <style>
+        /* Slider Başlıkları için Custom Tasarım */
+        .form-range { height: 6px; -webkit-appearance: none; background: #e2e8f0; border-radius: 10px; }
+
+        /* Indigo Slider Thumb */
+        .custom-slider-indigo::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 20px; height: 20px;
+            background: #4f46e5; border: 4px solid white; border-radius: 50%;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4); cursor: pointer; transition: 0.2s;
+        }
+        .custom-slider-indigo::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        /* Dark Slider Thumb */
+        .custom-slider-dark::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 20px; height: 20px;
+            background: #0f172a; border: 4px solid white; border-radius: 50%;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); cursor: pointer; transition: 0.2s;
+        }
+        .custom-slider-dark::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    </style>
+
+    <script>
+        /**
+         * Slider değerini anlık güncelleyen fonksiyon
+         * @param inputId Slider'ın ID'si
+         * @param targetId Değerin yazılacağı span ID'si
+         * @param suffix Birim (km, Paket vb.)
+         */
+        function updateVal(inputId, targetId, suffix) {
+            const slider = document.getElementById(inputId);
+            const output = document.getElementById(targetId);
+            output.innerText = slider.value + suffix;
+
+            // Değişim anında ufak bir animasyon efekti
+            output.style.transform = 'scale(1.1)';
+            setTimeout(() => { output.style.transform = 'scale(1)'; }, 100);
+        }
+
+        // Sayfa yüklendiğinde mevcut değerleri bir kez kontrol et (Opsiyonel)
+        document.addEventListener('DOMContentLoaded', function() {
+            updateVal('distance_limit', 'dist_val', ' km');
+            updateVal('max_package_limit', 'pkg_val', ' Paket');
         });
     </script>
 @endsection

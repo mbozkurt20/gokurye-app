@@ -7,6 +7,8 @@ use App\Http\Controllers\JobController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EntegraWebhookController;
 use App\Http\Controllers\PayTrPaymentController;
+use App\Http\Controllers\DemoController;
+use App\Http\Controllers\CourierApplyController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -51,3 +53,11 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/home', 'index')->name('home.dashboard');
     Route::get('/get-districts/{cityId}', 'getDistricts');
 });
+
+// Demo hesabı formu & oluştur
+Route::get('/demo', [DemoController::class, 'index'])->name('demo.index');
+Route::post('/demo', [DemoController::class, 'create'])->name('demo.create');
+
+// Kurye başvuru (public)
+Route::get('/kurye-basvuru', [CourierApplyController::class, 'index'])->name('courier.apply');
+Route::post('/kurye-basvuru', [CourierApplyController::class, 'store'])->name('courier.apply.store');

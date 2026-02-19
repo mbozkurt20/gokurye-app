@@ -20,7 +20,7 @@
         </div>
 
         <div class="row">
-            <div class="col-xl-9 col-lg-12 mx-auto">
+            <div class="col-xl-9 col-lg-12">
                 <div class="bg-white !rounded-[40px] shadow-sm border border-slate-50 overflow-hidden">
                     <div class="p-8 md:p-12">
                         <div class="flex items-center gap-3 mb-10">

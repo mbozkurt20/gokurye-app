@@ -159,6 +159,30 @@
                     @endforeach
                 </div>
 
+                {{-- Kupon Seçimi --}}
+                @if($coupons->count() > 0)
+                <div class="mb-4">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
+                        <i class="fas fa-ticket-alt text-brand mr-1"></i> Kupon / İndirim
+                    </label>
+                    <select id="coupon_id" onchange="applyCoupon(this)"
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-slate-700 text-sm focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20">
+                        <option value="">— Kupon Uygulanmadı —</option>
+                        @foreach($coupons as $coupon)
+                            <option value="{{ $coupon->id }}" data-amount="{{ $coupon->total_seller_amount }}">
+                                {{ $coupon->name }} — {{ number_format($coupon->total_seller_amount, 2, ',', '.') }} ₺ indirim
+                            </option>
+                        @endforeach
+                    </select>
+                    <div id="coupon-applied" class="hidden mt-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2">
+                        <i class="fas fa-check-circle text-emerald-500 text-xs"></i>
+                        <span class="text-xs font-bold text-emerald-700" id="coupon-label"></span>
+                    </div>
+                </div>
+                @else
+                <input type="hidden" id="coupon_id" value="">
+                @endif
+
                 <button type="button" onclick="CreateOrder()"
                         class="kayit w-full bg-brand text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-brand/30 hover:bg-brand-dark transition-all flex items-center justify-center gap-3">
                     <i class="fas fa-check-circle text-lg"></i> SİPARİŞİ TAMAMLA
@@ -220,6 +244,34 @@
         btn.classList.remove('bg-white', 'text-slate-500', 'border-slate-200');
     }
 
+    // Kupon — global değişkenler
+    let couponDiscount = 0;
+    let baseTotal = 0;
+
+    function applyCurrentDiscount() {
+        const discounted = Math.max(0, baseTotal - couponDiscount);
+        const formatted  = discounted.toFixed(2).replace('.', ',') + ' TL';
+        $('#posTotal').html(formatted);
+        $('#totalPrice').val(discounted.toFixed(2));
+    }
+
+    // Kupon Uygulama
+    function applyCoupon(select) {
+        const appliedEl = document.getElementById('coupon-applied');
+        const labelEl   = document.getElementById('coupon-label');
+        if (select.value) {
+            const opt      = select.options[select.selectedIndex];
+            couponDiscount = parseFloat(opt.dataset.amount || 0);
+            appliedEl.classList.remove('hidden');
+            labelEl.textContent = opt.text;
+            new Audio('{{url("pos/audio/beep.mp3")}}').play().catch(function(){});
+        } else {
+            couponDiscount = 0;
+            appliedEl.classList.add('hidden');
+        }
+        applyCurrentDiscount();
+    }
+
     // Ödeme Yöntemi Seçimi
     function PaymentMethodSave(methodName, element) {
         $('#payment_control').val(methodName);
@@ -236,8 +288,8 @@
             success: function (data) {
                 $('#productItemLista').html(data.items);
                 $('#posTotalItem').html(data.posTotalItem);
-                $('#posTotal').html(data.posTotal);
-                $('#totalPrice').val(data.total);
+                baseTotal = parseFloat(data.total) || 0;
+                applyCurrentDiscount();
             }
         });
     }
@@ -369,8 +421,8 @@
                     $('#quantity_' + e).val(currentQty + 1);
                 }
                 $('#posTotalItem').html(data.posTotalItem);
-                $('#posTotal').html(data.posTotal);
-                $('#totalPrice').val(data.total);
+                baseTotal = parseFloat(data.total) || 0;
+                applyCurrentDiscount();
             }
         });
     }
@@ -385,8 +437,8 @@
                 let currentQty = parseInt($('#quantity_' + id).val());
                 $('#quantity_' + id).val(currentQty + 1);
                 $('#posTotalItem').html(data.posTotalItem);
-                $('#posTotal').html(data.posTotal);
-                $('#totalPrice').val(data.total);
+                baseTotal = parseFloat(data.total) || 0;
+                applyCurrentDiscount();
             }
         });
     }
@@ -405,8 +457,8 @@
                     $('#quantity_' + id).val(qty - 1);
                 }
                 $('#posTotalItem').html(data.posTotalItem);
-                $('#posTotal').html(data.posTotal);
-                $('#totalPrice').val(data.total);
+                baseTotal = parseFloat(data.total) || 0;
+                applyCurrentDiscount();
             }
         });
     }
@@ -422,8 +474,14 @@
                 $('.customer').html('Seçili Müşteri Bulunmuyor');
                 $('#customer_id').val(0);
                 $('#posTotalItem').html('0');
-                $('#posTotal').html('0,00 TL');
-                $('#totalPrice').val(0);
+                baseTotal = 0;
+                couponDiscount = 0;
+                applyCurrentDiscount();
+                // Kupon sıfırla
+                const couponSel = document.getElementById('coupon_id');
+                if (couponSel) couponSel.value = '';
+                const appliedEl = document.getElementById('coupon-applied');
+                if (appliedEl) appliedEl.classList.add('hidden');
                 $('.paymentRol').removeClass('active');
                 $('#payment_control').val(0);
                 // Select2 sıfırla

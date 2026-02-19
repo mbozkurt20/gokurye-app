@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Categorie;
 use App\Models\Restaurant;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\SvgWriter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -45,18 +47,38 @@ class MenuController extends Controller
     }
 
 
+    public function qrCode()
+    {
+        $restaurant = Auth::guard('restaurant')->user();
+        $menuUrl    = url('/restaurant/' . $restaurant->id . '/menu');
+
+        $qrCode = QrCode::create($menuUrl)->setSize(300)->setMargin(10);
+        $writer = new SvgWriter();
+        $result = $writer->write($qrCode);
+        $qrSvg  = $result->getString();
+
+        return view('restaurant.menus.qr', compact('menuUrl', 'qrSvg'));
+    }
+
     public function show($restaurantId)
     {
         $restaurant = Restaurant::find($restaurantId);
 
+        if (!$restaurant) {
+            abort(404);
+        }
+
+        $template = $restaurant->menu_template ?: 'first';
+
         $data = [
-            'name' => $restaurant->name,
-            'address' => $restaurant->address,
-            'phone' => $restaurant->phone,
-            'email' => $restaurant->email,
-            'categories' => Categorie::where('restaurant_id',$restaurant->id)->get(),
+            'name'       => $restaurant->name,
+            'address'    => $restaurant->address,
+            'phone'      => $restaurant->phone,
+            'email'      => $restaurant->email,
+            'categories' => Categorie::with('products')->where('restaurant_id', $restaurant->id)->where('status', 'active')->get(),
         ];
-        return view('restaurant.menus.templates.'.$restaurant->menu_template, compact('restaurant','data'));
+
+        return view('restaurant.menus.templates.' . $template, compact('restaurant', 'data'));
     }
 
     /**

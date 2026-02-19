@@ -6,7 +6,7 @@
        autocomplete="tel"
        maxlength="14"
        value="{{$value}}"
-       class="form-control border border-light"
+       class="{{$class ?? 'form-control border border-light'}}"
        pattern="[(][0-9]{3}[)] [0-9]{3}-[0-9]{4}"
     {{ $required ? 'required' : '' }} />
 

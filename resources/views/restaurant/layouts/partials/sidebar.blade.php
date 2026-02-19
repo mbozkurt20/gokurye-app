@@ -44,6 +44,7 @@
                 <div id="prod-menu" class="hidden pl-12 space-y-1 mt-1 border-l-2 border-brand/10 ml-6">
                     <a href="{{ route('restaurant.categories') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Kategoriler</a>
                     <a href="{{ route('restaurant.products') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Ürün Listesi</a>
+                    <a href="{{ route('restaurant.menus.qr') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">QR Menü</a>
                 </div>
             </div>
 
@@ -72,6 +73,20 @@
                 <div id="report-menu" class="hidden pl-12 space-y-1 mt-1 border-l-2 border-brand/10 ml-6">
                     <a href="{{ route('restaurant.reports.orders') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Sipariş Raporu</a>
                     <a href="{{ route('restaurant.reports.couriers') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Kurye Raporu</a>
+                </div>
+            </div>
+
+            <div class="py-2">
+                <button onclick="toggleSubmenu('coupon-menu')" class="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-slate-500 hover:bg-brand/5 hover:text-brand transition-all group">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-ticket w-5 text-center text-sm group-hover:scale-110 transition-transform"></i>
+                        <span class="text-xs font-bold uppercase tracking-wide">Kuponlar</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-down text-[10px] opacity-50" id="coupon-menu-icon"></i>
+                </button>
+                <div id="coupon-menu" class="hidden pl-12 space-y-1 mt-1 border-l-2 border-brand/10 ml-6">
+                    <a href="{{ route('restaurant.coupons') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Kupon Listesi</a>
+                    <a href="{{ route('restaurant.coupons.new') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Yeni Kupon</a>
                 </div>
             </div>
 
@@ -107,7 +122,7 @@
     function toggleSubmenu(id) {
         const menu = document.getElementById(id);
         const icon = document.getElementById(id + '-icon');
-        const allMenus = ['cust-menu', 'prod-menu', 'order-menu', 'report-menu']; // Liste genişletilebilir
+        const allMenus = ['cust-menu', 'prod-menu', 'order-menu', 'report-menu', 'coupon-menu']; // Liste genişletilebilir
 
         if (menu.classList.contains('hidden')) {
             menu.classList.remove('hidden');

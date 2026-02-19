@@ -57,11 +57,19 @@
                     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 px-4">
                         @foreach($category->products as $product)
                             <div class="bg-white rounded-lg shadow-sm menu-card p-4 flex flex-col sm:flex-row items-start sm:items-center">
-                                <img src="{{ $product->image }}" alt="{{ $product->name }}" class="w-full sm:w-48 h-48 object-cover rounded-lg mb-4 sm:mb-0 sm:mr-4 border-2 border-gray-200" />
+                                @if($product->image)
+                                    <img src="{{ asset($product->image) }}" alt="{{ $product->name }}" class="w-full sm:w-48 h-48 object-cover rounded-lg mb-4 sm:mb-0 sm:mr-4 border-2 border-gray-200" />
+                                @else
+                                    <div class="w-full sm:w-48 h-48 bg-gray-100 rounded-lg mb-4 sm:mb-0 sm:mr-4 flex items-center justify-center text-gray-300">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    </div>
+                                @endif
                                 <div class="flex-1 text-left">
                                     <h4 class="text-xl font-semibold mb-2 text-yellow-700">{{ $product->name }}</h4>
-                                    <p class="mb-3 text-sm text-gray-600">{{ $product->details }}</p>
-                                    <span class="price-tag">{{ $product->price }} ₺</span>
+                                    @if($product->details)
+                                        <p class="mb-3 text-sm text-gray-600">{{ $product->details }}</p>
+                                    @endif
+                                    <span class="price-tag">{{ number_format($product->price, 2, ',', '.') }} ₺</span>
                                 </div>
                             </div>
                         @endforeach

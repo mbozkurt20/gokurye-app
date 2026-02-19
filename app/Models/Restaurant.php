@@ -42,8 +42,6 @@ class Restaurant extends Authenticatable
         'gpsyemek_api_key',
         'remember_token',
         'package_price',
-        'distance_limit_km',
-        'max_package_limit',
     ];
 
     /**

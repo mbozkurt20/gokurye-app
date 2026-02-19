@@ -36,9 +36,34 @@ class CourierController extends Controller
     {
         $couriers = Courier::where('restaurant_id', 0)
             ->where('admin_id', auth()->id())
+            ->where('is_active', 1)
             ->get();
 
-        return view('admin.couriers.index', compact('couriers'));
+        $applications = Courier::where('is_active', 0)
+            ->where('admin_id', 0)
+            ->get();
+
+        return view('admin.couriers.index', compact('couriers', 'applications'));
+    }
+
+    public function approveApplication($id)
+    {
+        $courier = Courier::findOrFail($id);
+        $courier->update([
+            'is_active' => 1,
+            'admin_id'  => auth()->id(),
+            'status'    => \App\Helpers\CourierStatus::active,
+        ]);
+
+        return redirect()->route('admin.couriers.index')->with('message', 'Başvuru onaylandı. Kurye aktif edildi.');
+    }
+
+    public function rejectApplication($id)
+    {
+        $courier = Courier::findOrFail($id);
+        $courier->delete();
+
+        return response()->json(['status' => 'OK']);
     }
 
     public function getCourier()
@@ -64,16 +89,37 @@ class CourierController extends Controller
 
     public function create(Request $request)
     {
-        $testMode =config('site.test_mode');
+        $isTestAccount = auth()->guard('admin')->check() && auth()->guard('admin')->user()->is_test;
+        $testMode = config('site.test_mode') || $isTestAccount;
+        $testLimit = $isTestAccount ? 2 : config('site.test_mode_limit');
 
         if ($testMode) {
-            if (Courier::count() > config('site.test_mode_limit')) {
-                return redirect()->back()->with('test', 'Test Modu: Üzgünüz, En Fazla ' . config('site.test_mode_limit') . ' Kayıt Ekleyebilirsiniz');
+            if (Courier::where('admin_id', auth()->guard('admin')->id())->count() >= $testLimit) {
+                return redirect()->back()->with('test', 'Test Hesabı: En Fazla ' . $testLimit . ' Kurye Ekleyebilirsiniz');
             }
         }
 
+        $request->validate([
+            'name'          => 'required|string|max:255',
+            'phone'         => 'required|string|max:20',
+            'password'      => 'required|string|min:6',
+            'tc_id'         => 'required|string|max:11',
+            'age'           => 'required|integer|min:18|max:70',
+            'blood_type'    => 'required|string',
+            'profile_photo' => 'required|image|max:2048',
+            'vehicle_type'  => 'required|in:motor,otomobil',
+            'plate'         => 'required|string|max:20',
+            'bank'          => 'required|string|max:100',
+            'iban'          => 'required|string|max:32',
+        ]);
+
         if (Courier::where('phone', $request->input('phone'))->exists()) {
             return redirect()->back()->with('test', 'Bu numaraya ait kurye bulunmaktadır !!');
+        }
+
+        $profilePhoto = null;
+        if ($request->hasFile('profile_photo')) {
+            $profilePhoto = $request->file('profile_photo')->store('couriers/photos', 'public');
         }
 
         Courier::create([
@@ -91,6 +137,14 @@ class CourierController extends Controller
             'code' => $this->generateCode(),
             'is_active' => 1,
             'admin_id' => Auth::guard('admin')->user()->id,
+            'iban' => $request->input('iban'),
+            'bank' => $request->input('bank'),
+            'profile_photo' => $profilePhoto,
+            'tc_id' => $request->input('tc_id'),
+            'age' => $request->input('age'),
+            'vehicle_type' => $request->input('vehicle_type'),
+            'plate' => $request->input('plate'),
+            'blood_type' => $request->input('blood_type'),
         ]);
 
         return redirect()->back()->with('message', 'Kurye Başarıyla Kaydedildi.');
@@ -135,7 +189,7 @@ class CourierController extends Controller
             return redirect()->back()->with('test', 'Kurye ödeme türünü değiştirmek için kurye hakedişini ödemelisiniz!!');
         }
 
-        $courier->update([
+        $updateData = [
             'name' => $request->input('name'),
             'phone' => $request->input('phone'),
             'latitude' => $request->input('latitude'),
@@ -146,8 +200,20 @@ class CourierController extends Controller
             'km_distance_later' => $request->input('km_distance_later'),
             'fixed_price' => $request->input('fixed_price'),
             'status' => $request->input('status'),
-            'password' => Hash::make($request->input('password')),
-        ]);
+            'iban' => $request->input('iban'),
+            'bank' => $request->input('bank'),
+            'tc_id' => $request->input('tc_id'),
+            'age' => $request->input('age'),
+            'vehicle_type' => $request->input('vehicle_type'),
+            'plate' => $request->input('plate'),
+            'blood_type' => $request->input('blood_type'),
+        ];
+
+        if ($request->hasFile('profile_photo')) {
+            $updateData['profile_photo'] = $request->file('profile_photo')->store('couriers/photos', 'public');
+        }
+
+        $courier->update($updateData);
 
         $courierss = Courier::where('status', 1)
             ->where('status', CourierStatus::active)

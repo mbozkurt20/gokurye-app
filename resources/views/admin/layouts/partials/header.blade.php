@@ -1,9 +1,10 @@
-@if(config('site.test_mode') === true)
+@if(config('site.test_mode') === true || (auth()->guard('admin')->check() && auth()->guard('admin')->user()->is_test))
     <div class="bg-amber-50 border-b border-amber-200 py-2.5">
         <div class="container mx-auto px-6 flex justify-center items-center gap-3">
             <span class="flex h-2 w-2 rounded-full bg-amber-500 animate-ping"></span>
             <p class="text-[11px] font-black uppercase tracking-widest text-amber-700">
-                <span class="font-extrabold">{{ config('site.name') }}</span> Test Modu Hesabı Kullanmaktasınız
+                <span class="font-extrabold">TEST HESABI</span> — Her kategoriden en fazla 2 kayıt ekleyebilirsiniz. &nbsp;
+                <a href="{{ route('admin.logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="underline text-amber-800 hover:text-amber-900">Çıkış Yap</a>
             </p>
         </div>
     </div>

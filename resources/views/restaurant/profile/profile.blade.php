@@ -63,30 +63,6 @@
                             </div>
                         </div>
 
-                        <div class="mb-8">
-                            <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-6 border-s-4 border-indigo-500 ps-3">OPERASYONEL LİMİTLER</h4>
-
-                            <div class="mb-6 p-5 bg-indigo-50/30 rounded-[25px] border border-indigo-50">
-                                <div class="flex justify-between items-center mb-4">
-                                    <span class="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Hizmet Yarıçapı</span>
-                                    <span id="dist_val" class="px-3 py-1 bg-indigo-600 text-white rounded-lg text-[10px] font-black tracking-tighter shadow-sm shadow-indigo-200">0 km</span>
-                                </div>
-                                <input type="range" name="distance_limit_km" id="distance_limit_km" min="1" max="100" step="1"
-                                       value="{{ old('distance_limit_km', auth()->user()->distance_limit_km ?? 20) }}"
-                                       class="form-range custom-slider-indigo">
-                            </div>
-
-                            <div class="mb-6 p-5 bg-slate-50/50 rounded-[25px] border border-slate-100">
-                                <div class="flex justify-between items-center mb-4">
-                                    <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Maks. Paket Ataması</span>
-                                    <span id="pkg_val" class="px-3 py-1 bg-slate-900 text-white rounded-lg text-[10px] font-black tracking-tighter shadow-sm">0 Paket</span>
-                                </div>
-                                <input type="range" name="max_package_limit" id="max_package_limit" min="1" max="10" step="1"
-                                       value="{{ old('max_package_limit', auth()->user()->max_package_limit ?? 4) }}"
-                                       class="form-range custom-slider-dark">
-                            </div>
-                        </div>
-
                         <div class="row g-3 mb-8">
                             <div class="col-6">
                                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ps-1">Enlem</label>

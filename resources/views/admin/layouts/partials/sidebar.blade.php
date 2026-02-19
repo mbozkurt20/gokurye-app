@@ -51,7 +51,7 @@
                     <i class="fa-solid fa-chevron-down text-[10px] opacity-50 transition-transform" id="cour-menu-icon"></i>
                 </button>
                 <div id="cour-menu" class="hidden pl-12 space-y-1 mt-1 border-l-2 border-brand/10 ml-6">
-                    <a href="{{ route('admin.couriers') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Tüm Kuryeler</a>
+                    <a href="{{ route('admin.couriers.index') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Tüm Kuryeler</a>
                     <a href="{{ route('admin.couriers.new') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Kurye Ekle</a>
                     <a href="{{ route('admin.couriers.maps') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Kurye Takip</a>
                     <a href="{{ route('admin.courier.performance') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Performans</a>

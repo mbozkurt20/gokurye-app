@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\Categorie;
 use App\Models\Courier;
 use App\Models\Expenses;
@@ -38,11 +39,13 @@ class CategorieController extends Controller
 
     public function create(Request $request)
     {
-        $testMode =config('site.test_mode');
+        $parentAdmin   = Auth::user()->admin_id ? Admin::find(Auth::user()->admin_id) : null;
+        $isTestAccount = config('site.test_mode') || ($parentAdmin && $parentAdmin->is_test);
+        $testLimit     = ($parentAdmin && $parentAdmin->is_test) ? 2 : config('site.test_mode_limit');
 
-        if ($testMode) {
-            if (Categorie::count() > config('site.test_mode_limit')) {
-                return redirect()->back()->with('test', 'Test Modu: Üzgünüz, En Fazla '.config('site.test_mode_limit').' Kayıt Ekleyebilirsiniz');
+        if ($isTestAccount) {
+            if (Categorie::where('restaurant_id', Auth::id())->count() >= $testLimit) {
+                return redirect()->back()->with('test', 'Test Hesabı: En Fazla ' . $testLimit . ' Kategori Ekleyebilirsiniz');
             }
         }
 

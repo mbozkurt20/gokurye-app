@@ -32,6 +32,14 @@ class Courier extends Authenticatable implements JWTSubject
         'day_point',
         'is_active',
         'fcm_token',
+        'iban',
+        'bank',
+        'profile_photo',
+        'tc_id',
+        'age',
+        'vehicle_type',
+        'plate',
+        'blood_type',
     ];
 
     public function payments()

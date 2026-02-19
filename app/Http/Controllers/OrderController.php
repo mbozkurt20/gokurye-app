@@ -98,9 +98,9 @@ class OrderController extends Controller
             // Gelen veri zaten KM ise /1000 yapma, Metre ise yap.
             // haversineDistance genelde Metre döner:
             $distanceInKm = $distance / 1000;
-            $restaurantDistance = Restaurant::find($order->restaurant_id)->distance_limit_km;
+            $restaurant = Restaurant::with('admin')->find($order->restaurant_id);
+            $restaurantDistance = $restaurant->admin->distance_limit ?? 50;
 
-            // 20 km den fazla olamaz
             if ($distanceInKm > $restaurantDistance) {
                 return response()->json([
                     'success' => false,
@@ -150,7 +150,8 @@ class OrderController extends Controller
                 $q->where('status', 'active')->where('restaurant_id', Auth::user()->id);
             }])
             ->get();
-        return view('restaurant.orders.new', compact('customers', 'couriers', 'categories'));
+        $coupons = RestaurantCoupon::where('restaurant_id', Auth::user()->id)->get();
+        return view('restaurant.orders.new', compact('customers', 'couriers', 'categories', 'coupons'));
     }
 
     public function addPOS($id)

@@ -24,8 +24,8 @@ class SuperAdminFactory extends Factory
     public function definition()
     {
         return [
-            'name' => 'Bmd Go',
-            'email' => 'bmdgo.com.tr',
+            'name' => 'GoKurye',
+            'email' => 'superadmin@gokurye.com.tr',
             'password' => Hash::make('123456'),
             'remember_token' => Str::random(10),
         ];

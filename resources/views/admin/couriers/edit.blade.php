@@ -19,7 +19,7 @@
             </nav>
         </div>
 
-        <form method="post" action="{{ route('admin.couriers.update') }}">
+        <form method="post" action="{{ route('admin.couriers.update') }}" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="id" value="{{$courier->id}}">
 
@@ -74,6 +74,68 @@
                                             <input value="{{$courier->km_distance_later}}" type="number" class="form-control !rounded-xl border-slate-200 font-bold text-slate-700" name="km_distance_later">
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Ek Bilgiler --}}
+                        <div class="mt-10">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-10 h-10 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-id-card text-sm"></i>
+                                </div>
+                                <h4 class="text-sm font-black text-slate-800 uppercase tracking-tighter m-0">Ek Bilgiler</h4>
+                            </div>
+
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">TC Kimlik No</label>
+                                    <input value="{{$courier->tc_id}}" type="text" maxlength="11" class="form-control !rounded-2xl !py-3.5 border-slate-100 font-bold text-slate-700" name="tc_id" placeholder="12345678901">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Yaş</label>
+                                    <input value="{{$courier->age}}" type="number" min="18" max="70" class="form-control !rounded-2xl !py-3.5 border-slate-100 font-bold text-slate-700" name="age" placeholder="25">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Kan Grubu</label>
+                                    <select class="form-control !rounded-2xl !py-3.5 border-slate-100 font-bold text-slate-600" name="blood_type">
+                                        <option value="">Seçiniz</option>
+                                        @foreach(['A+','A-','B+','B-','AB+','AB-','0+','0-'] as $bt)
+                                            <option value="{{$bt}}" {{$courier->blood_type == $bt ? 'selected' : ''}}>{{$bt}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Araç Tipi</label>
+                                    <select class="form-control !rounded-2xl !py-3.5 border-slate-100 font-bold text-slate-600" name="vehicle_type">
+                                        <option value="">Seçiniz</option>
+                                        <option value="motor" {{$courier->vehicle_type == 'motor' ? 'selected' : ''}}>Motor</option>
+                                        <option value="otomobil" {{$courier->vehicle_type == 'otomobil' ? 'selected' : ''}}>Otomobil</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Plaka</label>
+                                    <input value="{{$courier->plate}}" type="text" class="form-control !rounded-2xl !py-3.5 border-slate-100 font-bold text-slate-700" name="plate" placeholder="34 ABC 123">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Profil Fotoğrafı</label>
+                                    @if($courier->profile_photo)
+                                        <div class="mb-2">
+                                            <img src="{{ asset('storage/' . $courier->profile_photo) }}" alt="Profil" class="w-16 h-16 rounded-2xl object-cover border border-slate-100">
+                                        </div>
+                                    @endif
+                                    <input type="file" accept="image/*" class="form-control !rounded-2xl !py-3 border-slate-100 font-bold text-slate-700" name="profile_photo">
+                                    <p class="text-[10px] text-slate-300 font-bold mt-1 ml-1">Boş bırakırsanız mevcut fotoğraf korunur.</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Banka</label>
+                                    <input value="{{$courier->bank}}" type="text" class="form-control !rounded-2xl !py-3.5 border-slate-100 font-bold text-slate-700" name="bank" placeholder="Ziraat Bankası">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">IBAN</label>
+                                    <input value="{{$courier->iban}}" type="text" maxlength="32" class="form-control !rounded-2xl !py-3.5 border-slate-100 font-bold text-slate-700" name="iban" placeholder="TR00 0000 0000 0000 0000 0000 00">
                                 </div>
                             </div>
                         </div>

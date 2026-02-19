@@ -28,6 +28,9 @@ Route::group(['prefix' => 'restaurant'], function () {
         });
     });
 
+    // Public menu page - no auth required
+    Route::get('/{restaurantId}/menu', [MenuController::class, 'show'])->name('restaurant.menu');
+
     Route::group(['middleware' => ['restaurant.auth']], function () {
 
         Route::controller(RestaurantController::class)->group(function () {
@@ -137,7 +140,7 @@ Route::group(['prefix' => 'restaurant'], function () {
 
         Route::controller(MenuController::class)->group(function () {
             Route::get('/menus', 'index')->name('restaurant.menus');
-            Route::get('/{restaurantId}/menu', 'show')->name('restaurant.menu');
+            Route::get('/menus/qr', 'qrCode')->name('restaurant.menus.qr');
             Route::post('/menus/select', 'store')->name('restaurant.menu.template.select');
             Route::get('/menus/edit/{id}', 'edit')->name('restaurant.menus.edit');
             Route::post('/menus/create', 'create')->name('restaurant.menus.create');

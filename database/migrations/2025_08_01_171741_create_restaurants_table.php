@@ -29,8 +29,6 @@ class CreateRestaurantsTable extends Migration
             $table->string('tax_name')->nullable();
             $table->string('tax_number')->nullable();
             $table->string('package_price');
-            $table->integer('distance_limit_km')->default(50);
-            $table->integer('max_package_limit')->default(4);
             $table->json('getir')->nullable();
             $table->json('yemeksepeti')->nullable();
             $table->json('trendyol')->nullable();

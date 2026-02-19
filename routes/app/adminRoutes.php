@@ -107,7 +107,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::controller(CourierController::class)->group(function () {
             Route::get('/courier-performance', 'performance')->name('admin.courier.performance');
             Route::get('/get-couriers', 'getCourier');
-            Route::get('/couriers', 'index')->name('admin.couriers');
+            Route::get('/couriers', 'index')->name('admin.couriers.index');
             Route::get('/couriers/maps', 'maps')->name('admin.couriers.maps');
             Route::get('/couriers/new', 'new')->name('admin.couriers.new');
             Route::get('/couriers/edit/{id}', 'edit')->name('admin.couriers.edit');
@@ -115,6 +115,8 @@ Route::group(['prefix' => 'admin'], function () {
             Route::get('/couriers/report/{id}', 'report')->name('admin.couriers.report');
             Route::post('/couriers/create', 'create')->name('admin.couriers.create');
             Route::post('/couriers/update', 'update')->name('admin.couriers.update');
+            Route::get('/couriers/approve/{id}', 'approveApplication')->name('admin.couriers.approve');
+            Route::get('/couriers/reject/{id}', 'rejectApplication')->name('admin.couriers.reject');
             Route::get('/orders/sendCourier/{orderId}/{courierId}', 'sendCourier');
         });
     });

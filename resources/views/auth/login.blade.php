@@ -97,7 +97,20 @@
                 </button>
             </form>
 
-            <div class="mt-12 pt-8 border-t border-slate-200">
+            <div class="mt-5 space-y-3">
+                <a href="{{ route('demo.index') }}"
+                   class="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.15em] shadow-lg shadow-emerald-100 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    Demo Hesabı Aç &amp; Hemen Kullan
+                </a>
+                <a href="{{ route('courier.apply') }}"
+                   class="w-full py-4 bg-white border-2 border-slate-200 hover:border-indigo-400 text-slate-600 hover:text-indigo-600 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    Kurye Başvurusu Yap
+                </a>
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-slate-200">
                 <div class="flex items-center justify-between">
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Masaüstü App</span>
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Destek v2.0</span>

@@ -150,7 +150,6 @@ class MyController extends Controller
         $auth->longitude = $request->input('longitude');
         $auth->name = $request->input('name');
         $auth->phone = $request->input('phone');
-        $auth->distance_limit_km = $request->input('distance_limit_km');
         $auth->update();
 
         return redirect()->back()->with('message', 'Bilgileriniz Güncellenmiştir.');
