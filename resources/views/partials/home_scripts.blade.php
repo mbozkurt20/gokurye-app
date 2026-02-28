@@ -6,6 +6,8 @@
     let _courierModalTrackingId = null;
     let _courierModalHasCourier = false;
     let _cachedCouriers = null;
+    let _restaurantLat = null;
+    let _restaurantLng = null;
     let _cancelModalOrderId = null;
     let _cancelModalTrackingId = null;
     let _cancelModalPlatform = null;
@@ -92,10 +94,95 @@
     // SHARED COURIER MODAL
     // ==========================================
 
-    async function openCourierModal(orderId, trackingId, hasCourier) {
+    function haversineJs(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function showCourierPreview(courierId) {
+        const courier = (_cachedCouriers || []).find(c => c.id == courierId);
+        if (!courier) return;
+
+        const statusLabels = {
+            'active':   { dot: '#10b981', text: 'Müsait' },
+            'service':  { dot: '#3b82f6', text: 'Serviste' },
+            'passive':  { dot: '#ef4444', text: 'Pasif' },
+            'break':    { dot: '#f59e0b', text: 'Molada' },
+            'handover': { dot: '#8b5cf6', text: 'Yolda' }
+        };
+        const st = statusLabels[courier.status] || { dot: '#cbd5e1', text: 'Bilinmiyor' };
+
+        let distanceHtml = '<span style="color:#94a3b8;font-size:13px;">Konum yok</span>';
+        if (courier.latitude && courier.longitude && _restaurantLat && _restaurantLng) {
+            const dist = haversineJs(
+                parseFloat(courier.latitude), parseFloat(courier.longitude),
+                parseFloat(_restaurantLat), parseFloat(_restaurantLng)
+            );
+            const distText = dist >= 1 ? dist.toFixed(2) + ' km' : (dist * 1000).toFixed(0) + ' m';
+            const distColor = dist <= 3 ? '#16a34a' : dist <= 8 ? '#ca8a04' : '#dc2626';
+            distanceHtml = `<span style="color:${distColor};font-size:16px;font-weight:800;">${distText}</span>`;
+        }
+
+        const activeOrders = courier.active_order_count || 0;
+
+        document.getElementById('courierListContainer').innerHTML = `
+            <button onclick="goBackToCourierList()" style="background:none;border:none;color:#6b7280;font-size:12px;font-weight:700;cursor:pointer;padding:0 0 14px 0;display:flex;align-items:center;gap:6px;">
+                &#8592; Listeye Dön
+            </button>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:16px;margin-bottom:12px;">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+                    <div style="width:48px;height:48px;background:#4f46e5;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:800;flex-shrink:0;">
+                        ${courier.name ? courier.name.charAt(0).toUpperCase() : '?'}
+                    </div>
+                    <div>
+                        <div style="font-size:14px;font-weight:800;color:#0f172a;">${escapeHtml(courier.name)}</div>
+                        <div style="display:flex;align-items:center;gap:6px;margin-top:3px;">
+                            <span style="width:8px;height:8px;background:${st.dot};border-radius:50%;display:inline-block;"></span>
+                            <span style="font-size:11px;font-weight:700;color:#94a3b8;">${st.text}</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px;">
+                        <div style="font-size:9px;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;">Size Uzaklığı</div>
+                        <div style="margin-top:3px;">${distanceHtml}</div>
+                    </div>
+                    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px;">
+                        <div style="font-size:9px;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;">Aktif Sipariş</div>
+                        <div style="font-size:16px;font-weight:800;color:${activeOrders > 0 ? '#d97706' : '#0f172a'};margin-top:3px;">${activeOrders}</div>
+                    </div>
+                    ${courier.phone ? `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px;">
+                        <div style="font-size:9px;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;">Telefon</div>
+                        <div style="font-size:12px;font-weight:700;color:#0f172a;margin-top:3px;">${escapeHtml(courier.phone)}</div>
+                    </div>` : ''}
+                    ${courier.vehicle_type ? `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px;">
+                        <div style="font-size:9px;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;">Araç</div>
+                        <div style="font-size:12px;font-weight:700;color:#0f172a;margin-top:3px;">${escapeHtml(courier.vehicle_type)}</div>
+                    </div>` : ''}
+                </div>
+            </div>
+            <button onclick="assignCourierToOrder(${courier.id})"
+                style="width:100%;padding:14px;background:#4f46e5;color:#fff;border:none;border-radius:14px;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:.3px;"
+                onmouseover="this.style.background='#3730a3'" onmouseout="this.style.background='#4f46e5'">
+                KURYE ATA &mdash; ${escapeHtml(courier.name)}
+            </button>`;
+    }
+
+    function goBackToCourierList() {
+        if (_cachedCouriers) renderCourierList(_cachedCouriers);
+    }
+
+    async function openCourierModal(orderId, trackingId, hasCourier, restaurantLat, restaurantLng) {
         _courierModalOrderId = orderId;
         _courierModalTrackingId = trackingId;
         _courierModalHasCourier = hasCourier;
+        _restaurantLat = restaurantLat || null;
+        _restaurantLng = restaurantLng || null;
 
         // Modal bilgilerini güncelle
         document.getElementById('courierModalOrderInfo').textContent = `Sipariş #${trackingId}`;
@@ -168,7 +255,7 @@
             const avatarBg = currentStatus.bg;
 
             html += `
-    <div class="d-flex align-items-center justify-content-between p-3 mb-2 bg-white border rounded-3" style="cursor:pointer; transition:all 0.2s; border-color:#e2e8f0;" onclick="assignCourierToOrder(${courier.id})" onmouseover="this.style.borderColor='#4f46e5';this.style.boxShadow='0 2px 8px rgba(79,70,229,0.1)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+    <div class="d-flex align-items-center justify-content-between p-3 mb-2 bg-white border rounded-3" style="cursor:pointer; transition:all 0.2s; border-color:#e2e8f0;" onclick="showCourierPreview(${courier.id})" onmouseover="this.style.borderColor='#4f46e5';this.style.boxShadow='0 2px 8px rgba(79,70,229,0.1)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
         <div class="d-flex align-items-center gap-3">
             <div class="d-flex align-items-center justify-content-center text-white" style="width:38px;height:38px;background:${avatarBg};border-radius:12px;font-size:14px;font-weight:800;">
                 ${courier.name ? courier.name.charAt(0).toUpperCase() : '?'}
@@ -948,8 +1035,6 @@
             platformHtml = `<div class="${basePlatformClass}"><img src="{{ asset('theme/images/yemeksepeti.png') }}" style="height:14px;"><span class="text-[11px] font-black text-slate-700 tracking-tighter uppercase">${escapeHtml(restaurantName)}</span></div>`;
         } else if (platform.toLowerCase() === 'getir') {
             platformHtml = `<div class="${basePlatformClass}"><img src="{{ asset('theme/images/platforms/getir.png') }}" style="height:28px;"><span class="text-[11px] font-black text-slate-700 tracking-tighter uppercase">${escapeHtml(restaurantName)}</span></div>`;
-        } else if (platform.toLowerCase() === 'gpsyemek') {
-            platformHtml = `<div class="${basePlatformClass}"><img src="{{ asset('theme/images/platforms/gpsyemek.png') }}" style="height:20px;"><span class="text-[11px] font-black text-slate-700 tracking-tighter uppercase">${escapeHtml(restaurantName)}</span></div>`;
         } else if (platform.toLowerCase() === 'trendyol') {
             platformHtml = `<div class="${basePlatformClass}"><img src="{{ asset('theme/images/platforms/trendyol.png') }}" style="height:16px;"><span class="text-[11px] font-black text-slate-700 tracking-tighter uppercase">${escapeHtml(restaurantName)}</span></div>`;
         } else if (platform.toLowerCase() === 'migros') {
@@ -983,7 +1068,7 @@
 
                 courierSection = `
                 <div class="flex flex-col items-start group">
-                    <a onclick="openCourierModal('${order.id}', '${escapeHtml(trackingId)}', true)" style="cursor:pointer;" class="flex items-center gap-2 text-brand font-black text-xs no-underline group-hover:scale-105 transition-transform">
+                    <a onclick="openCourierModal('${order.id}', '${escapeHtml(trackingId)}', true, '${order.restaurant?.latitude || ''}', '${order.restaurant?.longitude || ''}')" style="cursor:pointer;" class="flex items-center gap-2 text-brand font-black text-xs no-underline group-hover:scale-105 transition-transform">
                        <div class="w-8 h-8 bg-brand rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand/20"><i class="fas fa-truck text-[10px]"></i></div>
                        ${escapeHtml(order.courier.name.substr(0, 15))}
                     </a>
@@ -991,7 +1076,7 @@
                 </div>`;
             } else {
                 courierSection = `
-                <button onclick="openCourierModal('${order.id}', '${escapeHtml(trackingId)}', false)" class="flex items-center gap-2 px-4 py-2 bg-white border-2 border-dashed border-slate-200 text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:border-brand hover:text-brand transition-all">
+                <button onclick="openCourierModal('${order.id}', '${escapeHtml(trackingId)}', false, '${order.restaurant?.latitude || ''}', '${order.restaurant?.longitude || ''}')" class="flex items-center gap-2 px-4 py-2 bg-white border-2 border-dashed border-slate-200 text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:border-brand hover:text-brand transition-all">
                     <i class="fas fa-plus-circle"></i> KURYE ATA
                 </button>`;
             }

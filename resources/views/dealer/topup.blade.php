@@ -11,7 +11,11 @@
 <form method="POST" action="{{ route('admin.topup') }}">
     @csrf
     <label>Yüklemek istediğiniz miktar:</label>
-    <input type="number" name="amount" required>
+    <x-money-input
+        name="amount"
+        label="Yüklemek istediğiniz Tutar Giriniz"
+        required="true"
+    />
     <button type="submit">Yükle</button>
 </form>
 </body>

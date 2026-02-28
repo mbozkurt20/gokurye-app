@@ -87,6 +87,11 @@
                                     <button onclick="printDiv({{ $order->id }})" class="w-9 h-9 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:text-emerald-500 hover:border-emerald-500 transition-all shadow-sm">
                                         <i class="fas fa-print text-xs"></i>
                                     </button>
+                                    <a href="{{ route('restaurant.invoices.order', $order->id) }}" target="_blank"
+                                       class="w-9 h-9 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:text-violet-500 hover:border-violet-400 transition-all shadow-sm"
+                                       title="Fatura Görüntüle">
+                                        <i class="fa-solid fa-file-invoice text-xs"></i>
+                                    </a>
                                 </div>
 
                                 <div class="modal fade" id="orderModal{{ $order->id }}" tabindex="-1" aria-hidden="true">

@@ -1,210 +1,208 @@
-<div class="nav-header" style="background:  #ffffff">
-    <a href="{{ url('/superadmin/dashboard') }}" class="d-flex justify-content-center align-items-center mt-3">
-        <div class="brand-title" style="width: 185px; height:40px">
-            <img src="{{ config('site.logo') }}" alt="Logo" style="height: 50px;width: auto">
-        </div>
-    </a>
-    <div class="nav-control">
-        <div class="hamburger">
-            <span class="line"></span><span class="line"></span><span class="line"></span>
-        </div>
-    </div>
-</div>
-
-<div class="header">
-    <div class="row" style="background-color: #f3eded; color: #4f46e5;">
-        <div class="text-center fw-bold py-2">
-            <strong>{{config('site.name')}}</strong> Üst Yönetici
+@if(config('site.test_mode') === true || (auth()->guard('admin')->check() && auth()->guard('admin')->user()->is_test))
+    <div class="bg-amber-50 border-b border-amber-200 py-2.5">
+        <div class="container mx-auto px-6 flex justify-center items-center gap-3">
+            <span class="flex h-2 w-2 rounded-full bg-amber-500 animate-ping"></span>
+            <p class="text-[11px] font-black uppercase tracking-widest text-amber-700">
+                <span class="font-extrabold">TEST HESABI</span> — Her kategoriden en fazla 2 kayıt ekleyebilirsiniz. &nbsp;
+                <a href="{{ route('superadmin.logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="underline text-amber-800 hover:text-amber-900">Çıkış Yap</a>
+            </p>
         </div>
     </div>
+@endif
 
-    <div class="container-fluid py-2 px-3">
-        <div class="d-flex align-items-center justify-content-end w-100" style="color: #4f46e5;">
+<header class="h-20 bg-white border-b border-slate-100 sticky top-0 z-40 px-6 flex items-center justify-between shadow-sm shadow-slate-200/50">
 
-            <!-- Bildirimler -->
-            <div class="dropdown me-3">
-                <a class="nav-link position-relative" href="#" id="notificationDropdown" data-bs-toggle="dropdown">
-                    <i class="bi bi-bell-fill" style="font-size: 1.5rem;"></i>
-                    @if(($notifications ?? collect())->count() > 0)
-                        <span id="notificationCount"
-                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            {{ ($notifications ?? collect())->count() }}
-                        </span>
-                    @endif
-                </a>
+    <div class="flex items-center gap-6">
+        <a href="{{ url('/superadmin/dashboard') }}" class="flex items-center gap-3 group transition-transform hover:scale-105">
+            <div class="w-11 h-11 bg-brand rounded-xl flex items-center justify-center shadow-lg shadow-brand/20">
+                <img src="{{ config('site.logo') }}" class="h-7 w-auto object-contain brightness-0 invert" alt="Logo">
+            </div>
+            <div class="hidden md:block">
+                <h2 class="text-sm font-black text-slate-800 uppercase tracking-tighter leading-none">{{ config('site.name') }}</h2>
+                <span class="text-[10px] font-bold text-brand uppercase tracking-widest">Süper Yönetici</span>
+            </div>
+        </a>
+    </div>
 
-                <div class="dropdown-menu dropdown-menu-end shadow-lg p-0"
-                     aria-labelledby="notificationDropdown"
-                     style="width: 400px; border-radius: 10px; overflow: hidden;">
+    <div class="flex items-center gap-4 lg:gap-8">
 
-                    <div class="d-flex justify-content-between align-items-center text-white px-3 py-2"
-                         style="background: #4f46e5">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-bell me-2"></i>
-                            <strong>Bildirimler</strong>
-                        </div>
+        <div class="relative">
+            <button type="button" onclick="toggleNotificationMenu(event)" id="notificationDropdown" class="relative p-2.5 rounded-xl bg-slate-50 text-slate-400 hover:text-brand hover:bg-brand/5 transition-all border-0 outline-none cursor-pointer">
+                <i class="fa-solid fa-bell text-lg"></i>
+                @if(($notifications ?? collect())->count() > 0)
+                    <span id="notificationCount" class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white border-2 border-white">
+                        {{ ($notifications ?? collect())->count() }}
+                    </span>
+                @endif
+            </button>
+
+            <div id="notificationMenu" class="absolute right-0 mt-3 w-80 md:w-96 opacity-0 invisible transition-all duration-300 transform translate-y-2 z-[99999]">
+                <div class="bg-white rounded-3xl shadow-2xl shadow-brand/20 border border-slate-100 overflow-hidden">
+                    <div class="p-4 bg-brand flex justify-between items-center">
+                        <span class="text-xs font-black text-white uppercase tracking-widest">Bildirimler</span>
                         <div class="clear-all-container">
                             @if(($notifications ?? collect())->count() > 0)
-                                <a href="javascript:void(0)" class="text-white small clear-all-link"
-                                   onclick="clearAllNotifications()">Tümünü Temizle</a>
+                                <button onclick="clearAllNotifications()" class="text-[10px] font-bold text-white/80 hover:text-white uppercase tracking-tighter bg-transparent border-0 cursor-pointer clear-all-link">Tümünü Temizle</button>
                             @endif
                         </div>
                     </div>
 
-                    <ul class="list-unstyled mb-0 p-1 py-2" id="notificationList"
-                        style="max-height: 40vh;overflow-y: scroll">
+                    <ul id="notificationList" class="max-h-[400px] overflow-y-auto list-none m-0 p-0">
                         @forelse($notifications ?? [] as $notification)
-                            <li class="border-bottom d-flex justify-content-between align-items-center p-2"
-                                data-id="{{ $notification->id }}">
-                                <a href="{{ $notification->url }}"
-                                   class="text-decoration-none text-dark flex-grow-1 me-2">
-                                    <span class="d-block fw-bold">{{ $notification->title }}</span>
+                            <li class="border-b border-slate-50 flex items-center justify-between p-4 hover:bg-slate-50 transition-colors" data-id="{{ $notification->id }}">
+                                <a href="{{ $notification->url }}" class="flex-grow no-underline">
+                                    <p class="text-xs font-bold text-slate-800 m-0 leading-tight">{{ $notification->title }}</p>
                                     @if(!empty($notification->description))
-                                        <small class="text-muted">{{ $notification->description }}</small>
+                                        <p class="text-[10px] text-slate-400 m-0 mt-1">{{ $notification->description }}</p>
                                     @endif
                                 </a>
-                                <a class="text-danger" style="cursor: pointer;"
-                                   onclick="deleteNotification({{ $notification->id }})">
-                                    <strong class="size-3">x</strong>
-                                </a>
+                                <button onclick="deleteNotification({{ $notification->id }})" class="ml-2 text-slate-300 hover:text-rose-500 bg-transparent border-0 cursor-pointer">
+                                    <i class="fa-solid fa-xmark text-sm"></i>
+                                </button>
                             </li>
                         @empty
-                            <li class="p-3 text-center text-muted no-notification">📭 Bildirim yok</li>
+                            <li class="p-8 text-center no-notification">
+                                <i class="fa-solid fa-inbox text-slate-200 text-3xl mb-2 block"></i>
+                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Bildirim bulunmuyor</span>
+                            </li>
                         @endforelse
                     </ul>
                 </div>
             </div>
+        </div>
 
-            <!-- Profil -->
-            <div class="dropdown">
-                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
-                    <img src="/theme/images/avatar.jpg" class="rounded-circle border border-2"
-                         style="height: 45px; width: 45px; border-color: #4f46e5;" alt="Avatar">
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <a class="dropdown-item" href="{{route('superadmin.profile')}}">
-                            <i class="bi bi-person-circle text-primary me-2"></i> Profil
+        <div class="relative">
+            <button type="button" onclick="toggleProfileMenu(event)" class="flex items-center gap-3 p-1.5 pr-4 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 bg-transparent border-0 outline-none cursor-pointer">
+                <div class="w-10 h-10 rounded-xl bg-slate-100 overflow-hidden border-2 border-white shadow-sm ring-1 ring-slate-100">
+                    <img src="/theme/images/avatar.jpg" class="w-full h-full object-cover" alt="Profile">
+                </div>
+                <div class="hidden sm:block text-left">
+                    <p class="text-[11px] font-black text-slate-800 uppercase leading-none m-0">{{ config('site.name') }}</p>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase mt-1 tracking-tighter italic m-0">Süper Yönetici</p>
+                </div>
+                <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+            </button>
+
+            <div id="premiumProfileMenu" class="absolute right-0 mt-3 w-64 opacity-0 invisible transition-all duration-300 transform translate-y-2 z-[99999]">
+                <div class="bg-white rounded-3xl shadow-2xl shadow-brand/20 border border-slate-100 overflow-hidden p-2">
+                    <div class="p-4 bg-brand/5 rounded-2xl mb-2">
+                        <p class="text-[10px] font-black text-brand/60 uppercase tracking-[0.2em] mb-1">Oturum Açıldı</p>
+                        <p class="text-xs font-bold text-slate-800 truncate m-0">{{ auth()->user()->email ?? '' }}</p>
+                    </div>
+
+                    <div class="space-y-1">
+                        <a href="{{ route('superadmin.profile') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-brand/5 text-slate-600 hover:text-brand transition-all text-xs font-bold uppercase tracking-tight no-underline">
+                            <i class="fa-solid fa-circle-user text-slate-300 w-5"></i> Profilim
                         </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item text-danger" href="{{ route('admin.logout') }}"
-                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            <i class="bi bi-box-arrow-right me-2"></i> Çıkış Yap
+                        <hr class="mx-4 border-slate-50 my-1">
+                        <a href="{{ route('superadmin.logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-rose-50 text-rose-500 transition-all text-xs font-black uppercase tracking-tight no-underline">
+                            <i class="fa-solid fa-power-off w-5"></i> Güvenli Çıkış
                         </a>
-                    </li>
-                </ul>
-                <form id="logout-form" action="{{ route('superadmin.logout') }}" method="POST" class="d-none">
-                    @csrf
-                </form>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <form id="logout-form" action="{{ route('superadmin.logout') }}" method="POST" class="hidden">
+            @csrf
+        </form>
     </div>
+</header>
 
-    <!-- Ses Uyarısı -->
-    <audio id="audioPlayer" class="d-none" controls>
-        <source src="{{ asset('upload/arrived.mp3') }}" type="audio/mp3">
-        Tarayıcınız ses öğesini desteklemiyor.
-    </audio>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<audio id="audioPlayer" class="hidden" controls>
+    <source src="{{ asset('upload/arrived.mp3') }}" type="audio/mp3">
+</audio>
+
 <script>
-    Pusher.logToConsole = true;
+    // Menü Kontrolleri
+    function toggleNotificationMenu(event) {
+        event.stopPropagation();
+        const menu = document.getElementById('notificationMenu');
+        const profileMenu = document.getElementById('premiumProfileMenu');
 
-    var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
-        cluster: 'mt1',
-        encrypted: true
-    });
-
-    var channel = pusher.subscribe('notifications-' + {{ auth()->id() }});
-
-    channel.bind('new-notify-' + {{ auth()->id() }}, function(data) {
-        const audio = new Audio('{{ asset('voices/notifications/Bell.mp3') }}');
-        audio.play().catch(err => console.error("Ses çalma başarısız:", err));
-
-        let notificationList = document.getElementById('notificationList');
-
-        // 📭 Bildirim yok mesajını kaldır
-        let emptyItem = notificationList.querySelector('.no-notification');
-        if (emptyItem) {
-            emptyItem.remove();
-        }
-
-        notificationList.insertAdjacentHTML('afterbegin', `
-        <li class="border-bottom d-flex justify-content-between align-items-center p-2" data-id="${data.id}">
-            <a href="${data.url}" class="text-decoration-none text-dark flex-grow-1 me-2">
-                <span class="d-block fw-bold">${data.title}</span>
-                ${data.description ? `<small class="text-muted">${data.description}</small>` : ''}
-            </a>
-            <a class="text-danger" style="cursor: pointer" onclick="deleteNotification(${data.id})">
-                <strong class="size-3">x</strong>
-            </a>
-        </li>
-    `);
-
-        updateCount(1);
-        showClearAllLink();
-    });
-
-    function updateCount(change) {
-        let countElem = $('#notificationCount');
-        let count = parseInt(countElem.text() || '0') + change;
-        if (count > 0) {
-            if (countElem.length === 0) {
-                $('#notificationDropdown').append(`
-                    <span id="notificationCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">${count}</span>
-                `);
-            } else {
-                countElem.text(count);
-            }
-        } else {
-            countElem.remove();
-            hideClearAllLink();
-        }
+        profileMenu.classList.add('opacity-0', 'invisible', 'translate-y-2');
+        menu.classList.toggle('opacity-0');
+        menu.classList.toggle('invisible');
+        menu.classList.toggle('translate-y-2');
+        menu.classList.toggle('translate-y-0');
     }
 
-    function showClearAllLink() {
-        if ($('.clear-all-link').length === 0) {
-            $('.clear-all-container').append(`
-                <a href="javascript:void(0)" class="text-white small clear-all-link" onclick="clearAllNotifications()">Tümünü Temizle</a>
-            `);
-        }
+    function toggleProfileMenu(event) {
+        event.stopPropagation();
+        const menu = document.getElementById('premiumProfileMenu');
+        const notifMenu = document.getElementById('notificationMenu');
+
+        notifMenu.classList.add('opacity-0', 'invisible', 'translate-y-2');
+        menu.classList.toggle('opacity-0');
+        menu.classList.toggle('invisible');
+        menu.classList.toggle('translate-y-2');
+        menu.classList.toggle('translate-y-0');
     }
 
-    function hideClearAllLink() {
-        $('.clear-all-link').remove();
-    }
-
-    function clearAllNotifications() {
-        $.ajax({
-            type: 'GET',
-            url: '/superadmin/notifications/clear-all',
-            data: {_token: '{{ csrf_token() }}'},
-            success: function () {
-                $('#notificationList').html('<li class="p-3 text-center text-muted">📭 Bildirim yok</li>');
-                updateCount(-parseInt($('#notificationCount').text() || '0'));
-            },
-            error: function (err) {
-                console.error(err);
+    window.onclick = function(event) {
+        ['notificationMenu', 'premiumProfileMenu'].forEach(id => {
+            const menu = document.getElementById(id);
+            if (menu && !menu.classList.contains('invisible') && !menu.contains(event.target)) {
+                menu.classList.add('opacity-0', 'invisible', 'translate-y-2');
+                menu.classList.remove('translate-y-0');
             }
         });
     }
 
-    function deleteNotification(id) {
-        $.ajax({
-            type: 'GET',
-            url: '/superadmin/notifications/' + id,
-            data: {_token: '{{ csrf_token() }}'},
-            success: function () {
-                $('#notificationList').find('li[data-id="' + id + '"]').remove();
-                updateCount(-1);
-                if ($('#notificationList li').length === 0) {
-                    $('#notificationList').html('<li class="p-3 text-center text-muted">📭 Bildirim yok</li>');
-                }
-            },
-            error: function (err) {
-                console.error(err);
+    // Pusher & Bildirim Dinamikleri
+    var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', { cluster: 'mt1', encrypted: true });
+    var channel = pusher.subscribe('notifications-' + {{ auth()->id() }});
+
+    channel.bind('new-notify-' + {{ auth()->id() }}, function(data) {
+        new Audio('{{ asset('voices/notifications/Bell.mp3') }}').play().catch(e => {});
+
+        let list = document.getElementById('notificationList');
+        if (list.querySelector('.no-notification')) list.innerHTML = '';
+
+        list.insertAdjacentHTML('afterbegin', `
+            <li class="border-b border-slate-50 flex items-center justify-between p-4 hover:bg-slate-50 transition-colors" data-id="${data.id}">
+                <a href="${data.url}" class="flex-grow no-underline">
+                    <p class="text-xs font-bold text-slate-800 m-0 leading-tight">${data.title}</p>
+                    ${data.description ? `<p class="text-[10px] text-slate-400 m-0 mt-1">${data.description}</p>` : ''}
+                </a>
+                <button onclick="deleteNotification(${data.id})" class="ml-2 text-slate-300 hover:text-rose-500 bg-transparent border-0 cursor-pointer">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </li>
+        `);
+        updateCount(1);
+    });
+
+    function updateCount(change) {
+        let countElem = $('#notificationCount');
+        let current = parseInt(countElem.text() || '0') + change;
+
+        if (current > 0) {
+            if (countElem.length === 0) {
+                $('#notificationDropdown').append(`<span id="notificationCount" class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white border-2 border-white">${current}</span>`);
+            } else {
+                countElem.text(current);
             }
+            if($('.clear-all-link').length === 0) {
+                $('.clear-all-container').html('<button onclick="clearAllNotifications()" class="text-[10px] font-bold text-white/80 hover:text-white uppercase tracking-tighter bg-transparent border-0 cursor-pointer clear-all-link">Tümünü Temizle</button>');
+            }
+        } else {
+            countElem.remove();
+            $('.clear-all-container').empty();
+            $('#notificationList').html('<li class="p-8 text-center no-notification"><i class="fa-solid fa-inbox text-slate-200 text-3xl mb-2 block"></i><span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Bildirim bulunmuyor</span></li>');
+        }
+    }
+
+    function clearAllNotifications() {
+        $.get('/superadmin/notifications/clear-all', function () {
+            updateCount(-999);
+        });
+    }
+
+    function deleteNotification(id) {
+        $.get('/superadmin/notifications/' + id, function () {
+            $(`li[data-id="${id}"]`).remove();
+            updateCount(-1);
         });
     }
 </script>

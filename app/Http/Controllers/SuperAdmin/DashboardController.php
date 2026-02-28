@@ -10,6 +10,7 @@ use App\Models\City;
 use App\Models\Courier;
 use App\Models\District;
 use App\Models\Order;
+use App\Models\Restaurant;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -22,52 +23,57 @@ class DashboardController extends Controller
 {
     public function home()
     {
-        $now = Carbon::now();
+        $today = Carbon::today();
 
-        $startTime = Carbon::today()->setTime(0, 0);
-        $endTime = Carbon::today()->setTime(23, 59);
+        // System-wide KPIs
+        $totalAdmins      = Admin::count();
+        $activeAdmins     = Admin::where('is_active', true)->count();
+        $totalRestaurants = Restaurant::count();
+        $totalCouriers    = Courier::count();
+        $idleCouriers     = Courier::where('status', CourierStatus::active)->count();
+        $serviceCouriers  = Courier::where('status', CourierStatus::service)->count();
+        $breakCouriers    = Courier::where('status', CourierStatus::break)->count();
+        $totalDealers     = User::count();
 
-        $couriers = Courier::where('status', 'active')->where('restaurant_id', 0)->get();
-        $tumu = Order::whereDate('created_at', Carbon::today())->whereHas('restaurant', function ($query) {
-            return $query;
-        })->orderBy('created_at', 'desc')->get();
-        $yemeksepeti = Order::where('platform', 'yemeksepeti')->whereHas('restaurant', function ($query) {
-            return $query;
-        })->whereBetween('created_at', [$startTime, $endTime])->orderBy('created_at', 'desc')->get();
-        $getiryemek = Order::where('platform', 'getir')->whereHas('restaurant', function ($query) {
-            return $query;
-        })->whereBetween('created_at', [$startTime, $endTime])->orderBy('created_at', 'desc')->get();
-        $trendyol = Order::where('platform', 'trendyol')->whereHas('restaurant', function ($query) {
-            return $query;
-        })->whereBetween('created_at', [$startTime, $endTime])->orderBy('created_at', 'desc')->get();
-        $telefonsiparis = Order::where('platform', 'telefonsiparis')->whereHas('restaurant', function ($query) {
-            return $query;
-        })->whereBetween('created_at', [$startTime, $endTime])->orderBy('created_at', 'desc')->get();
-        $migros = Order::where('platform', 'migros')->whereHas('restaurant', function ($query) {
-            return $query;
-        })->whereBetween('created_at', [$startTime, $endTime])->orderBy('created_at', 'desc')->count();
-
-        $totalExpense = Order::whereBetween('created_at', [$startTime, $endTime])->whereHas('restaurant', function ($query) {
-            return $query;
-        })->sum('amount');
-        $formattedExpense = number_format($totalExpense, 2, '.', ',');
-        $averageExpense = Order::whereBetween('created_at', [$startTime, $endTime])->whereHas('restaurant', function ($query) {
-            return $query;
-        })->avg('amount');
+        // Today's system-wide orders
+        $tumu           = Order::whereDate('created_at', $today)->orderBy('created_at', 'desc')->get();
+        $totalExpense   = Order::whereDate('created_at', $today)->sum('amount');
+        $averageExpense = count($tumu) > 0 ? $totalExpense / count($tumu) : 0;
+        $formattedExpense        = number_format($totalExpense, 2, '.', ',');
         $formattedAverageExpense = number_format($averageExpense, 2, '.', ',');
-        $teslimEdilenSiparisler = Order::where('status', 'DELIVERED')->whereHas('restaurant', function ($query) {
-            return $query;
-        })->whereBetween('created_at', [$startTime, $endTime])->orderBy('created_at', 'desc')->count();
+        $teslimEdilenSiparisler  = Order::where('status', 'DELIVERED')->whereDate('created_at', $today)->count();
 
-        // Kurye Sayısı - Total number of couriers
-        $totalCouriers = Courier::where('admin_id', auth()->id())->count();
-        // Boş Kurye - Count of couriers with "Boş" status
-        $idleCouriers = Courier::where('status', CourierStatus::active)->count();
-        // Molada Kurye - Count of couriers with "Molada" status
-        $breakCouriers = Courier::where('status', CourierStatus::break)->count();
-        $serviceCouriers = Courier::where('status', CourierStatus::service)->count();
+        // Platform breakdown (today, system-wide)
+        $yemeksepeti    = Order::where('platform', 'yemeksepeti')->whereDate('created_at', $today)->get();
+        $getiryemek     = Order::where('platform', 'getir')->whereDate('created_at', $today)->get();
+        $trendyol       = Order::where('platform', 'trendyol')->whereDate('created_at', $today)->get();
+        $telefonsiparis = Order::where('platform', 'telefonsiparis')->whereDate('created_at', $today)->get();
+        $migros         = Order::where('platform', 'migros')->whereDate('created_at', $today)->count();
 
-        return view('superadmin.home', compact('totalCouriers', 'serviceCouriers', 'idleCouriers', 'breakCouriers', 'totalExpense', 'formattedExpense', 'averageExpense', 'formattedAverageExpense', 'telefonsiparis', 'tumu', 'yemeksepeti', 'getiryemek', 'trendyol', 'couriers', 'migros', 'teslimEdilenSiparisler'));
+        // Admins with per-admin stats
+        $admins = Admin::orderBy('is_active', 'desc')->orderBy('name')->get();
+        foreach ($admins as $admin) {
+            $restaurantIds             = Restaurant::where('admin_id', $admin->id)->pluck('id');
+            $admin->restaurants_count  = $restaurantIds->count();
+            $admin->couriers_count     = Courier::where('admin_id', $admin->id)->count();
+            $admin->active_couriers    = Courier::where('admin_id', $admin->id)->where('status', CourierStatus::active)->count();
+            $admin->today_orders       = Order::whereDate('created_at', $today)->whereIn('restaurant_id', $restaurantIds)->count();
+            $admin->today_revenue      = Order::whereDate('created_at', $today)->whereIn('restaurant_id', $restaurantIds)->sum('amount');
+        }
+
+        // Dealers with admin counts
+        $dealers = User::withCount(['admins'])->orderBy('is_active', 'desc')->get();
+
+        // Unassigned active couriers (legacy)
+        $couriers = Courier::where('status', 'active')->where('restaurant_id', 0)->get();
+
+        return view('superadmin.home', compact(
+            'totalAdmins', 'activeAdmins', 'totalRestaurants', 'totalCouriers',
+            'idleCouriers', 'serviceCouriers', 'breakCouriers', 'totalDealers',
+            'tumu', 'yemeksepeti', 'getiryemek', 'trendyol', 'telefonsiparis', 'migros',
+            'totalExpense', 'averageExpense', 'formattedExpense', 'formattedAverageExpense',
+            'teslimEdilenSiparisler', 'admins', 'dealers', 'couriers'
+        ));
     }
     public function getCourier()
     {
@@ -80,7 +86,9 @@ class DashboardController extends Controller
     }
     public function dealer()
     {
-        $dealers = User::orderBy('is_active','asc')->get();
+        $dealers = User::withCount(['admins'])
+            ->orderBy('is_active', 'asc')
+            ->get();
         return view('superadmin.dealer.index', compact('dealers'));
     }
     public function ajax(Request $request)
@@ -117,7 +125,7 @@ class DashboardController extends Controller
         $auth->email = $request->input('email');
         $auth->update();
 
-        return redirect()->back()->with('message', 'Bilgileriniz Güncellenmiştir.');
+        return redirect()->back()->with('success', 'Bilgileriniz Güncellenmiştir.');
     }
     public function deleteDealer($id)
     {
@@ -157,24 +165,24 @@ class DashboardController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->with('test', $validator->getMessageBag()->first());
+            return redirect()->back()->with('error', $validator->getMessageBag()->first());
         }
 
-        // Validasyon başarılı ise admin tablosuna kaydet
         User::create([
-            'is_active' => true,
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
-            'latitude' => $request->input('lat'),
-            'longitude' => $request->input('lng'),
-            'city_id' => $request->input('city_id'),
-            'district_id' => $request->input('district_id'),
-            'address' => $request->input('address'),
+            'is_active'       => true,
+            'name'            => $request->name,
+            'email'           => $request->email,
+            'phone'           => $request->phone,
+            'password'        => Hash::make($request->password),
+            'latitude'        => $request->lat,
+            'longitude'       => $request->lng,
+            'city_id'         => $request->city_id,
+            'district_id'     => $request->district_id,
+            'address'         => $request->address,
+            'commission_rate' => $request->input('commission_rate', 20),
         ]);
 
-        return redirect()->back()->with('message', 'Yeni Bayi Başarıyla Eklendi!');
+        return redirect()->back()->with('success', 'Yeni Bayi Başarıyla Eklendi!');
     }
     public function statusDealer($id)
     {
@@ -223,20 +231,18 @@ class DashboardController extends Controller
             return redirect()->back()->with(['test' => 'Bayi Bulunamadı.']);
         }
 
-        // Güncelleme verilerini hazırla
         $updateData = [
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
-            'latitude' => $request->input('lat'),
-            'longitude' => $request->input('lng'),
-            'city_id' => $request->input('city_id'),
-            'district_id' => $request->input('district_id'),
-            'address' => $request->input('address'),
+            'name'            => $request->name,
+            'email'           => $request->email,
+            'phone'           => $request->phone,
+            'latitude'        => $request->lat,
+            'longitude'       => $request->lng,
+            'city_id'         => $request->city_id,
+            'district_id'     => $request->district_id,
+            'address'         => $request->address,
+            'commission_rate' => $request->input('commission_rate', 20),
         ];
 
-        // Şifre değiştirildiyse hashleyip güncelle
         if ($request->filled('password')) {
             $updateData['password'] = Hash::make($request->password);
         }

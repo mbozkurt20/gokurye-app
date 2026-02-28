@@ -53,7 +53,8 @@
                 <div id="cour-menu" class="hidden pl-12 space-y-1 mt-1 border-l-2 border-brand/10 ml-6">
                     <a href="{{ route('admin.couriers.index') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Tüm Kuryeler</a>
                     <a href="{{ route('admin.couriers.new') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Kurye Ekle</a>
-                    <a href="{{ route('admin.couriers.maps') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Kurye Takip</a>
+                    <a href="{{ route('admin.couriers.maps') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Canlı Takip</a>
+                    <a href="{{ route('admin.couriers.shifts') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Vardiya Takibi</a>
                     <a href="{{ route('admin.courier.performance') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Performans</a>
                 </div>
             </div>
@@ -84,12 +85,23 @@
                     <a href="{{ route('admin.expenses.index') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Genel Giderler</a>
                     <a href="{{ route('admin.progress_payment.restaurant') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Restoran Paket Raporu</a>
                     <a href="{{ route('admin.progress_payment.courier') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Kurye Hakedişler</a>
+                    <a href="{{ route('admin.commissions.index') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Platform Komisyonları</a>
                 </div>
             </div>
 
             <a href="{{ route('admin.reports') }}" class="flex items-center gap-4 px-4 py-3 rounded-2xl text-slate-500 hover:bg-brand/5 hover:text-brand transition-all group">
                 <i class="fa-solid fa-chart-line w-5 text-center text-sm group-hover:scale-110 transition-transform"></i>
                 <span class="text-xs font-bold uppercase tracking-wide">Raporlar</span>
+            </a>
+
+            <a href="{{ route('admin.insights') }}" class="flex items-center gap-4 px-4 py-3 rounded-2xl {{ request()->is('admin/insights') ? 'bg-brand/5 text-brand' : 'text-slate-500 hover:bg-brand/5 hover:text-brand' }} transition-all group">
+                <i class="fa-solid fa-lightbulb w-5 text-center text-sm group-hover:scale-110 transition-transform"></i>
+                <span class="text-xs font-bold uppercase tracking-wide">Öneriler</span>
+            </a>
+
+            <a href="{{ route('admin.heatmap') }}" class="flex items-center gap-4 px-4 py-3 rounded-2xl {{ request()->is('admin/heatmap') ? 'bg-brand/5 text-brand' : 'text-slate-500 hover:bg-brand/5 hover:text-brand' }} transition-all group">
+                <i class="fa-solid fa-map-location-dot w-5 text-center text-sm group-hover:scale-110 transition-transform"></i>
+                <span class="text-xs font-bold uppercase tracking-wide">Bölge Haritası</span>
             </a>
 
             <div class="py-1">

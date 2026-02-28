@@ -123,95 +123,208 @@
             </div>
         </div>
 
-        <div class="row g-5">
-            <div class="col-xl-4 fade-in-up" style="animation-delay: 0.1s">
-                <div class="neo-surface p-5 h-100 d-flex flex-column justify-content-center text-center">
-                    <h6 class="text-uppercase fw-black text-muted tracking-widest mb-4">Toplam Sipariş</h6>
-                    <div class="counter-display display-1 mb-2">{{ count($tumu) }}</div>
-                    <p class="text-slate-400 fw-medium">Şu ana kadar alınan tüm talepler.</p>
+        <div class="row g-4">
+            @php
+                $topPlatform = collect([
+                    ['title' => 'Telefon', 'count' => count($telefonsiparis)],
+                    ['title' => 'Getir',   'count' => count($getiryemek)],
+                    ['title' => 'Trendyol','count' => count($trendyol)],
+                    ['title' => 'Y.Sepeti','count' => count($yemeksepeti)],
+                    ['title' => 'Migros',  'count' => $migros],
+                ])->sortByDesc('count')->first();
+                $teslimEdilenCount = $tumu->where('status', 'DELIVERED')->count();
+                $bekleyenCount     = $tumu->whereIn('status', ['PENDING','ASSIGNED','PREPARED','HANDOVER'])->count();
+                $platforms = [
+                    ['title' => 'Telefon',     'count' => count($telefonsiparis), 'icon' => 'fa-phone',    'bg' => '#6366f112', 'color' => '#6366f1'],
+                    ['title' => 'Getir',       'count' => count($getiryemek),    'img' => 'getir.png',       'bg' => '#ff690012', 'color' => '#ff6900'],
+                    ['title' => 'Trendyol',    'count' => count($trendyol),      'img' => 'trendyol.png',    'bg' => '#f2711512', 'color' => '#f27115'],
+                    ['title' => 'Yemeksepeti', 'count' => count($yemeksepeti),   'img' => 'yemeksepeti.png', 'bg' => '#fa000012', 'color' => '#fa0000'],
+                    ['title' => 'Migros',      'count' => $migros,               'img' => 'migros.png',      'bg' => '#ef444412', 'color' => '#ef4444'],
+                ];
+            @endphp
 
-                    <div class="mt-5 p-4 rounded-4 bg-white shadow-sm border border-light">
-                        <div class="row">
-                            <div class="col-6 border-end">
-                                <small class="d-block text-muted fw-bold">EN ÇOK</small>
-                                <span class="fw-black fs-5">Getir</span>
+            {{-- Kart 1: Bugünkü Sipariş --}}
+            <div class="col-xl-4 fade-in-up" style="animation-delay: 0.1s">
+                <div class="neo-surface p-4">
+                    <h6 class="text-uppercase fw-black text-muted mb-2" style="font-size:10px; letter-spacing:.08em;">Bugünkü Sipariş</h6>
+                    <div class="d-flex align-items-end gap-3 mb-3">
+                        <div class="counter-display" style="font-size:56px; line-height:1; letter-spacing:-3px;">{{ count($tumu) }}</div>
+                        <div class="pb-1">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="rounded-pill px-2 py-1 fw-black" style="font-size:10px; background:#10b98115; color:#10b981;">{{ $teslimEdilenCount }} teslim</span>
                             </div>
-                            <div class="col-6">
-                                <small class="d-block text-muted fw-bold">HIZ</small>
-                                <span class="fw-black fs-5 text-success">Stabil</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="rounded-pill px-2 py-1 fw-black" style="font-size:10px; background:#f59e0b15; color:#f59e0b;">{{ $bekleyenCount }} aktif</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3 rounded-4 bg-white shadow-sm border border-light">
+                        <div class="row g-0 text-center">
+                            <div class="col-4 border-end">
+                                <small class="d-block text-muted fw-bold mb-1" style="font-size:9px; text-transform:uppercase;">Ciro</small>
+                                <span class="fw-black text-indigo" style="font-size:13px;">{{ $formattedExpense }}₺</span>
+                            </div>
+                            <div class="col-4 border-end">
+                                <small class="d-block text-muted fw-bold mb-1" style="font-size:9px; text-transform:uppercase;">Ort.</small>
+                                <span class="fw-black text-success" style="font-size:13px;">{{ $formattedAverageExpense }}₺</span>
+                            </div>
+                            <div class="col-4">
+                                <small class="d-block text-muted fw-bold mb-1" style="font-size:9px; text-transform:uppercase;">En Çok</small>
+                                <span class="fw-black text-dark" style="font-size:13px;">{{ $topPlatform['title'] }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            {{-- Kart 2: Platformlar — 3'lü grid --}}
             <div class="col-xl-4 fade-in-up" style="animation-delay: 0.2s">
-                <div class="row g-3">
-                    @php
-                        $platforms = [
-                            ['title' => 'Telefon', 'count' => count($telefonsiparis), 'icon' => 'fa-phone', 'color' => '#6366f1'],
-
-                            ['title' => 'Getir', 'count' => count($getiryemek), 'img' => 'getir.png'],
-                            ['title' => 'Trendyol', 'count' => count($trendyol), 'img' => 'trendyol.png'],
-                            ['title' => 'Y.Sepeti', 'count' => count($yemeksepeti), 'img' => 'yemeksepeti.png'],
-                            ['title' => 'Migros', 'count' => $migros, 'img' => 'migros.png'],
-                        ];
-                    @endphp
-
-                    @foreach($platforms as $p)
-                        <div class="col-6">
-                            <div class="platform-chip d-flex align-items-center gap-3">
-                                <div class="bg-light p-2 rounded-3">
-                                    @if(isset($p['img']))
-                                        <img src="{{ asset('theme/images/platforms/'.$p['img']) }}" style="width: 24px; height: 24px; object-fit: contain;">
-                                    @else
-                                        <i class="fa-solid {{ $p['icon'] }} text-indigo"></i>
-                                    @endif
-                                </div>
-                                <div>
-                                    <h4 class="m-0 fw-black tracking-tighter">{{ $p['count'] }}</h4>
-                                    <small class="text-muted fw-bold" style="font-size: 10px;">{{ $p['title'] }}</small>
-                                </div>
+                <div class="neo-surface p-4">
+                    <h6 class="fw-black mb-3 text-muted text-uppercase" style="font-size:10px; letter-spacing:.08em;">Platformlar</h6>
+                    <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:10px;">
+                        @foreach($platforms as $p)
+                        <div class="d-flex flex-column align-items-center text-center p-3 rounded-3" style="background:{{ $p['bg'] }}; gap:8px;">
+                            <div class="d-flex align-items-center justify-content-center rounded-3" style="width:36px; height:36px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.06); flex-shrink:0;">
+                                @if(isset($p['img']))
+                                    <img src="{{ asset('theme/images/platforms/'.$p['img']) }}" style="width:20px; height:20px; object-fit:contain;">
+                                @else
+                                    <i class="fa-solid {{ $p['icon'] }}" style="color:{{ $p['color'] }}; font-size:14px;"></i>
+                                @endif
                             </div>
+                            <div class="fw-black" style="font-size:22px; color:{{ $p['color'] }}; letter-spacing:-1px; line-height:1;">{{ $p['count'] }}</div>
+                            <div class="fw-bold text-muted" style="font-size:9px; text-transform:uppercase; letter-spacing:.04em; line-height:1.2;">{{ $p['title'] }}</div>
                         </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
             </div>
 
+            {{-- Kart 3: Hız Göstergesi --}}
             <div class="col-xl-4 fade-in-up" style="animation-delay: 0.3s">
-                <div class="neo-surface p-4 h-100">
-                    <h5 class="fw-black mb-5 tracking-tighter uppercase">Performans Skorları</h5>
-
+                <div class="neo-surface p-4">
+                    <h5 class="fw-black mb-3 tracking-tighter uppercase" style="font-size:13px; letter-spacing:.06em;">Bugünkü Hız</h5>
                     @php
                         $metrics = [
                             ['l' => 'Mutfak Hazırlık', 'v' => $stats['prepared']['avg'], 'm' => 60, 'c' => '#4f46e5'],
-                            ['l' => 'Kurye Atama', 'v' => $stats['handover']['avg'], 'm' => 20, 'c' => '#f59e0b'],
-                            ['l' => 'Saha Teslimat', 'v' => $stats['delivery']['avg'], 'm' => 45, 'c' => '#10b981'],
+                            ['l' => 'Kurye Atama',     'v' => $stats['handover']['avg'],  'm' => 20, 'c' => '#f59e0b'],
+                            ['l' => 'Saha Teslimat',   'v' => $stats['delivery']['avg'],  'm' => 45, 'c' => '#10b981'],
                         ];
                     @endphp
-
                     @foreach($metrics as $m)
-                        <div class="mb-5">
-                            <div class="d-flex justify-content-between mb-3">
-                                <span class="fw-bold text-dark small">{{ $m['l'] }}</span>
-                                <span class="fw-black text-indigo">{{ $m['v'] }} DK</span>
+                        @php $pct = $m['m'] > 0 ? min(100, round(($m['v'] / $m['m']) * 100)) : 0; @endphp
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-dark" style="font-size:12px;">{{ $m['l'] }}</span>
+                                <span class="fw-black" style="color:{{ $m['c'] }}; font-size:13px;">{{ $m['v'] }} dk</span>
                             </div>
                             <div class="speed-indicator">
-                                <div class="speed-knob" style="left: {{ ($m['v'] / $m['m']) * 100 }}%;"></div>
-                                <div style="width: {{ ($m['v'] / $m['m']) * 100 }}%; height: 100%; background: {{ $m['c'] }}; border-radius: 100px; opacity: 0.3;"></div>
+                                <div class="speed-knob" style="left: {{ $pct }}%; border-color: {{ $m['c'] }}; box-shadow: 0 0 12px {{ $m['c'] }}66;"></div>
+                                <div style="width: {{ $pct }}%; height: 100%; background: {{ $m['c'] }}; border-radius: 100px; opacity: 0.25;"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-1">
+                                <small class="text-muted fw-bold" style="font-size:9px;">0 dk</small>
+                                <small class="text-muted fw-bold" style="font-size:9px;">{{ $m['m'] }} dk</small>
                             </div>
                         </div>
                     @endforeach
                 </div>
             </div>
 
+            {{-- 30 Günlük Performans — Toggle --}}
+            <div class="col-12 fade-in-up" style="animation-delay: 0.35s">
+                <div class="neo-surface overflow-hidden">
+                    {{-- Toggle Header --}}
+                    <button type="button" id="perfToggleBtn"
+                            class="w-100 border-0 bg-transparent d-flex justify-content-between align-items-center px-4 py-3"
+                            style="cursor:pointer;">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-3 d-flex align-items-center justify-content-center" style="background:#4f46e515; width:36px; height:36px;">
+                                <i class="fas fa-chart-line" style="color:#4f46e5; font-size:14px;"></i>
+                            </div>
+                            <div class="text-start">
+                                <span class="fw-black text-dark" style="font-size:13px; text-transform:uppercase; letter-spacing:.04em;">30 Günlük Performans</span>
+                                <small class="d-block text-muted fw-bold" style="font-size:10px; text-transform:uppercase;">{{ $startDate }} — {{ $endDate }}</small>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-down text-muted" id="perfChevron" style="font-size:12px; transition:transform .3s;"></i>
+                    </button>
+
+                    {{-- İçerik — kapalı başlar --}}
+                    <div id="perfContent" style="display:none;">
+                        <div class="px-4 pb-4 pt-2">
+                            <div class="row g-3 mb-4">
+                                @php
+                                    $perfCards = [
+                                        ['label' => 'Mutfak Hazırlık', 'key' => 'prepared', 'color' => '#4f46e5', 'icon' => 'fa-utensils'],
+                                        ['label' => 'Kurye Teslim',    'key' => 'handover', 'color' => '#f59e0b', 'icon' => 'fa-motorcycle'],
+                                        ['label' => 'Teslimat Süresi', 'key' => 'delivery', 'color' => '#10b981', 'icon' => 'fa-map-marker-alt'],
+                                    ];
+                                @endphp
+                                @foreach($perfCards as $card)
+                                <div class="col-md-4">
+                                    <div class="p-3 rounded-4 h-100" style="background:{{ $card['color'] }}10; border:1.5px solid {{ $card['color'] }}22;">
+                                        <div class="d-flex align-items-center gap-2 mb-3">
+                                            <div class="rounded-3 d-flex align-items-center justify-content-center" style="background:{{ $card['color'] }}20; width:32px; height:32px;">
+                                                <i class="fas {{ $card['icon'] }}" style="color:{{ $card['color'] }}; font-size:13px;"></i>
+                                            </div>
+                                            <span class="fw-black" style="font-size:10px; color:#475569; text-transform:uppercase; letter-spacing:.04em;">{{ $card['label'] }}</span>
+                                        </div>
+                                        <div class="d-flex align-items-end gap-1 mb-2">
+                                            <span class="fw-black" style="color:{{ $card['color'] }}; font-size:32px; line-height:1; letter-spacing:-2px;">{{ $stats[$card['key']]['avg'] }}</span>
+                                            <span class="fw-bold text-muted mb-1" style="font-size:11px;">dk ort.</span>
+                                        </div>
+                                        <div class="d-flex gap-3">
+                                            <div>
+                                                <small class="d-block text-muted fw-bold" style="font-size:8px; text-transform:uppercase;">En İyi</small>
+                                                <span class="fw-black text-success" style="font-size:13px;">{{ $stats[$card['key']]['min'] }} dk</span>
+                                            </div>
+                                            <div>
+                                                <small class="d-block text-muted fw-bold" style="font-size:8px; text-transform:uppercase;">Sipariş</small>
+                                                <span class="fw-black text-dark" style="font-size:13px;">{{ $stats[$card['key']]['total_orders'] }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                            <canvas id="perfTrendChart" height="70"></canvas>
+                        </div>
+                    </div>{{-- #perfContent --}}
+                </div>
+            </div>
+
+            {{-- SİPARİŞ AKIŞI — Odak Bölüm --}}
             <div class="col-12 fade-in-up" style="animation-delay: 0.4s">
-                <div class="neo-surface p-4 shadow-sm border-0">
-                    <div class="d-flex justify-content-between align-items-center mb-4 px-2">
-                        <h4 class="fw-black m-0 tracking-tighter">SİPARİŞ AKIŞI</h4>
-                        <a href="#" class="text-indigo fw-bold small text-decoration-none">Tümünü Gör <i class="fas fa-arrow-right ms-1"></i></a>
+                <div style="background: #0f172a; border-radius: 32px; overflow: hidden; box-shadow: 0 20px 60px rgba(15,23,42,0.15);">
+                    <div class="d-flex justify-content-between align-items-center px-5 py-4" style="position:relative;">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-3 d-flex align-items-center justify-content-center" style="background: #4f46e5; width:40px; height:40px;">
+                                <i class="fas fa-stream text-white" style="font-size:16px;"></i>
+                            </div>
+                            <div>
+                                <h4 class="fw-black m-0 text-white tracking-tighter" style="letter-spacing:-0.5px;">Sipariş Akışı</h4>
+                                <small class="fw-bold" style="color:#64748b; font-size:10px; text-transform:uppercase; letter-spacing:.05em;">Canlı durumlar</small>
+                            </div>
+                        </div>
+
+                        @if($pakettGelinceBildir)
+                        <div id="siparisAkisiBadge" style="display:none;position:absolute;left:50%;transform:translateX(-50%);align-items:center;gap:8px;background:#ef4444;border-radius:12px;padding:8px 16px;" class="order-alert-blink">
+                            <span style="width:7px;height:7px;border-radius:50%;background:white;flex-shrink:0;display:block;"></span>
+                            <span style="font-size:11px;font-weight:900;color:white;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;">Yeni Sipariş</span>
+                            <span id="siparisAkisiCount" style="font-size:10px;font-weight:900;background:white;color:#ef4444;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;line-height:1;">0</span>
+                        </div>
+                        @endif
+
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="fw-black text-white" style="font-size:28px; font-family:'JetBrains Mono',monospace; letter-spacing:-2px;">{{ count($tumu) }}</span>
+                            <a href="#" class="fw-bold text-decoration-none px-3 py-2 rounded-3" style="background:rgba(255,255,255,0.08); color:#94a3b8; font-size:11px;">
+                                Tümü <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
                     </div>
-                    @include('restaurant.partials.home_table')
+                    <div style="background: white; border-radius: 24px; margin: 0 8px 8px; padding: 8px;">
+                        @include('restaurant.partials.home_table')
+                    </div>
                 </div>
             </div>
         </div>
@@ -251,8 +364,60 @@
     </div>
 
     <script>
+        // 30 Günlük Performans — jQuery slideToggle ile aç/kapat
+        let perfChart = null;
+        const perfChartData = {!! json_encode($chartData) !!};
+
+        $('#perfToggleBtn').on('click', function () {
+            const $content = $('#perfContent');
+            const $chevron = $('#perfChevron');
+            const isOpen   = $content.is(':visible');
+
+            $content.slideToggle(280, function () {
+                $chevron.css('transform', isOpen ? 'rotate(0deg)' : 'rotate(180deg)');
+
+                // İlk açılışta chart'ı başlat
+                if (!isOpen && !perfChart) {
+                    perfChart = new Chart(document.getElementById('perfTrendChart'), {
+                        type: 'line',
+                        data: perfChartData,
+                        options: {
+                            responsive: true,
+                            interaction: { mode: 'index', intersect: false },
+                            plugins: {
+                                legend: { position: 'bottom', labels: { boxWidth: 12, padding: 16, font: { weight: '900', size: 10 } } },
+                                tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + ctx.parsed.y + ' dk' } }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: '#f1f5f9' },
+                                    ticks: { font: { weight: 'bold' }, callback: v => v + ' dk' }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: {
+                                        font: { weight: 'bold', size: 9 },
+                                        maxTicksLimit: 10,
+                                        callback: function (val) {
+                                            const d = this.getLabelForValue(val);
+                                            return d ? d.slice(5) : '';
+                                        }
+                                    }
+                                }
+                            },
+                            elements: { line: { borderWidth: 2, tension: 0.4 }, point: { radius: 3 } }
+                        }
+                    });
+                } else if (!isOpen && perfChart) {
+                    perfChart.resize();
+                }
+            });
+        });
+
         $('#dateModal').on('shown.bs.modal', function () {
             $(this).appendTo('body');
         });
     </script>
+
 @endsection

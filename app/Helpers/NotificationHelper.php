@@ -9,22 +9,30 @@ class NotificationHelper
 {
     static function add($data)
     {
-        $data['admin_id'] = $data['admin_id'] ?? Auth::id();
-        \App\Models\Notification::create($data);
+        $data['admin_id'] = $data['admin_id'] ?? Auth::guard('admin')->id();
 
-        $options = array (
-            'cluster' => 'mt1',
-            'useTLS' => true
-        );
+        if (!$data['admin_id']) {
+            return;
+        }
 
-        $pusher = new Pusher (
-            env('PUSHER_APP_KEY'),
-            env('PUSHER_APP_SECRET'),
-            env('PUSHER_APP_ID'),
-            $options
-        );
+        $notification = \App\Models\Notification::create($data);
+        $adminId = $data['admin_id'];
 
+        try {
+            $pusher = new Pusher(
+                env('PUSHER_APP_KEY'),
+                env('PUSHER_APP_SECRET'),
+                env('PUSHER_APP_ID'),
+                ['cluster' => 'mt1', 'useTLS' => true]
+            );
 
-        $pusher->trigger('notifications-'.$data['admin_id'] ?? Auth::user()->id, 'new-notify-'.$data['admin_id'] ?? Auth::user()->id, $data);
+            $pusher->trigger(
+                'notifications-' . $adminId,
+                'new-notify-' . $adminId,
+                array_merge($data, ['id' => $notification->id])
+            );
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('NotificationHelper Pusher hatası: ' . $e->getMessage());
+        }
     }
 }

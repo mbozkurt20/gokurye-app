@@ -27,7 +27,7 @@ class ExpensesController extends Controller
 
         if ($testMode) {
             if (Expenses::count() > config('site.test_mode_limit')) {
-                return redirect()->back()->with('test', 'Test Modu: Üzgünüz, En Fazla '.config('site.test_mode_limit').' Kayıt Ekleyebilirsiniz');
+                return redirect()->back()->with('error', 'Test Modu: Üzgünüz, En Fazla '.config('site.test_mode_limit').' Kayıt Ekleyebilirsiniz');
             }
         }
         $create = new Expenses();
@@ -41,7 +41,7 @@ class ExpensesController extends Controller
         $create->amount = $request->input('amount');
         $create->save();
 
-        return redirect()->back()->with('message', 'Gider Başarıyla Eklendi.');
+        return redirect()->back()->with('success', 'Gider Başarıyla Eklendi.');
     }
 
     public function edit($id)
@@ -61,7 +61,7 @@ class ExpensesController extends Controller
         $create->amount = $request->input('amount');
         $create->save();
 
-        return redirect()->back()->with('message', 'Gider Başarıyla Güncellendi.');
+        return redirect()->back()->with('success', 'Gider Başarıyla Güncellendi.');
     }
 
     /**

@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\EntegraStatusEnum;
+use App\Helpers\NotificationHelper;
 use App\Helpers\OrdersHelper;
 use App\Helpers\OrderStatus;
 use App\Models\Customer;
@@ -21,6 +22,18 @@ class EntegraWebhookController extends Controller
 
         $address = $orderData['client']['deliveryAddress'];
         $restaurant = Restaurant::where('entegra_restaurant_id',$orderData['restaurantId'])->first();
+
+        $admin = $restaurant->admin;
+        if (!$admin->top_up_balance){
+            NotificationHelper::add([
+                'title' => 'Yetersiz Kontör Bakiyesi',
+                'description' => 'Üzgünüz, Kontor bakiyeniz yetersiz olduğu için ürün eklemesi yapılamıyor!!',
+                'url' => route('admin.balance'),
+                'admin_id' => $adminId ?? $admin->id,
+            ]);
+
+            return false;
+        }
 
         $create  = Customer::where('email',$orderData['client']['id'])->first();
         if (!$create) {

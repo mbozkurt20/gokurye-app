@@ -26,7 +26,7 @@
                             {{ auth()->id() }}
                         </p>
                         <br><br>
-                        <a href="/apps/gpsKurye.exe" download class="btn btn-primary btn-lg">
+                        <a href="/apps/go-kurye.exe" download class="btn btn-primary btn-lg">
                             İndir
                         </a>
                     </div>

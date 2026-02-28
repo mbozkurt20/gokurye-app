@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.0",
+        "barryvdh/laravel-dompdf": "*",
         "darryldecode/cart": "^4.2",
         "endroid/qr-code": "^4.8",
         "fideloper/proxy": "^4.4",

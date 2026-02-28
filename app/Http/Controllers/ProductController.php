@@ -28,14 +28,14 @@ class ProductController extends Controller
 
     public function new()
     {
-        $categories = Categorie::where('status', 'active')->where('restaurant_id', Auth::user()->id)->get();
+        $categories = Categorie::where('status', 'active')->where('restaurant_id', Auth::user()->id)->orderBy('desk', 'asc')->get();
         return view('restaurant.products.new', compact('categories'));
     }
 
     public function edit($id)
     {
         $product = Product::find($id);
-        $categories = Categorie::where('status', 'active')->get();
+        $categories = Categorie::where('status', 'active')->orderBy('desk', 'asc')->get();
 
         return view('restaurant.products.edit', compact('product', 'categories'));
     }
@@ -48,7 +48,7 @@ class ProductController extends Controller
 
         if ($isTestAccount) {
             if (Product::where('restaurant_id', Auth::id())->count() >= $testLimit) {
-                return redirect()->back()->with('test', 'Test Hesabı: En Fazla ' . $testLimit . ' Ürün Ekleyebilirsiniz');
+                return redirect()->back()->with('error', 'Test Hesabı: En Fazla ' . $testLimit . ' Ürün Ekleyebilirsiniz');
             }
         }
 
@@ -78,7 +78,7 @@ class ProductController extends Controller
         $create->begenilen = $request->begenilen;
         $create->save();
 
-        return redirect()->back()->with('message', 'Ürün Başarıyla Eklendi');
+        return redirect()->back()->with('success', 'Ürün Başarıyla Eklendi');
     }
 
     public function update(Request $request)
@@ -108,7 +108,7 @@ class ProductController extends Controller
         $create->begenilen = $request->begenilen;
         $create->save();
 
-        return redirect()->back()->with('message', 'Ürün Başarıyla Güncellendi.');
+        return redirect()->back()->with('success', 'Ürün Başarıyla Güncellendi.');
     }
 
     public function delete($id)

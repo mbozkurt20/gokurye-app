@@ -39,20 +39,20 @@ class RestaurantsController extends Controller
 
         if ($testMode) {
             if (Restaurant::count() > config('site.test_mode_limit')) {
-                return redirect()->back()->with('test', 'Test Modu: Üzgünüz, En Fazla '.config('site.test_mode_limit').' Kayıt Ekleyebilirsiniz');
+                return redirect()->back()->with('error', 'Test Modu: Üzgünüz, En Fazla '.config('site.test_mode_limit').' Kayıt Ekleyebilirsiniz');
             }
         }
 
         if (Restaurant::where('email',$request->email)->exists()) {
-            return redirect()->back()->with('test', 'Bu email adresine ait bir restaurant zaten mevcut!!');
+            return redirect()->back()->with('error', 'Bu email adresine ait bir restaurant zaten mevcut!!');
         }
 
         if (Restaurant::where('phone',$request->phone)->exists()) {
-            return redirect()->back()->with('test', 'Bu telefon numarasına ait bir restaurant zaten mevcut!!');
+            return redirect()->back()->with('error', 'Bu telefon numarasına ait bir restaurant zaten mevcut!!');
         }
 
         if (Restaurant::where('restaurant_name',$request->restaurant_name)->exists()) {
-            return redirect()->back()->with('test', 'Bu isimde bir restaurant zaten mevcut!!');
+            return redirect()->back()->with('error', 'Bu isimde bir restaurant zaten mevcut!!');
         }
 
         $create = new Restaurant();
@@ -71,7 +71,7 @@ class RestaurantsController extends Controller
         $create->longitude = $request->longitude;
         $create->save();
 
-        return redirect()->back()->with('message', 'Restaurant Kaydı Tamamlandı.');
+        return redirect()->back()->with('success', 'Restaurant Kaydı Tamamlandı.');
     }
 
     public function update(Request $request)
@@ -79,15 +79,15 @@ class RestaurantsController extends Controller
         $create = Restaurant::find($request->id);
 
         if (Restaurant::where('email',$request->email)->where('id','!=',$create->id)->exists()) {
-            return redirect()->back()->with('test', 'Bu email adresine ait bir restaurant zaten mevcut!!');
+            return redirect()->back()->with('error', 'Bu email adresine ait bir restaurant zaten mevcut!!');
         }
 
         if (Restaurant::where('phone',$request->phone)->where('id','!=',$create->id)->exists()) {
-            return redirect()->back()->with('test', 'Bu telefon numarasına ait bir restaurant zaten mevcut!!');
+            return redirect()->back()->with('error', 'Bu telefon numarasına ait bir restaurant zaten mevcut!!');
         }
 
         if (Restaurant::where('restaurant_name',$request->restaurant_name)->where('id','!=',$create->id)->exists()) {
-            return redirect()->back()->with('test', 'Bu isimde bir restaurant zaten mevcut!!');
+            return redirect()->back()->with('error', 'Bu isimde bir restaurant zaten mevcut!!');
         }
 
         $create->restaurant_name = $request->restaurant_name;
@@ -106,7 +106,7 @@ class RestaurantsController extends Controller
         $create->longitude = $request->longitude;
         $create->update();
 
-        return redirect()->back()->with('message', 'İşyeri bilgileri güncellendi.');
+        return redirect()->back()->with('success', 'İşyeri bilgileri güncellendi.');
     }
 
     public function delete($id)

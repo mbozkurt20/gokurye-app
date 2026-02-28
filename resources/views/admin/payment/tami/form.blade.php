@@ -4,16 +4,16 @@
     <div class="container py-5 d-flex justify-content-center">
 
         {{-- Başarılı veya Hata Mesajları --}}
-        @if(session()->has('message'))
+        @if(session()->has('error'))
             <div class="alert alert-success alert-dismissible fade show w-100 max-w-md" role="alert">
-                {{ session()->get('message') }}
+                {{ session()->get('success') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
-        @if(session()->has('test'))
+        @if(session()->has('error'))
             <div class="alert alert-danger alert-dismissible fade show w-100 max-w-md" role="alert">
-                {{ session()->get('test') }}
+                {{ session()->get('error') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif

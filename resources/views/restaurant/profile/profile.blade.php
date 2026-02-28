@@ -15,9 +15,9 @@
             </div>
         </div>
 
-        @if(session()->has('message'))
+        @if(session()->has('error'))
             <div class="bg-indigo-50 border border-indigo-100 text-indigo-600 px-6 py-4 rounded-[20px] mb-6 flex items-center justify-between shadow-sm shadow-indigo-100/50">
-                <span class="text-xs font-black uppercase tracking-widest"><i class="fas fa-check-circle me-2"></i> {{ session()->get('message') }}</span>
+                <span class="text-xs font-black uppercase tracking-widest"><i class="fas fa-check-circle me-2"></i> {{ session()->get('success') }}</span>
                 <button type="button" class="border-0 bg-transparent text-indigo-400 hover:text-indigo-600" onclick="this.parentElement.style.display='none';">×</button>
             </div>
         @endif

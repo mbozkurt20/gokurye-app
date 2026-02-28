@@ -54,7 +54,7 @@ class ProgressPaymentController extends Controller
             'note' => $data['note'] ?? null,
         ]);
 
-        return redirect()->back()->with('message', 'Ödeme kaydedildi.');
+        return redirect()->back()->with('success', 'Ödeme kaydedildi.');
     }
 
     public function deleteRecords($recordId){

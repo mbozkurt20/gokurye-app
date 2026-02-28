@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\Courier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -22,6 +23,7 @@ class CourierApplyController extends Controller
             'tc_id'         => 'required|digits:11',
             'age'           => 'required|integer|min:18|max:70',
             'blood_type'    => 'required|string',
+            'admin_code'    => 'required|string',
             'profile_photo' => 'required|image|max:2048',
             'vehicle_type'  => 'required|in:motor,otomobil',
             'plate'         => 'required|string|max:20',
@@ -29,9 +31,15 @@ class CourierApplyController extends Controller
             'iban'          => 'required|string|max:32',
         ]);
 
+        if (Admin::where('code', $request->input('admin_code'))->exists()) {
+            return redirect()->back()->with('error', 'Bu koda ait bir firma bulunamadı.');
+        }
+
         if (Courier::where('phone', $request->input('phone'))->exists()) {
             return redirect()->back()->with('error', 'Bu telefon numarasıyla zaten bir başvuru yapılmıştır.');
         }
+
+
 
         $profilePhoto = null;
         if ($request->hasFile('profile_photo')) {

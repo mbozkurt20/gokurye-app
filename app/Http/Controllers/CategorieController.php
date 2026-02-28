@@ -4,12 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Admin;
 use App\Models\Categorie;
-use App\Models\Courier;
-use App\Models\Expenses;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class CategorieController extends Controller
 {
@@ -20,7 +16,10 @@ class CategorieController extends Controller
 
     public function index()
     {
-        $categories = Categorie::where('status','active')->where('restaurant_id', Auth::user()->id)->get();
+        $categories = Categorie::where('status', 'active')
+            ->where('restaurant_id', Auth::user()->id)
+            ->orderBy('desk', 'asc')
+            ->get();
 
         return view('restaurant.categories.index', compact('categories'));
     }
@@ -45,7 +44,7 @@ class CategorieController extends Controller
 
         if ($isTestAccount) {
             if (Categorie::where('restaurant_id', Auth::id())->count() >= $testLimit) {
-                return redirect()->back()->with('test', 'Test Hesabı: En Fazla ' . $testLimit . ' Kategori Ekleyebilirsiniz');
+                return redirect()->back()->with('error', 'Test Hesabı: En Fazla ' . $testLimit . ' Kategori Ekleyebilirsiniz');
             }
         }
 
@@ -53,32 +52,70 @@ class CategorieController extends Controller
             'name' => 'required',
         ]);
 
-        $lastCategory = Categorie::where('restaurant_id', Auth::user()->id)->orderByDesc('id')->first();
-        $desk = $data['desk'] ?? $lastCategory ? $lastCategory->id+1 : 1; ;
+        $lastDesk = Categorie::where('restaurant_id', Auth::user()->id)->max('desk') ?? 0;
+
         $create = new Categorie();
         $create->restaurant_id = Auth::user()->id;
-        $create->name = $data['name'];
-        $create->desk = $desk;
+        $create->name          = $data['name'];
+        $create->desk          = $lastDesk + 1;
+
+        if ($request->hasFile('image')) {
+            $file     = $request->file('image');
+            $filename = date('YmdHis') . '-' . rand(1000, 9999) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('upload/categories'), $filename);
+            $create->image = 'upload/categories/' . $filename;
+        }
+
         $create->save();
 
-        return redirect()->back()->with('message', 'Kategori Başarıyla Eklendi.');
+        return redirect()->back()->with('success', 'Kategori Başarıyla Eklendi.');
     }
 
     public function update(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required'
+            'name' => 'required',
         ]);
 
-        $create = Categorie::find($request->id);
-        $create->name = $data['name'];
-        $create->desk = $request->desk;
-        $create->save();
+        $categorie       = Categorie::find($request->id);
+        $categorie->name = $data['name'];
+        $categorie->desk = $request->desk ?? $categorie->desk;
 
-        return redirect()->back()->with('message', 'Kategori güncellendi.');
+        if ($request->hasFile('image')) {
+            // Eski resmi sil
+            if ($categorie->image && file_exists(public_path($categorie->image))) {
+                unlink(public_path($categorie->image));
+            }
+            $file     = $request->file('image');
+            $filename = date('YmdHis') . '-' . rand(1000, 9999) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('upload/categories'), $filename);
+            $categorie->image = 'upload/categories/' . $filename;
+        }
+
+        if ($request->has('remove_image') && $request->remove_image) {
+            if ($categorie->image && file_exists(public_path($categorie->image))) {
+                unlink(public_path($categorie->image));
+            }
+            $categorie->image = null;
+        }
+
+        $categorie->save();
+
+        return redirect()->back()->with('success', 'Kategori güncellendi.');
     }
-    public function delete($id){
 
+    public function reorder(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        foreach ($ids as $position => $id) {
+            Categorie::where('id', (int) $id)
+                ->update(['desk' => $position + 1]);
+        }
+        return response()->json(['success' => true]);
+    }
+
+    public function delete($id)
+    {
         $del = Categorie::find($id);
         $del->delete();
         if ($del) {

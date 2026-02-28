@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Helpers\CourierStatus;
 use App\Helpers\OrderStatus;
+use App\Models\AdminSystemFeature;
 use App\Models\Courier;
 use App\Models\Order;
 use App\Models\Restaurant;
+use App\Models\SystemFeature;
 use App\Models\Customer;
 use App\Models\Categorie;
 use App\Models\CourierOrder;
@@ -124,6 +126,13 @@ class RestaurantController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Paket Gelince Bildir — admin'in bu özelliği açık mı?
+        $paketFeature = SystemFeature::where('name', 'Paket Gelince Bildir')->first();
+        $adminId = Auth::user()->admin_id;
+        $pakettGelinceBildir = $paketFeature && $adminId
+            ? AdminSystemFeature::where('admin_id', $adminId)->where('system_feature_id', $paketFeature->id)->exists()
+            : false;
+
         return view('restaurant.home', array_merge($commonData, compact(
             'tumu',
             'ActiveSiparisler',
@@ -134,7 +143,8 @@ class RestaurantController extends Controller
             'userId',
             'dailyPreparedSpeed',
             'dailyHandoverSpeed',
-            'dailyDeliverySpeed'
+            'dailyDeliverySpeed',
+            'pakettGelinceBildir'
         )));
     }
 
@@ -163,12 +173,11 @@ class RestaurantController extends Controller
             'restaurant' => Restaurant::where('id', $userId)->get(),
             'yemeksepeti' => Order::where('platform', 'yemeksepeti')->where('restaurant_id', $userId)->whereBetween('created_at', [$startDate, $endDate])->orderBy('id', 'desc')->get(),
             'getiryemek' => Order::where('platform', 'getir')->where('restaurant_id', $userId)->whereBetween('created_at', [$startDate, $endDate])->orderBy('id', 'desc')->get(),
-            'gpsyemek' => Order::where('platform', 'gpsyemek')->where('restaurant_id', $userId)->whereBetween('created_at', [$startDate, $endDate])->orderBy('id', 'desc')->get(),
             'trendyol' => Order::where('platform', 'trendyol')->where('restaurant_id', $userId)->whereBetween('created_at', [$startDate, $endDate])->orderBy('id', 'desc')->get(),
             'telefonsiparis' => Order::where('platform', 'telefonsiparis')->where('restaurant_id', $userId)->whereBetween('created_at', [$startDate, $endDate])->orderBy('id', 'desc')->get(),
             'migros' => Order::where('platform', 'migros')->where('restaurant_id', $userId)->whereBetween('created_at', [$startDate, $endDate])->count(),
             'customers' => Customer::where('status', 'active')->where('restaurant_id', $userId)->get(),
-            'categories' => Categorie::where('status', 'active')->where('restaurant_id', $userId)->get(),
+            'categories' => Categorie::where('status', 'active')->where('restaurant_id', $userId)->orderBy('desk', 'asc')->get(),
             'formattedExpense' => number_format(Order::where('restaurant_id', $userId)->whereBetween('created_at', [$startDate, $endDate])->sum('amount'), 2, '.', ','),
             'formattedAverageExpense' => number_format(Order::where('restaurant_id', $userId)->whereBetween('created_at', [$startDate, $endDate])->avg('amount'), 2, '.', ','),
             'totalCouriers' => Courier::count(),
@@ -180,17 +189,14 @@ class RestaurantController extends Controller
     private function getPreparedSpeed($userId, $startDate, $endDate)
     {
         return DB::table('order_status_logs as p')
-            ->join('order_status_logs as pr', function($join) {
-                $join->on('p.order_id', '=', 'pr.order_id')
-                    ->where('pr.status', OrderStatus::PREPARED);
-            })
             ->join('orders as o', 'o.id', '=', 'p.order_id')
             ->select(
                 DB::raw('DATE(p.changed_at) as date'),
-                DB::raw('ROUND(AVG(TIMESTAMPDIFF(MINUTE, p.changed_at, pr.changed_at)), 2) as avg_minutes'),
+                DB::raw('ROUND(AVG(p.duration_seconds / 60), 2) as avg_minutes'),
                 DB::raw('COUNT(*) as order_count')
             )
-            ->where('p.status',  OrderStatus::PREPARED)
+            ->where('p.status', OrderStatus::PENDING)
+            ->whereNotNull('p.duration_seconds')
             ->where('o.restaurant_id', $userId)
             ->whereBetween('p.changed_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
             ->groupBy('date')
@@ -369,6 +375,13 @@ dd($customer);
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Paket Gelince Bildir — admin'in bu özelliği açık mı?
+        $paketFeature = SystemFeature::where('name', 'Paket Gelince Bildir')->first();
+        $adminId = Auth::user()->admin_id;
+        $pakettGelinceBildir = $paketFeature && $adminId
+            ? AdminSystemFeature::where('admin_id', $adminId)->where('system_feature_id', $paketFeature->id)->exists()
+            : false;
+
         return view('restaurant.home', array_merge($commonData, compact(
             'tumu',
             'ActiveSiparisler',
@@ -379,7 +392,8 @@ dd($customer);
             'userId',
             'dailyPreparedSpeed',
             'dailyHandoverSpeed',
-            'dailyDeliverySpeed'
+            'dailyDeliverySpeed',
+            'pakettGelinceBildir'
         )));
     }
 

@@ -75,6 +75,7 @@ Route::group(['prefix' => 'superadmin'], function () {
             Route::get('/topup/approve/{topupId}', 'approve')->name('superadmin.approve');
             Route::get('/topup/paid/{topupId}', 'paid')->name('superadmin.paid');
             Route::get('/topup/unpaid/{topupId}', 'unPaid')->name('superadmin.unpaid');
+            Route::get('/courier/{courierId}/detail', 'courierDetail')->name('superadmin.courier_detail');
         });
 
         Route::controller(ReportController::class)->prefix('reports')->group(function () {

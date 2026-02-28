@@ -213,7 +213,7 @@ class OrdersHelper
             "printers" => $printers
         ];
 
-        $channel = "GpsKurye-" . $restaurant->id;
+        $channel = "GoKurye-" . $restaurant->id;
 
         $pusher->trigger($channel, "print-order", $payload);
 

@@ -27,10 +27,11 @@ class PayTrPaymentController extends Controller
         $name = auth()->user()->name;
         $email = auth()->user()->email;
 
-        $amount = $amount * 100;
+        $totalAmountTL = $amount; // TL cinsinden tutar (DB'ye yazılacak)
+        $amount = $amount * 100; // PayTR kuruş cinsinden istiyor
 
         $paytr = new PaytrService();
-        $result = $paytr->getToken($name, $address, $phone, $email, $amount, $basket); // 50.00 TL
+        $result = $paytr->getToken($name, $address, $phone, $email, $amount, $basket);
 
         if ($result['status'] === 'success') {
             $orderId = $this->generateGuid();
@@ -42,11 +43,11 @@ class PayTrPaymentController extends Controller
                 'top_up'            => $topup,
                 'type'              => 'yükleme',
                 'is_approved'       => 0,
-                'total_amount'      => $amount,
+                'total_amount'      => $totalAmountTL,
                 'created_by_user_id'=> Auth::guard('admin')->id(),
                 'created_type'      => 'admin',
                 'order_id'          => $orderId,
-                'payment_details'   => json_encode([])
+                'payment_details'   => null,
             ]);
 
             session()->put('orderID',$orderId);
@@ -86,22 +87,38 @@ class PayTrPaymentController extends Controller
     {
         $orderId = session('orderID');
 
+        if (!$orderId) {
+            return redirect()->route('admin.balance')->with('error', 'Oturum süresi dolmuş. Lütfen tekrar deneyin.');
+        }
+
         $topUp = TopupMovement::where('order_id', $orderId)->first();
 
-        if ($topUp->is_approved) {
+        if (!$topUp) {
+            return redirect()->route('admin.balance')->with('error', 'İşlem kaydı bulunamadı.');
+        }
+
+        // Daha önce onaylanmamışsa bakiyeyi güncelle (çift işlemi önler)
+        if (!$topUp->is_approved) {
             $admin = Admin::find($topUp->admin_id);
             if ($admin) {
                 $admin->increment('top_up_balance', $topUp->top_up);
             }
+
+            $topUp->update([
+                'is_approved'     => 1,
+                'is_paid'         => 1,
+                'payment_details' => json_encode([
+                    'amount'      => $topUp->total_amount,
+                    'top_up'      => $topUp->top_up,
+                    'top_up_price'=> $topUp->top_up_price,
+                    'paid_at'     => now()->toDateTimeString(),
+                ]),
+            ]);
+
+            session()->forget('orderID');
         }
 
-        $topUp->update([
-            'is_approved' => 1,
-            'is_paid' => 1,
-            'payment_details' => json_encode([])
-        ]);
-
-        return view('admin.payment.paytr.success');
+        return redirect()->route('admin.balance')->with('success', $topUp->top_up . ' kontör başarıyla bakiyenize eklendi.');
     }
 
     public function payTrFail($merchantOid)

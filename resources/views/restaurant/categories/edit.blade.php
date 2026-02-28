@@ -19,26 +19,19 @@
             </div>
         </div>
 
-        @if(session()->has('message'))
-            <div class="fixed top-5 right-5 z-[10000] max-w-sm w-full bg-white border-l-4 border-green-500 shadow-2xl rounded-2xl p-4 transform transition-all duration-500 ease-in-out animate-bounce-short">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-green-100 p-2 rounded-xl">
-                        <i class="fas fa-check-circle text-green-600 text-lg"></i>
+        @if(session()->has('success'))
+            <div class="fixed top-5 right-5 z-[10000] max-w-sm w-full bg-white border-l-4 border-indigo-500 shadow-2xl rounded-2xl p-4 animate-bounce-short">
+                <div class="flex items-center gap-4">
+                    <div class="bg-indigo-50 p-2 rounded-xl text-indigo-600"><i class="fas fa-check-circle"></i></div>
+                    <div class="flex-1">
+                        <p class="text-[10px] font-black text-slate-400 uppercase">BAŞARILI</p>
+                        <p class="text-sm font-bold text-slate-700 leading-tight">{{ session()->get('success') }}</p>
                     </div>
-                    <div class="ml-4 flex-1">
-                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest">İşlem Başarılı</p>
-                        <p class="text-sm font-bold text-slate-700 leading-tight">
-                            {{ session()->get('message') }}
-                        </p>
-                    </div>
-                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-slate-400 hover:text-slate-600 transition-colors">
-                        <i class="fas fa-times text-xs"></i>
-                    </button>
                 </div>
             </div>
         @endif
 
-        @if(session()->has('test'))
+        @if(session()->has('error'))
             <div class="fixed top-5 right-5 z-[10000] max-w-sm w-full bg-white border-l-4 border-red-500 shadow-2xl rounded-2xl p-4 transform transition-all duration-500 ease-in-out">
                 <div class="flex items-center">
                     <div class="flex-shrink-0 bg-red-100 p-2 rounded-xl">
@@ -47,7 +40,7 @@
                     <div class="ml-4 flex-1">
                         <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Hata Oluştu</p>
                         <p class="text-sm font-bold text-slate-700 leading-tight">
-                            {{ session()->get('test') }}
+                            {{ session()->get('error') }}
                         </p>
                     </div>
                     <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-slate-400 hover:text-slate-600 transition-colors">
@@ -65,7 +58,7 @@
                     </div>
 
                     <div class="p-8">
-                        <form method="post" action="{{route('restaurant.categories.update')}}">
+                        <form method="post" action="{{route('restaurant.categories.update')}}" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="id" value="{{$categorie->id}}">
 
@@ -83,16 +76,48 @@
                                 </div>
 
                                 <div class="col-md-12">
-                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">POS Görünüm Sırası</label>
-                                    <div class="relative group">
-                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <i class="fa-solid fa-list-ol text-slate-300 group-focus-within:text-slate-400 transition-colors"></i>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">Kategori Görseli</label>
+
+                                    @if($categorie->image)
+                                        <div id="currentImageWrapper" class="mb-4 flex items-center gap-4 p-4 bg-slate-50 rounded-2xl">
+                                            <img src="{{ asset($categorie->image) }}" alt="{{ $categorie->name }}"
+                                                 class="w-16 h-16 rounded-xl object-cover border border-slate-200">
+                                            <div class="flex-1">
+                                                <p class="text-xs font-black text-slate-700 m-0">Mevcut Görsel</p>
+                                                <p class="text-[10px] font-bold text-slate-400 m-0 mt-0.5">Yeni görsel seçerseniz değiştirilir</p>
+                                            </div>
+                                            <label class="flex items-center gap-2 cursor-pointer">
+                                                <input type="checkbox" name="remove_image" value="1"
+                                                       class="rounded" onchange="this.checked ? (document.getElementById('currentImageWrapper').style.opacity='0.4') : (document.getElementById('currentImageWrapper').style.opacity='1')">
+                                                <span class="text-[10px] font-black text-rose-500 uppercase tracking-widest">Kaldır</span>
+                                            </label>
                                         </div>
-                                        <input type="number" name="desk" value="{{$categorie->desk}}"
-                                               class="w-full !rounded-2xl border-slate-100 bg-slate-50/50 p-4 pl-12 font-bold text-slate-600 focus:bg-white focus:ring-2 focus:ring-slate-100 transition-all border"
-                                               placeholder="Örn: 5">
+                                    @endif
+
+                                    <div id="imagePreviewWrapper" class="hidden mb-4">
+                                        <div class="relative inline-block">
+                                            <img id="imagePreview" src="#" alt="Önizleme"
+                                                 class="w-24 h-24 rounded-2xl object-cover border-2 border-slate-100 shadow-sm">
+                                            <button type="button" onclick="clearImage()"
+                                                    class="absolute -top-2 -right-2 w-6 h-6 bg-rose-500 text-white rounded-full flex items-center justify-center border-0 shadow-md">
+                                                <i class="fa-solid fa-xmark text-[10px]"></i>
+                                            </button>
+                                        </div>
                                     </div>
+
+                                    <label for="imageInput"
+                                           class="flex items-center gap-3 cursor-pointer w-full border-2 border-dashed border-slate-200 !rounded-2xl p-5 hover:border-brand/40 hover:bg-brand/5 transition-all group">
+                                        <div class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center group-hover:bg-brand/10 transition-colors flex-shrink-0">
+                                            <i class="fa-solid fa-image text-slate-300 group-hover:text-brand transition-colors"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-black text-slate-600 m-0">{{ $categorie->image ? 'Yeni Görsel Seç' : 'Görsel Seç veya Sürükle' }}</p>
+                                            <p class="text-[10px] font-bold text-slate-300 m-0 mt-0.5">JPG, PNG, WEBP — Maks. 2MB</p>
+                                        </div>
+                                    </label>
+                                    <input type="file" id="imageInput" name="image" accept="image/*" class="hidden" onchange="previewImage(this)">
                                 </div>
+
                             </div>
 
                             <div class="mt-10 pt-6 border-t border-slate-50 flex items-center justify-end gap-3">
@@ -117,12 +142,18 @@
                     <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-6 italic">Sistem Kayıt Detayı</p>
 
                     <div class="space-y-4">
+                        @if($categorie->image)
+                            <div class="flex justify-between items-center py-3 border-b border-white/5">
+                                <span class="text-[10px] font-black text-slate-400 uppercase">Görsel:</span>
+                                <img src="{{ asset($categorie->image) }}" class="w-10 h-10 rounded-xl object-cover" alt="">
+                            </div>
+                        @endif
                         <div class="flex justify-between items-center py-3 border-b border-white/5">
-                            <span class="text-[10px] font-black text-slate-400 uppercase">Eski Adı:</span>
+                            <span class="text-[10px] font-black text-slate-400 uppercase">Adı:</span>
                             <span class="text-xs font-bold text-white uppercase">{{$categorie->name}}</span>
                         </div>
                         <div class="flex justify-between items-center py-3 border-b border-white/5">
-                            <span class="text-[10px] font-black text-slate-400 uppercase">Eski Sıra:</span>
+                            <span class="text-[10px] font-black text-slate-400 uppercase">Sıra:</span>
                             <span class="text-xs font-bold text-white">{{$categorie->desk ?? 'Tanımsız'}}</span>
                         </div>
                         <div class="flex justify-between items-center py-3">
@@ -134,4 +165,22 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('imagePreview').src = e.target.result;
+                    document.getElementById('imagePreviewWrapper').classList.remove('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function clearImage() {
+            document.getElementById('imageInput').value = '';
+            document.getElementById('imagePreviewWrapper').classList.add('hidden');
+        }
+    </script>
 @endsection

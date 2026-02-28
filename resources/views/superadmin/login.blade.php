@@ -63,10 +63,10 @@
                 <p class="mt-3 text-sm font-bold text-slate-400 uppercase tracking-tight">Üst Yönetici Kimlik Doğrulaması</p>
             </div>
 
-            @if(session()->has('message') || session()->has('test'))
+            @if(session()->has('error') || session()->has('test'))
                 <div class="mb-8 p-5 rounded-3xl text-xs font-black flex items-center gap-4 {{ session()->has('message') ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100' }}">
                     <i class="fas {{ session()->has('message') ? 'fa-check-circle' : 'fa-exclamation-triangle' }} text-lg"></i>
-                    {{ session()->get('message') ?? session()->get('test') }}
+                    {{ session()->get('success') ?? session()->get('test') }}
                 </div>
             @endif
 

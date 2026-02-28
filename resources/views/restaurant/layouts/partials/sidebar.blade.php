@@ -6,7 +6,7 @@
                 <i class="fa-solid fa-rocket text-white"></i>
             </div>
             <div>
-                <h2 class="text-sm font-black text-slate-800 uppercase tracking-tighter leading-none">GPS KURYE</h2>
+                <h2 class="text-sm font-black text-slate-800 uppercase tracking-tighter leading-none">GO KURYE</h2>
                 <span class="text-[9px] font-bold text-brand uppercase tracking-widest opacity-80">Restoran Paneli</span>
             </div>
         </div>
@@ -30,6 +30,7 @@
                 </button>
                 <div id="cust-menu" class="hidden pl-12 space-y-1 mt-1 border-l-2 border-brand/10 ml-6">
                     <a href="{{ route('restaurant.customers') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors tracking-wide">Müşteri Listesi</a>
+                    <a href="{{ route('restaurant.crm') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors tracking-wide">Müşteri CRM</a>
                 </div>
             </div>
 
@@ -44,6 +45,7 @@
                 <div id="prod-menu" class="hidden pl-12 space-y-1 mt-1 border-l-2 border-brand/10 ml-6">
                     <a href="{{ route('restaurant.categories') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Kategoriler</a>
                     <a href="{{ route('restaurant.products') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Ürün Listesi</a>
+                    <a href="{{ route('restaurant.stock') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Stok Takibi</a>
                     <a href="{{ route('restaurant.menus.qr') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">QR Menü</a>
                 </div>
             </div>
@@ -73,6 +75,9 @@
                 <div id="report-menu" class="hidden pl-12 space-y-1 mt-1 border-l-2 border-brand/10 ml-6">
                     <a href="{{ route('restaurant.reports.orders') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Sipariş Raporu</a>
                     <a href="{{ route('restaurant.reports.couriers') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Kurye Raporu</a>
+                    <a href="{{ route('restaurant.daily-report') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Gün Sonu Raporu</a>
+                    <a href="{{ route('restaurant.menu-performance') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Menü Performansı</a>
+                    <a href="{{ route('restaurant.invoices') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Faturalar</a>
                 </div>
             </div>
 
@@ -90,6 +95,18 @@
                 </div>
             </div>
 
+            <a href="{{ route('restaurant.working-hours') }}"
+               class="flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300 {{ request()->is('restaurant/working-hours') ? 'bg-brand text-white shadow-xl shadow-brand/30' : 'text-slate-500 hover:bg-brand/5 hover:text-brand' }} group">
+                <i class="fa-solid fa-clock w-5 text-center text-sm group-hover:scale-110 transition-transform"></i>
+                <span class="text-xs font-bold uppercase tracking-wide">Çalışma Saatleri</span>
+            </a>
+
+            <a href="{{ route('restaurant.note-templates') }}"
+               class="flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300 {{ request()->is('restaurant/note-templates') ? 'bg-brand text-white shadow-xl shadow-brand/30' : 'text-slate-500 hover:bg-brand/5 hover:text-brand' }} group">
+                <i class="fa-solid fa-note-sticky w-5 text-center text-sm group-hover:scale-110 transition-transform"></i>
+                <span class="text-xs font-bold uppercase tracking-wide">Not Şablonları</span>
+            </a>
+
             <a href="{{ route('restaurant.entegrations') }}" class="flex items-center gap-4 px-4 py-3 rounded-2xl text-slate-500 hover:bg-brand/5 hover:text-brand transition-all group">
                 <i class="fa-solid fa-plug w-5 text-center text-sm group-hover:scale-110 transition-transform"></i>
                 <span class="text-xs font-bold uppercase tracking-wide">Entegrasyonlar</span>
@@ -98,6 +115,11 @@
             <a href="{{ url('/restaurant/apps') }}" class="flex items-center gap-4 px-4 py-3 rounded-2xl text-slate-500 hover:bg-brand/5 hover:text-brand transition-all group font-bold">
                 <i class="fa-solid fa-layer-group w-5 text-center text-sm group-hover:scale-110 transition-transform"></i>
                 <span class="text-xs font-bold uppercase tracking-wide">Uygulamalar</span>
+            </a>
+
+            <a href="{{ route('restaurant.insights') }}" class="flex items-center gap-4 px-4 py-3 rounded-2xl {{ request()->is('restaurant/insights') ? 'bg-brand text-white shadow-xl shadow-brand/30' : 'text-slate-500 hover:bg-brand/5 hover:text-brand' }} transition-all group">
+                <i class="fa-solid fa-lightbulb w-5 text-center text-sm"></i>
+                <span class="text-xs font-bold uppercase tracking-wide">Öneriler</span>
             </a>
 
         </nav>
@@ -122,7 +144,7 @@
     function toggleSubmenu(id) {
         const menu = document.getElementById(id);
         const icon = document.getElementById(id + '-icon');
-        const allMenus = ['cust-menu', 'prod-menu', 'order-menu', 'report-menu', 'coupon-menu']; // Liste genişletilebilir
+        const allMenus = ['cust-menu', 'prod-menu', 'order-menu', 'report-menu', 'coupon-menu'];
 
         if (menu.classList.contains('hidden')) {
             menu.classList.remove('hidden');

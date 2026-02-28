@@ -1,6 +1,10 @@
 @extends('admin.layouts.app')
 
 @section('content')
+@php
+    $statusLabels  = ['active' => 'Müsait', 'service' => 'Serviste', 'break' => 'Molada', 'passive' => 'Pasif'];
+    $statusColors  = ['active' => 'bg-emerald-100 text-emerald-600', 'service' => 'bg-blue-100 text-blue-600', 'break' => 'bg-amber-100 text-amber-600', 'passive' => 'bg-slate-100 text-slate-600'];
+@endphp
     <div class="container-fluid py-4">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
@@ -67,22 +71,23 @@
                             🏆 LİDERLİK TABLOSU
                         </button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link !border-0 !bg-transparent text-slate-400 text-[11px] font-black uppercase tracking-widest pb-4 hover:text-indigo-600 transition-all" data-bs-toggle="tab" data-bs-target="#stackedTab">
+                            📊 KURYE KARŞILAŞTIRMA
+                        </button>
+                    </li>
                 </ul>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:block">
+                    {{ $startDate->format('d.m.Y') }} — {{ $endDate->format('d.m.Y') }}
+                </span>
             </div>
 
             <div class="tab-content p-8">
-                <div class="tab-pane fade show active" id="summary">
-                    <div class="row g-8">
-                        <div class="col-lg-7">
-                            <div class="flex items-center gap-3 mb-6">
-                                <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-calendar-alt text-xs"></i>
-                                </div>
-                                <h5 class="text-xs font-black text-slate-800 uppercase tracking-widest m-0">
-                                    Aralık: <span class="text-indigo-600">{{ $startDate->format('d.m.Y') }} - {{ $endDate->format('d.m.Y') }}</span>
-                                </h5>
-                            </div>
 
+                {{-- TAB 1: Genel Özet --}}
+                <div class="tab-pane fade show active" id="summary">
+                    <div class="row g-6">
+                        <div class="col-lg-7">
                             <div class="table-responsive">
                                 <table class="table table-borderless align-middle">
                                     <thead>
@@ -101,15 +106,11 @@
                                                 </button>
                                             </td>
                                             <td>
-                                                @php
-                                                    $statusColors = ['break' => 'bg-amber-100 text-amber-600', 'service' => 'bg-blue-100 text-blue-600', 'active' => 'bg-emerald-100 text-emerald-600', 'passive' => 'bg-slate-100 text-slate-600'];
-                                                    $statuses = ['break' => 'Molada', 'service' => 'Serviste', 'active' => 'Müsait', 'passive' => 'Pasif'];
-                                                @endphp
                                                 <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase {{ $statusColors[$row->status] ?? 'bg-slate-100' }}">
-                                                        {{ $statuses[$row->status] ?? $row->status }}
-                                                    </span>
+                                                    {{ $statusLabels[$row->status] ?? $row->status }}
+                                                </span>
                                             </td>
-                                            <td class="text-end font-mono font-bold text-slate-700">{{ round($row->total_duration / 60, 2) }}</td>
+                                            <td class="text-end font-mono font-bold text-slate-700">{{ round($row->total_duration / 60, 1) }}</td>
                                         </tr>
                                     @empty
                                         <tr><td colspan="3" class="text-center py-10 font-bold text-slate-300 uppercase text-xs">Veri bulunamadı</td></tr>
@@ -120,42 +121,67 @@
                         </div>
                         <div class="col-lg-5">
                             <div class="bg-slate-50 !rounded-[32px] p-8 flex flex-col items-center justify-center h-full">
-                                <h6 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8">Zaman Dağılım Grafiği</h6>
-                                <div class="w-full" style="max-width: 300px;">
-                                    <canvas id="statusChart"></canvas>
-                                </div>
+                                <h6 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Durum Zaman Dağılımı</h6>
+                                @if($statusAggregate->isEmpty())
+                                    <p class="text-slate-300 text-xs font-bold uppercase">Henüz veri yok</p>
+                                @else
+                                    <div class="w-full" style="max-width: 280px;">
+                                        <canvas id="statusChart"></canvas>
+                                    </div>
+                                    <div class="mt-6 w-full">
+                                        @foreach($statusAggregate as $status => $minutes)
+                                            <div class="flex justify-between items-center py-2 border-b border-slate-100">
+                                                <span class="px-2 py-0.5 rounded-lg text-[9px] font-black uppercase {{ $statusColors[$status] ?? 'bg-slate-100 text-slate-500' }}">
+                                                    {{ $statusLabels[$status] ?? $status }}
+                                                </span>
+                                                <span class="font-mono font-black text-slate-700 text-sm">{{ $minutes }} dk</span>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
 
+                {{-- TAB 2: Liderlik --}}
                 <div class="tab-pane fade" id="topCouriers">
                     <div class="bg-indigo-600 !rounded-[32px] p-8 text-white mb-8 relative overflow-hidden shadow-xl shadow-indigo-900/20">
                         <i class="fas fa-trophy absolute -right-4 -bottom-4 text-white/10 text-9xl transform rotate-12"></i>
-                        <h4 class="text-xs font-black uppercase tracking-[0.2em] mb-4 opacity-70 text-indigo-200">Günün Yıldızı</h4>
+                        <h4 class="text-xs font-black uppercase tracking-[0.2em] mb-4 opacity-70 text-indigo-200">Dönemin Yıldızı</h4>
                         @if ($topActiveCourier)
                             <div class="flex items-end gap-2">
                                 <h2 class="text-4xl font-black tracking-tighter">{{ $couriers->firstWhere('id', $topActiveCourier->courier_id)?->name }}</h2>
-                                <span class="text-sm font-bold bg-white/20 px-3 py-1 rounded-lg mb-2">{{ round($topActiveCourier->active_duration / 60, 2) }} Dakika Aktif</span>
+                                <span class="text-sm font-bold bg-white/20 px-3 py-1 rounded-lg mb-2">{{ round($topActiveCourier->active_duration / 60, 1) }} Dakika Aktif</span>
                             </div>
                         @else
                             <h2 class="text-xl font-bold italic opacity-50">Henüz bir veri girişi olmadı.</h2>
                         @endif
                     </div>
 
-                    <div class="row g-6">
-                        <div class="col-md-12">
-                            <h6 class="text-[11px] font-black text-slate-800 uppercase tracking-widest mb-6 px-1">🧩 Durum Bazlı Liderler</h6>
-                            <div class="bg-white border border-slate-100 !rounded-[24px] overflow-hidden shadow-sm">
-                                <canvas id="topStatusChart" height="80" class="p-6"></canvas>
-                            </div>
+                    <div class="col-md-12">
+                        <h6 class="text-[11px] font-black text-slate-800 uppercase tracking-widest mb-6 px-1">🧩 Durum Bazlı Liderler</h6>
+                        <div class="bg-white border border-slate-100 !rounded-[24px] overflow-hidden shadow-sm">
+                            <canvas id="topStatusChart" height="80" class="p-6"></canvas>
                         </div>
                     </div>
+                </div>
+
+                {{-- TAB 3: Kurye Karşılaştırma (Stacked Bar) --}}
+                <div class="tab-pane fade" id="stackedTab">
+                    <h6 class="text-[11px] font-black text-slate-800 uppercase tracking-widest mb-6">Kurye Başına Durum Dağılımı (Dakika)</h6>
+                    @if($courierSummary->isEmpty())
+                        <p class="text-slate-300 text-xs font-bold uppercase text-center py-10">Seçilen aralıkta kurye hareketi bulunamadı.</p>
+                    @else
+                        <div class="bg-white border border-slate-100 !rounded-[24px] overflow-hidden shadow-sm p-6">
+                            <canvas id="stackedBarChart" height="100"></canvas>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
 
-        {{-- 🔍 Kurye Modalları --}}
+        {{-- Kurye Modalları --}}
         @foreach ($couriers as $courier)
             <div class="modal fade" data-bs-backdrop="false" id="courierModal{{ $courier->id }}" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
@@ -199,41 +225,43 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Chart.js Default Ayarları
         Chart.defaults.font.family = "'Inter', sans-serif";
         Chart.defaults.color = '#64748b';
 
-        // 1. Durum Dağılım Grafiği (Doughnut)
+        @if(!$statusAggregate->isEmpty())
+        // 1. Doughnut — durum bazlı toplam (tüm kuryeler birleşik)
         new Chart(document.getElementById('statusChart'), {
             type: 'doughnut',
             data: {
-                labels: {!! json_encode($statusSummary->pluck('status')->map(fn($s) => $statuses[$s] ?? ucfirst($s))) !!},
+                labels: {!! json_encode($statusAggregate->keys()->map(fn($s) => $statusLabels[$s] ?? ucfirst($s))) !!},
                 datasets: [{
-                    data: {!! json_encode($statusSummary->pluck('total_duration')->map(fn($s) => round($s / 60, 2))) !!},
-                    backgroundColor: ['#6366f1', '#3b82f6', '#f59e0b', '#a855f7'],
+                    data: {!! json_encode($statusAggregate->values()) !!},
+                    backgroundColor: ['#10b981', '#6366f1', '#f59e0b', '#94a3b8'],
                     borderWidth: 0,
                     hoverOffset: 20
                 }]
             },
             options: {
-                cutout: '70%',
+                cutout: '72%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { boxWidth: 10, padding: 20, font: { weight: '900', size: 10 } } }
+                    legend: { position: 'bottom', labels: { boxWidth: 10, padding: 16, font: { weight: '900', size: 10 } } },
+                    tooltip: { callbacks: { label: ctx => ' ' + ctx.parsed + ' dk' } }
                 }
             }
         });
+        @endif
 
-        // 2. Bar Grafiği
+        // 2. Bar Grafiği — liderlik tablosu
         new Chart(document.getElementById('topStatusChart'), {
             type: 'bar',
             data: {
-                labels: {!! json_encode($topStatusList->map(fn($row) => $couriers->firstWhere('id', $row->courier_id)?->name . ' (' . ($statuses[$row->status] ?? ucfirst($row->status)) . ')')) !!},
+                labels: {!! json_encode($topStatusList->map(fn($row) => ($couriers->firstWhere('id', $row->courier_id)?->name ?? '?') . ' (' . ($statusLabels[$row->status] ?? $row->status) . ')')) !!},
                 datasets: [{
                     label: 'Süre (Dakika)',
-                    data: {!! json_encode($topStatusList->pluck('total_duration')->map(fn($s) => round($s / 60, 2))) !!},
-                    backgroundColor: '#6366f1',
-                    borderRadius: 12,
-                    barThickness: 40
+                    data: {!! json_encode($topStatusList->map(fn($s) => round($s->total_duration / 60, 1))) !!},
+                    backgroundColor: ['#6366f1','#10b981','#f59e0b','#3b82f6','#a855f7','#ef4444','#14b8a6','#f97316'].slice(0, {{ count($topStatusList) }}),
+                    borderRadius: 10,
+                    barThickness: 32
                 }]
             },
             options: {
@@ -241,9 +269,33 @@
                 plugins: { legend: { display: false } },
                 scales: {
                     y: { grid: { display: false }, ticks: { font: { weight: 'bold' } } },
-                    x: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 9 } } }
+                    x: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 9 }, maxRotation: 40 } }
                 }
             }
         });
+
+        @if(!$courierSummary->isEmpty())
+        // 3. Stacked Bar — kurye başına durum dağılımı
+        new Chart(document.getElementById('stackedBarChart'), {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($courierSummary->pluck('name')) !!},
+                datasets: [
+                    { label: 'Müsait',   data: {!! json_encode($courierSummary->pluck('active'))  !!}, backgroundColor: '#10b981', borderRadius: 4 },
+                    { label: 'Serviste', data: {!! json_encode($courierSummary->pluck('service')) !!}, backgroundColor: '#6366f1', borderRadius: 4 },
+                    { label: 'Molada',   data: {!! json_encode($courierSummary->pluck('break'))   !!}, backgroundColor: '#f59e0b', borderRadius: 4 },
+                    { label: 'Pasif',    data: {!! json_encode($courierSummary->pluck('passive')) !!}, backgroundColor: '#94a3b8', borderRadius: 4 },
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { stacked: true, grid: { display: false }, ticks: { font: { weight: 'bold', size: 10 } } },
+                    y: { stacked: true, grid: { color: '#f1f5f9' }, ticks: { font: { weight: 'bold' }, callback: v => v + ' dk' } }
+                },
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 16, font: { weight: '900', size: 10 } } } }
+            }
+        });
+        @endif
     </script>
 @endsection

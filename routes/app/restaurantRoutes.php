@@ -14,7 +14,14 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SiparislerController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\EntegraController;
-use App\Http\Controllers\GpsYemekController;
+use App\Http\Controllers\Restaurant\InsightsController;
+use App\Http\Controllers\Restaurant\DailyReportController;
+use App\Http\Controllers\Restaurant\MenuPerformanceController;
+use App\Http\Controllers\Restaurant\CrmController;
+use App\Http\Controllers\Restaurant\StockController;
+use App\Http\Controllers\Restaurant\WorkingHoursController;
+use App\Http\Controllers\Restaurant\NoteTemplateController;
+use App\Http\Controllers\Restaurant\InvoiceController;
 
 Route::group(['prefix' => 'restaurant'], function () {
 
@@ -121,6 +128,7 @@ Route::group(['prefix' => 'restaurant'], function () {
             Route::get('/delete/{id}', 'delete')->name('restaurant.categories.delete');
             Route::post('/create', 'create')->name('restaurant.categories.create');
             Route::post('/update', 'update')->name('restaurant.categories.update');
+            Route::post('/reorder', 'reorder')->name('restaurant.categories.reorder');
         });
 
         Route::controller(CustomerController::class)->prefix('customers')->group(function () {
@@ -155,6 +163,35 @@ Route::group(['prefix' => 'restaurant'], function () {
             Route::get('/entegra/reject-statuses/{orderId}', 'getRejectReasons');
         });
 
-        Route::post('/gpsyemek/updateOrderStatus', [GpsYemekController::class, 'updateOrder']);
+        Route::get('/insights', [InsightsController::class, 'index'])->name('restaurant.insights');
+
+        // Gün Sonu Raporu
+        Route::get('/daily-report', [DailyReportController::class, 'index'])->name('restaurant.daily-report');
+
+        // Menü Performansı
+        Route::get('/menu-performance', [MenuPerformanceController::class, 'index'])->name('restaurant.menu-performance');
+
+        // Müşteri CRM
+        Route::get('/crm', [CrmController::class, 'index'])->name('restaurant.crm');
+
+        // Stok Takibi
+        Route::get('/stock', [StockController::class, 'index'])->name('restaurant.stock');
+        Route::post('/stock/update', [StockController::class, 'update'])->name('restaurant.stock.update');
+        Route::post('/stock/adjust/{id}', [StockController::class, 'adjust'])->name('restaurant.stock.adjust');
+
+        // Çalışma Saatleri
+        Route::get('/working-hours', [WorkingHoursController::class, 'index'])->name('restaurant.working-hours');
+        Route::post('/working-hours/update', [WorkingHoursController::class, 'update'])->name('restaurant.working-hours.update');
+
+        // Sipariş Notu Şablonları
+        Route::get('/note-templates', [NoteTemplateController::class, 'index'])->name('restaurant.note-templates');
+        Route::post('/note-templates', [NoteTemplateController::class, 'store'])->name('restaurant.note-templates.store');
+        Route::delete('/note-templates/{id}', [NoteTemplateController::class, 'destroy'])->name('restaurant.note-templates.destroy');
+        Route::get('/note-templates/api', [NoteTemplateController::class, 'apiList'])->name('restaurant.note-templates.api');
+
+        // E-Fatura
+        Route::get('/invoices', [InvoiceController::class, 'index'])->name('restaurant.invoices');
+        Route::get('/invoices/order/{id}', [InvoiceController::class, 'order'])->name('restaurant.invoices.order');
+        Route::get('/invoices/daily', [InvoiceController::class, 'daily'])->name('restaurant.invoices.daily');
     });
 });

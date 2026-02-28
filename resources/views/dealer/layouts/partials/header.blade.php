@@ -1,155 +1,82 @@
-<div class="nav-header" style="background:  #259a38">
-    <a href="{{ url('/dealer/dashboard') }}" class="d-flex justify-content-center align-items-center mt-3">
-        <div class="brand-title" style="width: 185px; height:50px">
-            <img src="{{ config('site.logo') }}" alt="Logo" style="height: 100px;">
-        </div>
-    </a>
-    <div class="nav-control">
-        <div class="hamburger">
-            <span class="line"></span><span class="line"></span><span class="line"></span>
-        </div>
-    </div>
-</div>
+<header class="h-20 bg-white border-b border-slate-100 sticky top-0 z-40 px-6 flex items-center justify-between shadow-sm shadow-slate-200/50">
 
-<div class="header">
-    <div class="row" style="background-color: #f3eded; color: #4f46e5;">
-        <div class="text-center fw-bold py-2">
-            <strong>{{config('site.name')}}</strong> Partner Paneli
-        </div>
+    <div class="flex items-center gap-4">
+        {{-- Mobile hamburger --}}
+        <button type="button" onclick="openMobileSidebar()" class="lg:hidden p-2 rounded-xl text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-all border-0 bg-transparent cursor-pointer">
+            <i class="fa-solid fa-bars text-lg"></i>
+        </button>
+
+        <a href="{{ url('/dealer/dashboard') }}" class="flex items-center gap-3 group transition-transform hover:scale-105" style="text-decoration:none;">
+            <div class="w-11 h-11 bg-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-600/20">
+                <img src="{{ config('site.logo') }}" class="h-7 w-auto object-contain brightness-0 invert" alt="Logo">
+            </div>
+            <div class="hidden md:block">
+                <h2 class="text-sm font-black text-slate-800 uppercase tracking-tighter leading-none" style="margin:0;">{{ config('site.name') }}</h2>
+                <span class="text-[10px] font-bold text-violet-600 uppercase tracking-widest">Partner Paneli</span>
+            </div>
+        </a>
     </div>
 
-    <div class="container-fluid py-2 px-3">
-        <div class="d-flex align-items-center justify-content-end w-100" style="color: #4f46e5;">
-            <!-- Profil -->
-            <div class="dropdown">
-                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
-                    <img src="/theme/images/avatar.jpg" class="rounded-circle border border-2"
-                         style="height: 45px; width: 45px; border-color: #4f46e5;" alt="Avatar">
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <a class="dropdown-item" href="{{route('dealer.profile')}}">
-                            <i class="bi bi-person-circle text-primary me-2"></i> Profil
+    <div class="flex items-center gap-4">
+
+        {{-- Profile Dropdown --}}
+        <div class="relative">
+            <button type="button" onclick="toggleProfileMenu(event)"
+                    class="flex items-center gap-3 p-1.5 pr-4 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 bg-transparent outline-none cursor-pointer">
+                <div class="w-10 h-10 rounded-xl bg-slate-100 overflow-hidden border-2 border-white shadow-sm ring-1 ring-slate-100">
+                    <img src="/theme/images/avatar.jpg" class="w-full h-full object-cover" alt="Profile">
+                </div>
+                <div class="hidden sm:block text-left">
+                    <p class="text-[11px] font-black text-slate-800 uppercase leading-none" style="margin:0;">{{ Auth::guard('dealer')->user()?->name ?? config('site.name') }}</p>
+                    <p class="text-[9px] font-bold text-violet-600 uppercase tracking-tighter italic" style="margin:0;">Partner Hesabı</p>
+                </div>
+                <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+            </button>
+
+            <div id="premiumProfileMenu" class="absolute right-0 mt-3 w-64 opacity-0 invisible transition-all duration-300 transform translate-y-2 z-[99999]">
+                <div class="bg-white rounded-3xl shadow-2xl shadow-violet-600/20 border border-slate-100 overflow-hidden p-2">
+                    <div class="p-4 bg-violet-50 rounded-2xl mb-2">
+                        <p class="text-[10px] font-black text-violet-600/60 uppercase tracking-[0.2em]" style="margin-bottom:4px;">Partner Hesabı</p>
+                        <p class="text-xs font-bold text-slate-800 truncate" style="margin:0;">{{ Auth::guard('dealer')->user()?->email ?? '' }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <a href="{{ route('dealer.profile') }}"
+                           class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-violet-50 text-slate-600 hover:text-violet-600 transition-all text-xs font-bold uppercase tracking-tight"
+                           style="text-decoration:none;">
+                            <i class="fa-solid fa-circle-user text-slate-300 w-5"></i> Profilim
                         </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item text-danger" href="{{ route('admin.logout') }}"
-                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            <i class="bi bi-box-arrow-right me-2"></i> Çıkış Yap
+                        <hr style="margin: 4px 16px; border-color: #f1f5f9;">
+                        <a href="{{ route('dealer.logout') }}"
+                           onclick="event.preventDefault(); document.getElementById('dealer-logout-form').submit();"
+                           class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-rose-50 text-rose-500 transition-all text-xs font-black uppercase tracking-tight"
+                           style="text-decoration:none;">
+                            <i class="fa-solid fa-power-off w-5"></i> Güvenli Çıkış
                         </a>
-                    </li>
-                </ul>
-                <form id="logout-form" action="{{ route('dealer.logout') }}" method="POST" class="d-none">
-                    @csrf
-                </form>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <form id="dealer-logout-form" action="{{ route('dealer.logout') }}" method="POST" class="hidden">
+            @csrf
+        </form>
     </div>
+</header>
 
-    <!-- Ses Uyarısı -->
-    <audio id="audioPlayer" class="d-none" controls>
-        <source src="{{ asset('upload/arrived.mp3') }}" type="audio/mp3">
-        Tarayıcınız ses öğesini desteklemiyor.
-    </audio>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    Pusher.logToConsole = true;
-
-    var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
-        cluster: 'mt1',
-        encrypted: true
-    });
-
-    var channel = pusher.subscribe('notifications-' + {{ auth()->id() }});
-
-    channel.bind('new-notify-' + {{ auth()->id() }}, function(data) {
-        const audio = new Audio('{{ asset('voices/notifications/Bell.mp3') }}');
-        audio.play().catch(err => console.error("Ses çalma başarısız:", err));
-
-        let notificationList = document.getElementById('notificationList');
-
-        // 📭 Bildirim yok mesajını kaldır
-        let emptyItem = notificationList.querySelector('.no-notification');
-        if (emptyItem) {
-            emptyItem.remove();
+    function toggleProfileMenu(event) {
+        event.stopPropagation();
+        const menu = document.getElementById('premiumProfileMenu');
+        menu.classList.toggle('opacity-0');
+        menu.classList.toggle('invisible');
+        menu.classList.toggle('translate-y-2');
+        menu.classList.toggle('translate-y-0');
+    }
+    window.onclick = function(event) {
+        const menu = document.getElementById('premiumProfileMenu');
+        if (menu && !menu.classList.contains('invisible') && !menu.contains(event.target)) {
+            menu.classList.add('opacity-0', 'invisible', 'translate-y-2');
+            menu.classList.remove('translate-y-0');
         }
-
-        notificationList.insertAdjacentHTML('afterbegin', `
-        <li class="border-bottom d-flex justify-content-between align-items-center p-2" data-id="${data.id}">
-            <a href="${data.url}" class="text-decoration-none text-dark flex-grow-1 me-2">
-                <span class="d-block fw-bold">${data.title}</span>
-                ${data.description ? `<small class="text-muted">${data.description}</small>` : ''}
-            </a>
-            <a class="text-danger" style="cursor: pointer" onclick="deleteNotification(${data.id})">
-                <strong class="size-3">x</strong>
-            </a>
-        </li>
-    `);
-
-        updateCount(1);
-        showClearAllLink();
-    });
-
-    function updateCount(change) {
-        let countElem = $('#notificationCount');
-        let count = parseInt(countElem.text() || '0') + change;
-        if (count > 0) {
-            if (countElem.length === 0) {
-                $('#notificationDropdown').append(`
-                    <span id="notificationCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">${count}</span>
-                `);
-            } else {
-                countElem.text(count);
-            }
-        } else {
-            countElem.remove();
-            hideClearAllLink();
-        }
-    }
-
-    function showClearAllLink() {
-        if ($('.clear-all-link').length === 0) {
-            $('.clear-all-container').append(`
-                <a href="javascript:void(0)" class="text-white small clear-all-link" onclick="clearAllNotifications()">Tümünü Temizle</a>
-            `);
-        }
-    }
-
-    function hideClearAllLink() {
-        $('.clear-all-link').remove();
-    }
-
-    function clearAllNotifications() {
-        $.ajax({
-            type: 'GET',
-            url: '/dealer/notifications/clear-all',
-            data: {_token: '{{ csrf_token() }}'},
-            success: function () {
-                $('#notificationList').html('<li class="p-3 text-center text-muted">📭 Bildirim yok</li>');
-                updateCount(-parseInt($('#notificationCount').text() || '0'));
-            },
-            error: function (err) {
-                console.error(err);
-            }
-        });
-    }
-
-    function deleteNotification(id) {
-        $.ajax({
-            type: 'GET',
-            url: '/dealer/notifications/' + id,
-            data: {_token: '{{ csrf_token() }}'},
-            success: function () {
-                $('#notificationList').find('li[data-id="' + id + '"]').remove();
-                updateCount(-1);
-                if ($('#notificationList li').length === 0) {
-                    $('#notificationList').html('<li class="p-3 text-center text-muted">📭 Bildirim yok</li>');
-                }
-            },
-            error: function (err) {
-                console.error(err);
-            }
-        });
     }
 </script>

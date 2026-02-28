@@ -9,8 +9,8 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .pattern-bg {
-            background-color: #4f46e5;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M92.66 7.38c0 .11-.03.22-.09.32l-1.34 2.32c-.06.1-.16.16-.27.16s-.21-.06-.27-.16l-1.34-2.32c-.06-.1-.09-.21-.09-.32 0-.37.3-.67.67-.67h2.68c.37 0 .67.3.67.67zM7.34 92.62c0-.11.03-.22.09-.32l1.34-2.32c.06-.1.16-.16.27-.16s.21.06.27.16l1.34 2.32c.06.1.09.21.09.32 0 .37-.3.67-.67.67H7.34c-.37 0-.67-.3-.67-.67zm9.27-56.32c0 .11-.03.22-.09.32l-1.34 2.32c-.06.1-.16.16-.27.16s-.21-.06-.27-.16l-1.34-2.32c-.06-.1-.09-.21-.09-.32 0-.37.3-.67.67-.67h2.68c.37 0 .67.3.67.67zm76.72 13.7c0-.11.03-.22.09-.32l1.34-2.32c.06-.1.16-.16.27-.16s.21.06.27.16l1.34 2.32c.06.1.09.21.09.32 0 .37-.3.67-.67.67h-2.68c-.37 0-.67-.3-.67-.67z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background-color: #4338ca;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M92.66 7.38c0 .11-.03.22-.09.32l-1.34 2.32c-.06.1-.16.16-.27.16s-.21-.06-.27-.16l-1.34-2.32c-.06-.1-.09-.21-.09-.32 0-.37.3-.67.67-.67h2.68c.37 0 .67.3.67.67zM7.34 92.62c0-.11.03-.22.09-.32l1.34-2.32c.06-.1.16-.16.27-.16s.21.06.27.16l1.34 2.32c.06.1.09.21.09.32 0 .37-.3.67-.67.67H7.34c-.37 0-.67-.3-.67-.67zm9.27-56.32c0 .11-.03.22-.09.32l-1.34 2.32c-.06.1-.16.16-.27.16s-.21-.06-.27-.16l-1.34-2.32c-.06-.1-.09-.21-.09-.32 0-.37.3-.67.67-.67h2.68c.37 0 .67.3.67.67zm76.72 13.7c0-.11.03-.22.09-.32l1.34-2.32c.06-.1.16-.16.27-.16s.21.06.27.16l1.34 2.32c.06.1.09.21.09.32 0 .37-.3.67-.67.67h-2.68c-.37 0-.67-.3-.67-.67z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
     </style>
 </head>
@@ -18,102 +18,114 @@
 
 <div class="flex h-full min-h-screen">
 
-    <div class="relative hidden w-0 flex-1 lg:block pattern-bg">
-        <div class="absolute inset-0 bg-indigo-900/40 backdrop-blur-[2px]"></div>
-        <div class="relative flex h-full items-center p-16">
+    <div class="relative hidden w-0 flex-1 lg:block pattern-bg overflow-y-auto">
+        <div class="absolute inset-0 bg-indigo-950/50 backdrop-blur-[2px]"></div>
+        <div class="relative flex h-full flex-col justify-center p-16">
             <div class="max-w-xl">
-                <img src="{{config('site.logo')}}" alt="Logo" class="brightness-0 invert">
-                <h2 class="text-5xl font-extrabold tracking-tight text-white mb-6">
-                    Lojistiğin Geleceğine <br> <span class="text-indigo-300">Hoş Geldiniz.</span>
+                <img src="{{config('site.logo')}}" alt="Logo" class="h-40 brightness-0 invert mb-10">
+
+                <h2 class="text-6xl font-extrabold tracking-tight text-white mb-8 leading-[1.1]">
+                    Pazaryeri Teslimatında <br> <span class="text-emerald-400">Tam Kontrol.</span>
                 </h2>
-                <p class="text-xl text-indigo-100 font-medium leading-relaxed">
-                    {{config('site.name')}} ile operasyonlarınızı tek bir merkezden yönetin, teslimat hızınızı %40 artırın.
+
+                <p class="text-xl text-indigo-100/80 font-medium leading-relaxed mb-12">
+                    Tüm pazaryeri siparişlerinizi tek panelden yönetin. {{config('site.name')}} ile kuryelerinizi anlık takip edin, operasyonel hızınızı ikiye katlayın.
                 </p>
-                <div class="mt-12 grid grid-cols-2 gap-8">
-                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/20">
-                        <span class="block text-3xl font-bold text-white mb-1">24/7</span>
-                        <span class="text-indigo-200 text-sm font-bold uppercase tracking-wider">Canlı Takip</span>
+
+                <div class="grid grid-cols-2 gap-6 mb-12">
+                    <div class="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 hover:border-white/20 transition-all">
+                        <span class="block text-4xl font-black text-white mb-2">0.1s</span>
+                        <span class="text-emerald-300 text-xs font-black uppercase tracking-widest">Anlık Entegrasyon</span>
                     </div>
-                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/20">
-                        <span class="block text-3xl font-bold text-white mb-1">%100</span>
-                        <span class="text-indigo-200 text-sm font-bold uppercase tracking-wider">Entegrasyon</span>
+                    <div class="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 hover:border-white/20 transition-all">
+                        <span class="block text-4xl font-black text-white mb-2">∞</span>
+                        <span class="text-emerald-300 text-xs font-black uppercase tracking-widest">Sınırsız Kurye Ağı</span>
                     </div>
+                </div>
+
+                <div class="flex flex-col gap-4">
+                    <a href="{{ route('demo.index') }}" class="group flex items-center justify-between p-6 bg-indigo-500 hover:bg-indigo-400 text-white rounded-3xl transition-all duration-300 shadow-2xl shadow-indigo-900/20">
+                        <div>
+                            <h4 class="text-lg font-black uppercase tracking-tight">Sistemi İnceleyin</h4>
+                            <p class="text-indigo-100 text-sm font-medium">Pazaryeri panelini demo ile keşfedin</p>
+                        </div>
+                        <div class="bg-white/20 p-3 rounded-2xl group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('courier.apply') }}" class="group flex items-center justify-between p-6 bg-white/10 hover:bg-white/20 text-white rounded-3xl border border-white/10 transition-all duration-300">
+                        <div>
+                            <h4 class="text-lg font-black uppercase tracking-tight">Kurye Başvurusu</h4>
+                            <p class="text-emerald-200 text-sm font-medium">Pazaryeri kurye ekibine dahil olun</p>
+                        </div>
+                        <div class="bg-white/10 p-3 rounded-2xl group-hover:translate-x-1 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="flex flex-1 flex-col justify-center px-8 py-12 sm:px-12 lg:flex-none lg:px-24 xl:px-32 bg-slate-50">
+    <div class="flex flex-1 flex-col justify-center px-8 py-12 sm:px-12 lg:flex-none lg:px-24 xl:px-40 bg-slate-50">
         <div class="mx-auto w-full max-w-sm lg:w-96">
 
-            <div class="mb-10 lg:hidden">
-                <img src="{{config('site.logo')}}" alt="Logo" class="h-10">
+            <div class="mb-10 lg:hidden text-center">
+                <img src="{{config('site.logo')}}" alt="Logo" class="h-10 mx-auto">
             </div>
 
-            <div class="mb-8">
-                <h1 class="text-3xl font-black text-slate-900 tracking-tight">Giriş Yap</h1>
-                <p class="mt-3 text-sm font-bold text-slate-500">Hesabınıza erişmek için bilgilerinizi girin.</p>
+            <div class="mb-10">
+                <h1 class="text-4xl font-black text-slate-900 tracking-tight mb-2">Giriş Yap</h1>
+                <p class="text-sm font-bold text-slate-500">Yönetim paneline erişmek için bilgilerinizi kullanın.</p>
             </div>
 
-            <div class="mb-8 p-1 bg-slate-200/60 rounded-2xl flex">
-                <button type="button" data-type="restaurant" class="type-btn flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all bg-white text-indigo-600 shadow-sm">
+            <div class="mb-8 p-1.5 bg-slate-200/60 rounded-2xl flex gap-1">
+                <button type="button" data-type="restaurant" class="type-btn flex-1 py-3.5 text-xs font-black uppercase tracking-widest rounded-xl transition-all bg-white text-indigo-600 shadow-sm">
                     Restoran
                 </button>
-                <button type="button" data-type="admin" class="type-btn flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all text-slate-500 hover:text-slate-800">
+                <button type="button" data-type="admin" class="type-btn flex-1 py-3.5 text-xs font-black uppercase tracking-widest rounded-xl transition-all text-slate-500 hover:text-slate-800">
                     Yönetici
                 </button>
             </div>
 
-            @if(session()->has('message') || session()->has('test'))
-                <div class="mb-6 p-4 rounded-2xl text-xs font-black flex items-center gap-3 {{ session()->has('message') ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' }}">
-                    {{ session()->get('message') ?? session()->get('test') }}
+            @if(session()->has('error') || session()->has('test'))
+                <div class="mb-6 p-4 rounded-2xl text-[11px] font-black flex items-center gap-3 {{ session()->has('message') ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' }}">
+                    <span class="flex-1 uppercase tracking-wider">{{ session()->get('success') ?? session()->get('test') }}</span>
                 </div>
             @endif
 
-            <form id="loginForm" method="POST" class="space-y-5">
+            <form id="loginForm" method="POST" class="space-y-6">
                 @csrf
                 <input type="hidden" name="user_type" id="userTypeInput" value="restaurant">
 
-                <div class="space-y-1.5">
-                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">E-Posta Adresi</label>
+                <div class="space-y-2">
+                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">E-Posta</label>
                     <input type="email" name="email" id="emailInput" required
-                           class="w-full px-5 py-4 bg-white border-2 border-slate-100 rounded-2xl outline-none transition-all font-bold text-slate-700 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-600/5 placeholder:text-slate-300"
-                           placeholder="isim@sirket.com">
+                           class="w-full px-6 py-5 bg-white border-2 border-slate-100 rounded-2xl outline-none transition-all font-bold text-slate-700 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-600/5 placeholder:text-slate-300"
+                           placeholder="örnek@firma.com">
                 </div>
 
-                <div class="space-y-1.5">
+                <div class="space-y-2">
                     <div class="flex items-center justify-between ml-1">
                         <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Şifre</label>
-                        <a href="#" class="text-[10px] font-black text-indigo-600 hover:underline uppercase tracking-widest">Unuttum?</a>
+                        <a href="#" class="text-[10px] font-black text-indigo-600 hover:text-indigo-700 uppercase tracking-widest">Şifremi Unuttum</a>
                     </div>
                     <input type="password" name="password" id="passwordInput" required
-                           class="w-full px-5 py-4 bg-white border-2 border-slate-100 rounded-2xl outline-none transition-all font-bold text-slate-700 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-600/5 placeholder:text-slate-300"
+                           class="w-full px-6 py-5 bg-white border-2 border-slate-100 rounded-2xl outline-none transition-all font-bold text-slate-700 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-600/5 placeholder:text-slate-300"
                            placeholder="••••••••">
                 </div>
 
                 <button type="submit"
-                        class="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-indigo-200 transition-all active:scale-[0.98]">
-                    Sisteme Giriş Yap
+                        class="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-indigo-200 transition-all active:scale-[0.98]">
+                    Oturum Aç
                 </button>
             </form>
 
-            <div class="mt-5 space-y-3">
-                <a href="{{ route('demo.index') }}"
-                   class="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.15em] shadow-lg shadow-emerald-100 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    Demo Hesabı Aç &amp; Hemen Kullan
-                </a>
-                <a href="{{ route('courier.apply') }}"
-                   class="w-full py-4 bg-white border-2 border-slate-200 hover:border-indigo-400 text-slate-600 hover:text-indigo-600 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                    Kurye Başvurusu Yap
-                </a>
-            </div>
-
-            <div class="mt-8 pt-6 border-t border-slate-200">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Masaüstü App</span>
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Destek v2.0</span>
+            <div class="mt-12 pt-8 border-t border-slate-200 flex items-center justify-between opacity-50">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">v2.4.0 Stable</span>
+                <div class="flex gap-4">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                 </div>
             </div>
         </div>

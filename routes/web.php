@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\TamiPaymentController;
 use App\Http\Controllers\MenuController;
-use App\Http\Controllers\GpsYemekController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EntegraWebhookController;
@@ -16,7 +15,6 @@ Route::controller(MenuController::class)->group(function () {
     Route::get('/restaurant/{restaurantId}/menu', 'show')->name('restaurant.menu');
 });
 
-Route::get('/pSwAIk2Jo6edRFcHME/gpskurye', [GpsYemekController::class, 'index'])->name('restaurant.couriers.index');
 Route::get('/pSwAIk2Jo6edRFcHME/jobs', [JobController::class, 'index']);
 
 Auth::routes();

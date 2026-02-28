@@ -17,8 +17,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/getPlatformGpsyemek', [App\Http\Controllers\GpsYemekController::class, 'index']);
-
 include __DIR__."/api/courier/v2.php";
 
 //Caller App

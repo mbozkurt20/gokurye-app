@@ -6,13 +6,15 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\MyController;
 use App\Http\Controllers\PayTrPaymentController;
-use App\Http\Controllers\GpsYemekController;
 use App\Http\Controllers\Admin\SiparislerController;
 use App\Http\Controllers\Admin\RestaurantsController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ProgressPaymentController;
 use App\Http\Controllers\Admin\ExpensesController;
 use App\Http\Controllers\Admin\CourierController;
+use App\Http\Controllers\Admin\InsightsController;
+use App\Http\Controllers\Admin\CommissionController;
+use App\Http\Controllers\Admin\HeatmapController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'admin'], function () {
@@ -70,8 +72,6 @@ Route::group(['prefix' => 'admin'], function () {
             Route::get('/deliveredOrders', 'deliveredOrders')->name('admin.deliveredOrders');
         });
 
-        Route::post('/gpsyemek/updateOrderStatus', [GpsYemekController::class, 'updateOrder']);
-
         Route::controller(RestaurantsController::class)->prefix('restaurants')->group(function () {
             Route::get('/', 'index')->name('admin.restaurants');
             Route::get('/new', 'new')->name('admin.restaurants.new');
@@ -104,8 +104,18 @@ Route::group(['prefix' => 'admin'], function () {
             Route::get('/delete/{id}', 'destroy')->name('admin.expenses.destroy');
         });
 
+        Route::get('/insights', [InsightsController::class, 'index'])->name('admin.insights');
+
+        Route::controller(CommissionController::class)->prefix('commissions')->group(function () {
+            Route::get('/', 'index')->name('admin.commissions.index');
+            Route::post('/update', 'update')->name('admin.commissions.update');
+        });
+
+        Route::get('/heatmap', [HeatmapController::class, 'index'])->name('admin.heatmap');
+
         Route::controller(CourierController::class)->group(function () {
             Route::get('/courier-performance', 'performance')->name('admin.courier.performance');
+            Route::get('/couriers/shifts', 'shifts')->name('admin.couriers.shifts');
             Route::get('/get-couriers', 'getCourier');
             Route::get('/couriers', 'index')->name('admin.couriers.index');
             Route::get('/couriers/maps', 'maps')->name('admin.couriers.maps');

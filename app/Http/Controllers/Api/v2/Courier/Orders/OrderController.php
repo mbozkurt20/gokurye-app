@@ -8,13 +8,13 @@ use App\Helpers\CourierStatus;
 use App\Helpers\EntegraStatusHelper;
 use App\Helpers\Json;
 use App\Helpers\NotificationHelper;
-use App\Helpers\OrdersHelper;
 use App\Helpers\OrderStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\GpsYemekController;
 use App\Http\Resources\OrderResource;
+use App\Models\AdminSystemFeature;
 use App\Models\CourierOrder;
 use App\Models\Order;
+use App\Models\Restaurant;
 use App\Services\EntegraService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -59,6 +59,13 @@ class OrderController extends Controller
     public function transfer(Request $request, $orderId)
     {
         $courier = auth('courier')->user();
+
+        // Feature 4: Kurye Paket İptal Edebilsin
+        $feature4Active = AdminSystemFeature::where('admin_id', $courier->admin_id)->where('system_feature_id', 4)->exists();
+        if (!$feature4Active) {
+            return Json::error('Sipariş transferi için yetkiniz bulunmamaktadır.', 403);
+        }
+
         $order = Order::find($orderId);
 
         if (!$order) {
@@ -101,6 +108,28 @@ class OrderController extends Controller
         return Json::success('Sipariş boşa çıkarıldı, kurye müsait kuryeye atanıcaktır.');
     }
 
+    public function availableOrders()
+    {
+        $courier = auth('courier')->user();
+
+        // Feature 5: Kurye Boş Paketleri Görebilsin
+        $feature5Active = AdminSystemFeature::where('admin_id', $courier->admin_id)->where('system_feature_id', 5)->exists();
+        if (!$feature5Active) {
+            return Json::error('Bu özellik admininiz tarafından aktif edilmemiş.', 403);
+        }
+
+        $restaurantIds = Restaurant::where('admin_id', $courier->admin_id)->pluck('id');
+
+        $orders = Order::whereIn('restaurant_id', $restaurantIds)
+            ->where('status', OrderStatus::PREPARED)
+            ->where('courier_id', -1)
+            ->whereDate('created_at', Carbon::today())
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return Json::success('Boş Siparişler', OrderResource::collection($orders));
+    }
+
     public function changeStatus(Request $request, $orderId)
     {
         $courier = auth('courier')->user();
@@ -115,9 +144,12 @@ class OrderController extends Controller
         }
 
         $statusId = $request->input('order_status_id');
+        // Feature 3: Kurye Paket Statüleri Bildir — admin_id'yi order üzerinden al (courier guard'da admin null döner)
+        $adminId = $order->restaurant?->admin_id;
+        $feature3Active = $adminId && AdminSystemFeature::where('admin_id', $adminId)->where('system_feature_id', 3)->exists();
 
         try {
-            return DB::transaction(function () use ($order, $courier, $statusId) {
+            return DB::transaction(function () use ($order, $courier, $statusId, $feature3Active) {
 
                 // --- DURUM 4: KURYE TESLİM ALDI (ASSIGNED) ---
                 if ($statusId == 4) {
@@ -129,14 +161,7 @@ class OrderController extends Controller
 
                 // --- DURUM 3: KURYE YOLA ÇIKTI (HANDOVER) ---
                 elseif ($statusId == 3) {
-                    if ($order->platform === 'gpsyemek') {
-                        $gpsResponse = app(GpsYemekController::class)->updateOrder(new Request([
-                            'action'      => OrderStatus::HANDOVER,
-                            'tracking_id' => $order->tracking_id,
-                        ]));
-                        if (!$gpsResponse) throw new \Exception("GpsYemek API hatası.");
-                    }
-                    elseif (in_array($order->platform, ['getir', 'yemeksepeti', 'trendyol', 'migros'])) {
+                    if (in_array($order->platform, ['getir', 'yemeksepeti', 'trendyol', 'migros'])) {
                         if ($order->entegra_current_status == EntegraStatusEnum::PREPARING) {
                             $response = EntegraService::updateOrder($order->pid);
                             if (!$response->success) {
@@ -156,17 +181,7 @@ class OrderController extends Controller
 
                 // --- DURUM 1: PAKET TESLİM EDİLDİ (DELIVERED) ---
                 elseif ($statusId == 1) {
-                    if ($order->platform === 'gpsyemek') {
-                        $gpsResponse = app(GpsYemekController::class)->updateOrder(new Request([
-                            'action'      => OrderStatus::DELIVERED,
-                            'tracking_id' => $order->tracking_id,
-                        ]));
-                        if (!$gpsResponse) throw new \Exception("GpsYemek servis hatası.");
-
-                        // Gps başarılıysa statüyü güncelle
-                        $order->status = OrderStatus::DELIVERED;
-
-                    } elseif (in_array($order->platform, ['getir', 'yemeksepeti', 'trendyol', 'migros'])) {
+                   if (in_array($order->platform, ['getir', 'yemeksepeti', 'trendyol', 'migros'])) {
 
                         // Sadece statü HANDOVER ise Entegra'yı güncelle
                         if ($order->entegra_current_status == EntegraStatusEnum::HANDOVER) {
@@ -198,7 +213,7 @@ class OrderController extends Controller
                     $order->update();
                     $courier->update(['status' => CourierStatus::active]);
 
-                    if (OrdersHelper::getOrderSystem(3)) {
+                    if ($feature3Active) {
                         NotificationHelper::add([
                             'title' => 'Paket Teslim Edildi',
                             'description' => "{$order->tracking_id} takip numaralı paket teslim edildi.",
@@ -218,7 +233,7 @@ class OrderController extends Controller
 
                     CourierOrder::where('order_id', $order->id)->where('courier_id', $courier->id)->delete();
 
-                    if (OrdersHelper::getOrderSystem(3)) {
+                    if ($feature3Active) {
                         NotificationHelper::add([
                             'title' => 'Kurye Paketi Reddetti',
                             'description' => $order->tracking_id . ' takip numaralı paket ' . $courier->name . '  kurye tarafından reddedildi..',
@@ -441,7 +456,7 @@ class OrderController extends Controller
                     $courier->update();
 
                     // 3. BİLDİRİM İŞLEMİ
-                    if (OrdersHelper::getOrderSystem(3)) {
+                    if ($feature3Active) {
                         NotificationHelper::add([
                             'title' => 'Paket Teslim Edildi',
                             'description' => "{$order->tracking_id} takip numaralı paket {$courier->name} kurye tarafından teslim edildi.",
@@ -471,7 +486,7 @@ class OrderController extends Controller
                $courierOrder->delete();
            }
 
-            if (OrdersHelper::getOrderSystem(3)) {
+            if ($feature3Active) {
                 NotificationHelper::add([
                     'title' => 'Kurye Paketi Reddetti',
                     'description' => $order->tracking_id . ' takip numaralı paket ' . $courier->name . '  kurye tarafından reddedildi..',

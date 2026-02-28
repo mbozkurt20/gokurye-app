@@ -85,7 +85,7 @@ class CourierController extends Controller
 
         if ($testMode) {
             if (Courier::count() > config('site.test_mode_limit')) {
-                return redirect()->back()->with('test', 'Test Modu: Üzgünüz, En Fazla '.config('site.test_mode_limit').' Kayıt Ekleyebilirsiniz');
+                return redirect()->back()->with('error', 'Test Modu: Üzgünüz, En Fazla '.config('site.test_mode_limit').' Kayıt Ekleyebilirsiniz');
             }
         }
 
@@ -105,7 +105,7 @@ class CourierController extends Controller
             'admin_id' => Auth::guard('admin')->user()->id,
         ]);
 
-        return redirect()->back()->with('message', 'Kurye Başarıyla Kaydedildi.');
+        return redirect()->back()->with('success', 'Kurye Başarıyla Kaydedildi.');
     }
     public function generateCode()
     {
@@ -126,7 +126,7 @@ class CourierController extends Controller
         ]);
 
         if ($requestData->fails()) {
-            return redirect()->back()->with('message', 'Tüm alanları doldurunuz.');
+            return redirect()->back()->with('success', 'Tüm alanları doldurunuz.');
         }
 
         if (!empty($request->input('password'))) {
@@ -147,7 +147,7 @@ class CourierController extends Controller
             'status' => $request->input('status'),
         ]);
 
-        return redirect()->back()->with('message', 'Kurye güncelleme işlemi başarıyla gerçekleşti.');
+        return redirect()->back()->with('success', 'Kurye güncelleme işlemi başarıyla gerçekleşti.');
     }
     public function delete($id)
     {

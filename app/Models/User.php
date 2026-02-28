@@ -29,7 +29,15 @@ class User extends Authenticatable
         'latitude',
         'longitude',
         'is_active',
+        'commission_rate',
+        'commission_balance',
     ];
+
+    public function admins()
+    {
+        return $this->hasMany(\App\Models\Admin::class, 'created_by_id')
+            ->where('created_by_type', 'dealer');
+    }
 
     /**
      * The attributes that should be hidden for arrays.

@@ -29,7 +29,7 @@ class PrinterController extends Controller
 
         if ($testMode) {
             if (Printer::count() > config('site.test_mode_limit')) {
-                return redirect()->back()->with('test', 'Test Modu: Üzgünüz, En Fazla '.config('site.test_mode_limit').' Kayıt Ekleyebilirsiniz');
+                return redirect()->back()->with('error', 'Test Modu: Üzgünüz, En Fazla '.config('site.test_mode_limit').' Kayıt Ekleyebilirsiniz');
             }
         }
 
@@ -40,7 +40,7 @@ class PrinterController extends Controller
         $create->description = $request->description;
         $create->save();
 
-        return redirect()->back()->with('message', 'Yazıcı Başarıyla Eklendi');
+        return redirect()->back()->with('success', 'Yazıcı Başarıyla Eklendi');
     }
     public function edit($id)
     {
@@ -54,7 +54,7 @@ class PrinterController extends Controller
         $create->description = $request->description;
         $create->update();
 
-        return redirect()->back()->with('message', 'Yazıcı Başarıyla Güncellendi');
+        return redirect()->back()->with('success', 'Yazıcı Başarıyla Güncellendi');
     }
 
     public function delete($id)

@@ -39,9 +39,9 @@ class Restaurant extends Authenticatable
         'trendyol',
         'migros',
         'entegra_restaurant_id',
-        'gpsyemek_api_key',
         'remember_token',
         'package_price',
+        'working_hours',
     ];
 
     /**
@@ -61,6 +61,7 @@ class Restaurant extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'working_hours'     => 'array',
     ];
 
     public function admin(): BelongsTo{

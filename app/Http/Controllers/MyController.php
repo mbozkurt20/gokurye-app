@@ -25,13 +25,7 @@ class MyController extends Controller
 
         $data = $request->input('data');
 
-        if ($platform == 'gpsyemek') {
-            $restaurant->gpsyemek_api_key = $data['api_key'];
-            $restaurant->update();
-            return redirect()->back()->with('message', 'Entegrasyon Güncellenmesi Tamamlandı.');
-        } else {
-            $restaurant->$platform = json_encode($data);
-        }
+        $restaurant->$platform = json_encode($data);
 
         if (!$restaurant->entegra_restaurant_id){
             $businessRes = EntegraService::newBusiness([
@@ -44,7 +38,7 @@ class MyController extends Controller
                 $restaurantRes = EntegraService::newRestaurant([
                     'name' => $restaurant->name,
                     'businessId' => $businessRes->data->id,
-                    'website' => 'https://app.gpskurye.com',
+                    'website' => config('app.app_url'),
                     'website_restaurant_id' => $restaurant->id,
                 ]);
 
@@ -57,7 +51,7 @@ class MyController extends Controller
 
         if ($providerRes['success']){
             $restaurant->update();
-            return redirect()->back()->with('message', 'Entegrasyon Güncellenmesi Tamamlandı.');
+            return redirect()->back()->with('success', 'Entegrasyon Güncellenmesi Tamamlandı.');
         }
 
         return redirect()->back()->with('error', 'Üzgünüz, bir hata meydana geldi, lütfen tekrar deneyiniz.');
@@ -96,7 +90,7 @@ class MyController extends Controller
         $restaurant->vatan_sms_orginator = $request->vatan_sms_orginator;;
         $restaurant->save();
 
-        return redirect()->back()->with('message', 'Sms Entegrasyon Güncellenmesi Tamamlandı.');
+        return redirect()->back()->with('success', 'Sms Entegrasyon Güncellenmesi Tamamlandı.');
     }
     public function smsEntegrastionTest(Request $request)
     {
@@ -110,14 +104,14 @@ class MyController extends Controller
                     'Dilerseniz panelinizden "Aktif Et" diyerek sms göndermeyi aktifleştirebilirsiniz.',$auth->id);
 
                 if($result == "2:Kullanici bulunamadi") {
-                    return redirect()->back()->with('test', 'Sms Bilgileriniz Hatalı Görünüyor');
+                    return redirect()->back()->with('error', 'Sms Bilgileriniz Hatalı Görünüyor');
                 }
-                return redirect()->back()->with('message', 'Sms Gönderildi');
+                return redirect()->back()->with('success', 'Sms Gönderildi');
             }catch (\Exception $e){
-                return redirect()->back()->with('test', $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
             }
         }else{
-            return redirect()->back()->with('test', 'Lütfen gerekli tüm bilgileri giriniz!!');
+            return redirect()->back()->with('error', 'Lütfen gerekli tüm bilgileri giriniz!!');
         }
     }
     public function smsEntegrastionStatus()
@@ -143,7 +137,7 @@ class MyController extends Controller
         }
 
         if (Restaurant::where('phone',$request->phone)->where('id','!=',$auth->id)->exists()){
-            return redirect()->back()->with('test', 'Bu telefon numarası zaten kullanılıyor!!');
+            return redirect()->back()->with('error', 'Bu telefon numarası zaten kullanılıyor!!');
         }
 
         $auth->latitude = $request->input('latitude');
@@ -152,7 +146,7 @@ class MyController extends Controller
         $auth->phone = $request->input('phone');
         $auth->update();
 
-        return redirect()->back()->with('message', 'Bilgileriniz Güncellenmiştir.');
+        return redirect()->back()->with('success', 'Bilgileriniz Güncellenmiştir.');
     }
 
     private function setEnv(array $values)

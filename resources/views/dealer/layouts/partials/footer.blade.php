@@ -1,5 +1,5 @@
-<div class="footer text-center absolute bottom-0">
-    <p>
-        Copyright © Developed by <a href="#" target="_blank">{{config('site.name')}}</a> 2025
+<footer class="py-6 px-10 border-t border-slate-100">
+    <p class="text-[10px] font-bold text-slate-300 uppercase tracking-widest text-center" style="margin:0;">
+        &copy; {{ date('Y') }} {{ config('site.name') }} — Partner Portalı
     </p>
-</div>
+</footer>

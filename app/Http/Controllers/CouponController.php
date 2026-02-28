@@ -30,7 +30,7 @@ class CouponController extends Controller
 
         if ($testMode) {
             if (RestaurantCoupon::count() > config('site.test_mode_limit')) {
-                return redirect()->back()->with('test', 'Test Modu: Üzgünüz, En Fazla '.config('site.test_mode_limit').' Kayıt Ekleyebilirsiniz');
+                return redirect()->back()->with('error', 'Test Modu: Üzgünüz, En Fazla '.config('site.test_mode_limit').' Kayıt Ekleyebilirsiniz');
             }
         }
 
@@ -43,7 +43,7 @@ class CouponController extends Controller
         $create->total_seller_amount = $request->total_seller_amount;
         $create->save();
 
-        return redirect()->back()->with('message', 'Kupon Başarıyla Eklendi');
+        return redirect()->back()->with('success', 'Kupon Başarıyla Eklendi');
     }
 
     public function edit($id)
@@ -61,7 +61,7 @@ class CouponController extends Controller
         $create->total_seller_amount = $request->total_seller_amount;
         $create->update();
 
-        return redirect()->back()->with('message', 'Kupon Başarıyla Güncellendi');
+        return redirect()->back()->with('success', 'Kupon Başarıyla Güncellendi');
     }
 
 

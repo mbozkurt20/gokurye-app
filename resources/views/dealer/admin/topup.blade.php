@@ -25,16 +25,16 @@
         <!-- Kontör Yükle ve İstatistikler -->
         <div class="row gap-4">
             <div class="col-md-6">
-                @if(session()->has('message'))
+                @if(session()->has('error'))
                     <div class="custom-alert success">
                         <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                        <span class="alert-message">{{ session()->get('message') }}</span>
+                        <span class="alert-message">{{ session()->get('success') }}</span>
                     </div>
                 @endif
-                @if(session()->has('test') )
+                @if(session()->has('error') )
                     <div class="custom-alert error">
                         <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                        <span class="alert-message">{{ session()->get('test') }}</span>
+                        <span class="alert-message">{{ session()->get('error') }}</span>
                     </div>
                 @endif
                 <div class="row">

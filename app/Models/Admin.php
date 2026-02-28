@@ -44,6 +44,12 @@ class Admin extends Authenticatable
         'is_test',
         'distance_limit',
         'max_package_limit',
+        'platform_commissions',
+    ];
+
+    protected $casts = [
+        'email_verified_at'    => 'datetime',
+        'platform_commissions' => 'array',
     ];
 
     /**
@@ -56,13 +62,5 @@ class Admin extends Authenticatable
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
 
 }

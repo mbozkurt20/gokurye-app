@@ -61,12 +61,12 @@ class CustomerController extends Controller
 
         if ($isTestAccount) {
             if (Customer::where('restaurant_id', Auth::id())->count() >= $testLimit) {
-                return redirect()->back()->with('test', 'Test Hesabı: En Fazla ' . $testLimit . ' Müşteri Ekleyebilirsiniz');
+                return redirect()->back()->with('error', 'Test Hesabı: En Fazla ' . $testLimit . ' Müşteri Ekleyebilirsiniz');
             }
         }
 
         if (Customer::where('phone',$request->phone)->where('restaurant_id', Auth::user()->id)->exists()) {
-            return redirect()->back()->with('test', 'Bu telefon numarasına ait bir müşteri zaten mevcut!!');
+            return redirect()->back()->with('error', 'Bu telefon numarasına ait bir müşteri zaten mevcut!!');
         }
 
         // Save customer information
@@ -160,7 +160,7 @@ class CustomerController extends Controller
             }
         }
 
-        return redirect()->back()->with('message', 'Müşteri ve Adresleri Başarıyla Güncellendi.');
+        return redirect()->back()->with('success', 'Müşteri ve Adresleri Başarıyla Güncellendi.');
     }
 
     public function delete($id)

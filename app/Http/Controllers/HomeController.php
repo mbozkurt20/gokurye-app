@@ -62,6 +62,6 @@ class HomeController extends Controller
             'address' => $data['address'],
         ]);
 
-        return redirect()->back()->with('message', 'Başvurunuz Başarıyla Alınmıştır');
+        return redirect()->back()->with('success', 'Başvurunuz Başarıyla Alınmıştır');
     }
 }

@@ -3,6 +3,12 @@
         ? \App\Models\Admin::find(auth()->user()->admin_id)
         : null;
     $isTestRestaurant = config('site.test_mode') === true || ($restaurantParentAdmin && $restaurantParentAdmin->is_test);
+
+    $headerPaketFeatureId = \App\Models\SystemFeature::where('name', 'Paket Gelince Bildir')->value('id');
+    $restAdminId = auth()->check() ? (auth()->user()->admin_id ?? null) : null;
+    $headerPaketBildir = $headerPaketFeatureId && $restAdminId
+        && \App\Models\AdminSystemFeature::where('admin_id', $restAdminId)
+            ->where('system_feature_id', $headerPaketFeatureId)->exists();
 @endphp
 @if($isTestRestaurant)
     <div class="bg-amber-50 border-b border-amber-200 py-2.5">
@@ -40,6 +46,19 @@
         </button>
 
         @include('restaurant.layouts.partials.quick_order_modal')
+
+        @if($headerPaketBildir)
+        <a id="newOrderBadge" href="{{ url('/restaurant') }}"
+           style="display:none; text-decoration:none;"
+           class="order-alert-blink flex items-center gap-2 px-3 py-2 rounded-xl bg-rose-500 text-white">
+            <span class="relative flex h-2.5 w-2.5 flex-shrink-0">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+            </span>
+            <span class="text-[11px] font-black uppercase tracking-wider whitespace-nowrap">Yeni Sipariş</span>
+            <span id="newOrderBadgeCount" class="text-[11px] font-black bg-white text-rose-500 rounded-full w-5 h-5 flex items-center justify-center leading-none">0</span>
+        </a>
+        @endif
 
         <div class="relative"> <button type="button"
                                        onclick="toggleProfileMenu(event)"
@@ -116,3 +135,56 @@
         </form>
     </div>
 </header>
+
+@if($headerPaketBildir)
+<style>
+@keyframes orderBlink {
+    0%,100% { opacity:1; box-shadow: 0 0 0 0 rgba(239,68,68,.7); }
+    50%      { opacity:.75; box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+}
+.order-alert-blink { animation: orderBlink .8s ease-in-out infinite; }
+</style>
+<script>
+(function () {
+    const alarm   = new Audio('{{ asset("voices/tehlike.mp3") }}');
+    alarm.loop    = true;
+    let playing   = false;
+    const badge   = document.getElementById('newOrderBadge');
+    const countEl = document.getElementById('newOrderBadgeCount');
+
+    document.addEventListener('click', function unlock() {
+        alarm.load();
+        document.removeEventListener('click', unlock);
+    }, { once: true });
+
+    function checkPending() {
+        fetch('{{ route("restaurant.orders.ajax") }}')
+            .then(r => r.json())
+            .then(function (data) {
+                const count = data.pending ? data.pending.length : 0;
+
+                // Header badge
+                if (count > 0) {
+                    badge.style.display = 'flex';
+                    countEl.textContent = count;
+                    if (!playing) { alarm.play().catch(function(){}); playing = true; }
+                } else {
+                    badge.style.display = 'none';
+                    if (playing) { alarm.pause(); alarm.currentTime = 0; playing = false; }
+                }
+
+                // Sipariş Akışı orta badge (sadece home sayfasında var)
+                var sab = document.getElementById('siparisAkisiBadge');
+                var sac = document.getElementById('siparisAkisiCount');
+                if (sab) {
+                    sab.style.display = count > 0 ? 'flex' : 'none';
+                    if (sac) sac.textContent = count;
+                }
+            }).catch(function(){});
+    }
+
+    checkPending();
+    setInterval(checkPending, 5000);
+})();
+</script>
+@endif

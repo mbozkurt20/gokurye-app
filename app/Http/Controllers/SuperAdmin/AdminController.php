@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Helpers\CourierStatus;
+use App\Helpers\MapHelper;
+use App\Helpers\OrdersHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\City;
 use App\Models\Courier;
 use App\Models\District;
 use App\Models\Order;
+use App\Models\Restaurant;
 use App\Models\SuperAdmin;
 use App\Models\TopupMovement;
 use App\Models\User;
@@ -82,7 +85,25 @@ class AdminController extends Controller
         // Normal sayfa yükleme
         $records = $recordsQuery->orderBy('created_at', 'desc')->get();
 
-        return view('superadmin.admin.topup', compact('admin', 'records', 'stats'));
+        // Admin'e ait genel istatistikler
+        $restaurants = Restaurant::where('admin_id', $adminId)
+            ->select('id', 'restaurant_name', 'name', 'phone', 'email', 'status', 'created_at')
+            ->get();
+        $restaurantIds = $restaurants->pluck('id');
+
+        $couriers = Courier::where('admin_id', $adminId)
+            ->select('id', 'name', 'phone', 'status', 'is_active', 'vehicle_type', 'price_type', 'price', 'created_at')
+            ->get();
+
+        $adminStats = [
+            'restaurant_count'      => $restaurants->count(),
+            'courier_count'         => $couriers->count(),
+            'active_courier_count'  => $couriers->where('is_active', true)->count(),
+            'order_count'           => Order::whereIn('restaurant_id', $restaurantIds)->count(),
+            'today_order_count'     => Order::whereIn('restaurant_id', $restaurantIds)->whereDate('created_at', today())->count(),
+        ];
+
+        return view('superadmin.admin.topup', compact('admin', 'records', 'stats', 'adminStats', 'restaurants', 'couriers'));
     }
     public function list(Request $request)
     {
@@ -123,14 +144,31 @@ class AdminController extends Controller
     public function approve($recordId)
     {
         $record = TopupMovement::find($recordId);
+
+        if (!$record || $record->is_approved) {
+            echo 'OK';
+            return;
+        }
+
         $record->is_approved = true;
-        $record->update();
+        $record->save();
 
+        // Admin bakiyesini artır
         $admin = Admin::find($record->admin_id);
+        if ($admin) {
+            $admin->increment('top_up_balance', $record->top_up);
+        }
 
-        $admin->update([
-            'top_up_balance' => $admin->top_up_balance += $record->top_up,
-        ]);
+        // Bu admin dealer tarafından oluşturulmuşsa komisyon öde
+        if ($admin && $admin->created_by_type === 'dealer' && $admin->created_by_id) {
+            $dealer = User::find($admin->created_by_id);
+            if ($dealer) {
+                $commission = round($record->total_amount * ($dealer->commission_rate / 100), 2);
+                $record->dealer_commission = $commission;
+                $record->save();
+                $dealer->increment('commission_balance', $commission);
+            }
+        }
 
         echo 'OK';
     }
@@ -160,7 +198,7 @@ class AdminController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->with('test', $validator->getMessageBag()->first());
+            return redirect()->back()->with('error', $validator->getMessageBag()->first());
         }
 
         $topup = TopupMovement::create([
@@ -174,15 +212,73 @@ class AdminController extends Controller
             'created_type' => 'superadmin',
         ]);
 
-        if ($topup){
-           $admin = Admin::find($topup->admin_id);
+        if ($topup) {
+            $admin = Admin::find($topup->admin_id);
+            if ($admin) {
+                $admin->increment('top_up_balance', $topup->top_up);
 
-            $admin->update([
-                'top_up_balance' => $admin->top_up_balance += $topup->top_up,
-            ]);
+                // Dealer tarafından oluşturulan admin ise komisyon işle
+                if ($admin->created_by_type === 'dealer' && $admin->created_by_id) {
+                    $dealer = User::find($admin->created_by_id);
+                    if ($dealer) {
+                        $commission = round($topup->total_amount * ($dealer->commission_rate / 100), 2);
+                        $topup->dealer_commission = $commission;
+                        $topup->save();
+                        $dealer->increment('commission_balance', $commission);
+                    }
+                }
+            }
         }
 
-        return redirect()->back()->with('message', 'Kontör Başarıyla Yüklendi!');
+        return redirect()->back()->with('success', 'Kontör Başarıyla Yüklendi!');
+    }
+
+    public function courierDetail($courierId)
+    {
+        $courier = Courier::findOrFail($courierId);
+
+        $restaurants = Restaurant::where('admin_id', $courier->admin_id)
+            ->select('id', 'restaurant_name', 'latitude', 'longitude')
+            ->get();
+
+        $restaurantDistances = $restaurants->map(function ($restaurant) use ($courier) {
+            $distanceKm = null;
+
+            if ($courier->latitude && $courier->longitude && $restaurant->latitude && $restaurant->longitude) {
+                $distanceKm = MapHelper::getGoogleDistance(
+                    $courier->latitude, $courier->longitude,
+                    $restaurant->latitude, $restaurant->longitude
+                );
+
+                if ($distanceKm === null) {
+                    $distanceKm = OrdersHelper::haversineDistance(
+                        $courier->latitude, $courier->longitude,
+                        $restaurant->latitude, $restaurant->longitude
+                    );
+                }
+            }
+
+            return [
+                'name'        => $restaurant->restaurant_name,
+                'distance_km' => $distanceKm !== null ? round($distanceKm, 2) : null,
+            ];
+        })->sortBy('distance_km')->values();
+
+        return response()->json([
+            'courier' => [
+                'id'           => $courier->id,
+                'name'         => $courier->name,
+                'phone'        => $courier->phone,
+                'vehicle_type' => $courier->vehicle_type,
+                'price_type'   => $courier->price_type,
+                'price'        => $courier->price,
+                'is_active'    => $courier->is_active,
+                'status'       => $courier->status,
+                'latitude'     => $courier->latitude,
+                'longitude'    => $courier->longitude,
+            ],
+            'restaurants' => $restaurantDistances,
+        ]);
     }
 
     public function deleteAdmin($id)
@@ -238,7 +334,7 @@ class AdminController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->with('test', $validator->getMessageBag()->first());
+            return redirect()->back()->with('error', $validator->getMessageBag()->first());
         }
 
         // Validasyon başarılı ise admin tablosuna kaydet
@@ -257,7 +353,7 @@ class AdminController extends Controller
             'address' => $request->input('address'),
         ]);
 
-        return redirect()->back()->with('message', 'Yeni Yönetici Başarıyla Eklendi!');
+        return redirect()->back()->with('success', 'Yeni Yönetici Başarıyla Eklendi!');
     }
 
     public function editAdmin($id)
@@ -279,7 +375,7 @@ class AdminController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->with('test', $validator->getMessageBag()->first());
+            return redirect()->back()->with('error', $validator->getMessageBag()->first());
         }
         // Admin kaydını bul ve güncelle
         $admin = Admin::find($id);

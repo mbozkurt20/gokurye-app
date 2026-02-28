@@ -1,11 +1,35 @@
 @extends('dealer.layouts.app')
 @section('content')
-    <link rel="stylesheet" href="{{asset('css/pages/admin/home/index.css')}}">
     <div class="container-fluid">
+
+        {{-- Başlık + Komisyon Kartları --}}
+        <div class="mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <h4 class="font-black text-slate-800 uppercase tracking-tighter mb-0">Bayi Paneli</h4>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1 mb-0">{{ Auth::guard('dealer')->user()->name }}</p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <div style="background:#4f46e5;" class="px-4 py-3 rounded-3 shadow d-flex align-items-center gap-2">
+                    <i class="fas fa-percent text-white"></i>
+                    <div>
+                        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.7);margin:0 0 2px;">Komisyon Oranı</p>
+                        <p style="font-weight:900;color:#fff;margin:0;">%{{ Auth::guard('dealer')->user()->commission_rate ?? 20 }}</p>
+                    </div>
+                </div>
+                <div style="background:#059669;" class="px-4 py-3 rounded-3 shadow d-flex align-items-center gap-2">
+                    <i class="fas fa-coins text-white"></i>
+                    <div>
+                        <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.7);margin:0 0 2px;">Toplam Kazanç</p>
+                        <p style="font-weight:900;color:#fff;margin:0;">{{ number_format(Auth::guard('dealer')->user()->commission_balance ?? 0, 2, ',', '.') }} ₺</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap" >
                 <div class="w-100 d-flex align-items-center justify-content-between">
-                    <form method="GET" action="{{ route('admin.filterByDate') }}"
+                    <form method="GET" action="{{ route('dealer.filterByDate') }}"
                           class="d-flex  gap-3 align-items-center">
                         <div>
                             <input type="date" class="form-control custom-input" id="start_date" name="start_date"
@@ -22,28 +46,28 @@
                         </div>
                     </form>
                     <div class="date-filters d-flex align-items-center gap-1 ">
-                        <a style="font-size:0.8rem;font-weight: 300" href="{{ route('admin.filter', ['date' => 'today']) }}"
+                        <a style="font-size:0.8rem;font-weight: 300" href="{{ route('dealer.filter', ['date' => 'today']) }}"
                            class="date-filter custom-link">
                             <i class="fas fa-calendar-day text-danger"></i>
                             <span>Bugün</span>
                         </a>
                         <a style="font-size:0.8rem;font-weight: 300"
-                           href="{{ route('admin.filter', ['date' => 'yesterday']) }}" class="date-filter custom-link">
+                           href="{{ route('dealer.filter', ['date' => 'yesterday']) }}" class="date-filter custom-link">
                             <i class="fas fa-calendar-day text-danger"></i>
                             <span>Dün</span>
                         </a>
                         <a style="font-size:0.8rem;font-weight: 300"
-                           href="{{ route('admin.filter', ['date' => 'this_week']) }}" class="date-filter custom-link">
+                           href="{{ route('dealer.filter', ['date' => 'this_week']) }}" class="date-filter custom-link">
                             <i class="fas fa-calendar-week text-danger"></i>
                             <span>Bu Hafta</span>
                         </a>
                         <a style="font-size:0.8rem;font-weight: 300"
-                           href="{{ route('admin.filter', ['date' => 'last_week']) }}" class="date-filter custom-link">
+                           href="{{ route('dealer.filter', ['date' => 'last_week']) }}" class="date-filter custom-link">
                             <i class="fas fa-calendar-week text-danger"></i>
                             <span>Geçen Hafta</span>
                         </a>
                         <a style="font-size:0.8rem;font-weight: 300"
-                           href="{{ route('admin.filter', ['date' => 'last_month']) }}" class="date-filter custom-link">
+                           href="{{ route('dealer.filter', ['date' => 'last_month']) }}" class="date-filter custom-link">
                             <i class="fas fa-calendar-week text-danger"></i>
                             <span>Geçen Ay</span>
                         </a>
@@ -85,7 +109,6 @@
                         @php
                             $platforms = [
                                 ['title' => 'Telefon', 'count' => count($telefonsiparis), 'icon' => 'fa-phone', 'color' => '#198754', 'is_img' => false],
-                                ['title' => 'GpsYemek', 'count' => count($gpsyemek), 'img' => 'gpsyemek.png', 'is_img' => true],
                                 ['title' => 'Getir Yemek', 'count' => count($getiryemek), 'img' => 'getir.png', 'is_img' => true],
                                 ['title' => 'Trendyol', 'count' => count($trendyol), 'img' => 'trendyol.png', 'is_img' => true],
                                 ['title' => 'Y.Sepeti', 'count' => count($yemeksepeti), 'img' => 'yemeksepeti.png', 'is_img' => true],

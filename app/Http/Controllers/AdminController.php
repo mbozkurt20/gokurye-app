@@ -16,6 +16,7 @@ use App\Models\TopupMovement;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Support\Facades\DB;
 use App\Models\Admin;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
@@ -128,7 +129,7 @@ class AdminController extends Controller
         $auth->max_package_limit = $request->input('max_package_limit', 4);
         $auth->update();
 
-        return redirect()->back()->with('message', 'Bilgileriniz Güncellenmiştir.');
+        return redirect()->back()->with('success', 'Bilgileriniz Güncellenmiştir.');
     }
     public function balance()
     {
@@ -148,9 +149,6 @@ class AdminController extends Controller
             return $query->where('admin_id', auth()->id());
         })->whereBetween('created_at', [$startTime, $endTime])->orderBy('created_at', 'desc')->get();
         $getiryemek = Order::where('platform', 'getir')->whereHas('restaurant', function($query){
-            return $query->where('admin_id', auth()->id());
-        })->whereBetween('created_at', [$startTime, $endTime])->orderBy('created_at', 'desc')->get();
-        $gpsyemek = Order::where('platform', 'gpsyemek')->whereHas('restaurant', function($query){
             return $query->where('admin_id', auth()->id());
         })->whereBetween('created_at', [$startTime, $endTime])->orderBy('created_at', 'desc')->get();
         $trendyol = Order::where('platform', 'trendyol')->whereHas('restaurant', function($query){
@@ -181,9 +179,64 @@ class AdminController extends Controller
         $idleCouriers = Courier::where('status', CourierStatus::active)->where('admin_id', auth()->id())->count();
         // Molada Kurye - Count of couriers with "Molada" status
         $breakCouriers = Courier::where('status', CourierStatus::break)->where('admin_id', auth()->id())->count();
-        $serviceCouriers = Courier::where('status', CourierStatus::service)->count();
+        $serviceCouriers = Courier::where('status', CourierStatus::service)->where('admin_id', auth()->id())->count();
 
-        return view('admin.home', compact('totalCouriers','serviceCouriers', 'idleCouriers', 'breakCouriers', 'totalExpense', 'formattedExpense', 'averageExpense', 'formattedAverageExpense', 'telefonsiparis', 'tumu', 'yemeksepeti', 'getiryemek', 'gpsyemek','trendyol', 'couriers', 'migros', 'teslimEdilenSiparisler'));
+        // Haftalık sipariş trendi (son 7 gün)
+        $weeklyLabels = [];
+        $weeklyOrders = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $day = Carbon::today()->subDays($i);
+            $weeklyLabels[] = $day->format('d.m');
+            $weeklyOrders[] = Order::whereDate('created_at', $day)->whereHas('restaurant', function ($q) {
+                return $q->where('admin_id', auth()->id());
+            })->count();
+        }
+
+        // Restoran performansı — son 30 gün (sipariş sayısı + ort. hazırlanma süresi)
+        $restaurantStats = DB::table('order_status_logs')
+            ->join('restaurants', 'order_status_logs.restaurant_id', '=', 'restaurants.id')
+            ->where('restaurants.admin_id', auth()->id())
+            ->where('order_status_logs.changed_at', '>=', Carbon::now()->subDays(30))
+            ->select(
+                'restaurants.restaurant_name',
+                'order_status_logs.restaurant_id',
+                DB::raw("ROUND(AVG(CASE WHEN order_status_logs.status = 'PENDING' THEN order_status_logs.duration_seconds ELSE NULL END) / 60, 1) as avg_prepared_min"),
+                DB::raw("ROUND(AVG(CASE WHEN order_status_logs.status = 'DELIVERED' THEN order_status_logs.duration_seconds ELSE NULL END) / 60, 1) as avg_delivery_min"),
+                DB::raw("COUNT(DISTINCT order_status_logs.order_id) as total_orders")
+            )
+            ->groupBy('order_status_logs.restaurant_id', 'restaurants.restaurant_name')
+            ->orderByDesc('total_orders')
+            ->get();
+
+        // Paket Gelince Bildir özelliği açık mı?
+        $paketFeature = SystemFeature::where('name', 'Paket Gelince Bildir')->first();
+        $pakettGelinceBildir = $paketFeature
+            ? AdminSystemFeature::where('admin_id', auth()->id())->where('system_feature_id', $paketFeature->id)->exists()
+            : false;
+
+        // Kurye durum özeti — bugün
+        $adminCourierIds = Courier::where('admin_id', auth()->id())->pluck('id');
+        $courierStatusToday = DB::table('courier_status_movements')
+            ->join('couriers', 'courier_status_movements.courier_id', '=', 'couriers.id')
+            ->whereIn('courier_status_movements.courier_id', $adminCourierIds)
+            ->whereDate('courier_status_movements.started_at', Carbon::today())
+            ->select(
+                'couriers.name as courier_name',
+                DB::raw("ROUND(SUM(CASE WHEN courier_status_movements.status = 'active'  THEN courier_status_movements.duration_seconds ELSE 0 END) / 60, 1) as active_min"),
+                DB::raw("ROUND(SUM(CASE WHEN courier_status_movements.status = 'service' THEN courier_status_movements.duration_seconds ELSE 0 END) / 60, 1) as service_min"),
+                DB::raw("ROUND(SUM(CASE WHEN courier_status_movements.status = 'break'   THEN courier_status_movements.duration_seconds ELSE 0 END) / 60, 1) as break_min")
+            )
+            ->groupBy('courier_status_movements.courier_id', 'couriers.name')
+            ->orderByDesc('service_min')
+            ->get();
+
+        return view('admin.home', compact(
+            'totalCouriers', 'serviceCouriers', 'idleCouriers', 'breakCouriers',
+            'totalExpense', 'formattedExpense', 'averageExpense', 'formattedAverageExpense',
+            'telefonsiparis', 'tumu', 'yemeksepeti', 'getiryemek', 'trendyol',
+            'couriers', 'migros', 'teslimEdilenSiparisler',
+            'weeklyLabels', 'weeklyOrders', 'restaurantStats', 'courierStatusToday', 'pakettGelinceBildir'
+        ));
     }
     public function features()
     {
@@ -232,7 +285,6 @@ class AdminController extends Controller
         $tumu = Order::whereBetween('created_at', [$startDate, $endDate])->orderBy('created_at', 'desc')->get();
         $yemeksepeti = Order::where('platform', 'yemeksepeti')->whereBetween('created_at', [$startDate, $endDate])->orderBy('created_at', 'desc')->get();
         $getiryemek = Order::where('platform', 'getir')->whereBetween('created_at', [$startDate, $endDate])->orderBy('created_at', 'desc')->get();
-        $gpsyemek = Order::where('platform', 'gpsyemek')->whereBetween('created_at', [$startDate, $endDate])->orderBy('created_at', 'desc')->get();
         $trendyol = Order::where('platform', 'trendyol')->whereBetween('created_at', [$startDate, $endDate])->orderBy('created_at', 'desc')->get();
         $telefonsiparis = Order::where('platform', 'telefonsiparis')->whereBetween('created_at', [$startDate, $endDate])->orderBy('created_at', 'desc')->get();
         $migros = Order::where('platform', 'migros')->whereBetween('created_at', [$startDate, $endDate])->orderBy('created_at', 'desc')->count();
@@ -249,7 +301,7 @@ class AdminController extends Controller
         $averageExpense = Order::whereBetween('created_at', [$startDate, $endDate])->avg('amount');
         $formattedAverageExpense = number_format($averageExpense, 2, '.', ',');
 
-        return view('admin.home', compact('totalCouriers', 'idleCouriers', 'gpsyemek','breakCouriers', 'totalExpense', 'formattedExpense', 'averageExpense', 'formattedAverageExpense', 'telefonsiparis', 'tumu', 'yemeksepeti', 'getiryemek', 'trendyol', 'couriers', 'migros','serviceCouriers'));
+        return view('admin.home', compact('totalCouriers', 'idleCouriers','breakCouriers', 'totalExpense', 'formattedExpense', 'averageExpense', 'formattedAverageExpense', 'telefonsiparis', 'tumu', 'yemeksepeti', 'getiryemek', 'trendyol', 'couriers', 'migros','serviceCouriers'));
     }
     public function filterOrders(Request $request)
     {
@@ -286,7 +338,6 @@ class AdminController extends Controller
         $couriers = Courier::where('status', 'active')->where('restaurant_id', 0)->get();
         $tumu = Order::whereBetween('created_at', [$startDate, $endDate])->orderBy('created_at', 'desc')->get();
         $yemeksepeti = Order::where('platform', 'yemeksepeti')->whereBetween('created_at', [$startDate, $endDate])->orderBy('created_at', 'desc')->get();
-        $gpsyemek = Order::where('platform', 'gpsyemek')->whereBetween('created_at', [$startDate, $endDate])->orderBy('created_at', 'desc')->get();
         $getiryemek = Order::where('platform', 'getir')->whereBetween('created_at', [$startDate, $endDate])->orderBy('created_at', 'desc')->get();
         $trendyol = Order::where('platform', 'trendyol')->whereBetween('created_at', [$startDate, $endDate])->orderBy('created_at', 'desc')->get();
         $telefonsiparis = Order::where('platform', 'telefonsiparis')->whereBetween('created_at', [$startDate, $endDate])->orderBy('created_at', 'desc')->get();
@@ -308,7 +359,7 @@ class AdminController extends Controller
         $serviceCouriers = Courier::where('status', CourierStatus::service)->count();
 
         // Gerekli diğer veriler ve siparişler ile birlikte view döndürülür
-        return view('admin.home', compact('totalCouriers', 'idleCouriers', 'breakCouriers', 'totalExpense', 'orders', 'gpsyemek','formattedExpense', 'averageExpense', 'formattedAverageExpense', 'telefonsiparis', 'tumu', 'yemeksepeti', 'getiryemek', 'trendyol', 'couriers', 'migros','serviceCouriers'));
+        return view('admin.home', compact('totalCouriers', 'idleCouriers', 'breakCouriers', 'totalExpense', 'orders','formattedExpense', 'averageExpense', 'formattedAverageExpense', 'telefonsiparis', 'tumu', 'yemeksepeti', 'getiryemek', 'trendyol', 'couriers', 'migros','serviceCouriers'));
     }
 
     public function statistics(Request $request)

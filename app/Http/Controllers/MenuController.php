@@ -43,7 +43,7 @@ class MenuController extends Controller
        $restaurant->menu_template = $request->template;
        $restaurant->save();
 
-        return redirect()->back()->with('message', 'Menü Başarıyla Güncellendi');
+        return redirect()->back()->with('success', 'Menü Başarıyla Güncellendi');
     }
 
 
@@ -75,7 +75,7 @@ class MenuController extends Controller
             'address'    => $restaurant->address,
             'phone'      => $restaurant->phone,
             'email'      => $restaurant->email,
-            'categories' => Categorie::with('products')->where('restaurant_id', $restaurant->id)->where('status', 'active')->get(),
+            'categories' => Categorie::with('products')->where('restaurant_id', $restaurant->id)->where('status', 'active')->orderBy('desk', 'asc')->get(),
         ];
 
         return view('restaurant.menus.templates.' . $template, compact('restaurant', 'data'));

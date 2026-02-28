@@ -146,6 +146,7 @@ class OrderController extends Controller
         $customers = Customer::where('status', 'active')->where('restaurant_id', Auth::user()->id)->get();
         $categories = Categorie::where('status', 'active')
             ->where('restaurant_id', Auth::user()->id)
+            ->orderBy('desk', 'asc')
             ->with(['products' => function($q) {
                 $q->where('status', 'active')->where('restaurant_id', Auth::user()->id);
             }])
@@ -351,6 +352,17 @@ class OrderController extends Controller
             DB::beginTransaction();
 
             $restaurant = Restaurant::find($request->restaurant_id);
+
+            if (!OrdersHelper::isTopup(null, $restaurant->id)) {
+                \App\Helpers\NotificationHelper::add([
+                    'title'       => 'Yetersiz Kontör Bakiyesi',
+                    'description' => 'Kontör bakiyeniz yetersiz olduğu için hızlı sipariş oluşturulamadı. Lütfen bakiye yükleyin.',
+                    'url'         => route('admin.balance'),
+                    'admin_id'    => $restaurant->admin_id,
+                ]);
+                DB::rollBack();
+                return response()->json(['status' => 'BalanceError', 'message' => 'Yetersiz Kontör Bakiyesi']);
+            }
             $restaurantId = $restaurant->id;
             $city = City::find(Admin::find($restaurant->admin_id)->city_id);
 
@@ -509,6 +521,15 @@ class OrderController extends Controller
     public function addOrder(Request $request)
     {
         if (!OrdersHelper::isTopup(null, Auth::user()->id)) {
+            $adminId = \App\Models\Restaurant::find(Auth::user()->id)?->admin_id;
+            if ($adminId) {
+                \App\Helpers\NotificationHelper::add([
+                    'title'       => 'Yetersiz Kontör Bakiyesi',
+                    'description' => 'Kontör bakiyeniz yetersiz olduğu için sipariş oluşturulamadı. Lütfen bakiye yükleyin.',
+                    'url'         => route('admin.balance'),
+                    'admin_id'    => $adminId,
+                ]);
+            }
             return response()->json(['status' => "BalanceError", 'message' => 'Yetersiz Kontör Bakiyesi']);
         }
 
@@ -586,6 +607,15 @@ class OrderController extends Controller
 
         try {
             $order->save();
+
+            // Stok düşümü
+            foreach ($request->products as $productData) {
+                $product = Product::find($productData['product_id']);
+                if ($product && $product->stock_enabled && $product->stock !== null) {
+                    $product->stock = max(0, $product->stock - (int)$productData['quantity']);
+                    $product->save();
+                }
+            }
         } catch (\Exception $e) {
             Log::error('Order creation error: ' . $e->getMessage());
             return response()->json(['status' => "ERR", 'message' => 'Sipariş kaydedilirken bir hata oluştu.']);

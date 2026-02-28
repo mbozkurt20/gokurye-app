@@ -11,7 +11,7 @@
             </div>
         </div>
 
-        @if(session()->has('message'))
+        @if(session()->has('error'))
             <div class="fixed top-5 right-5 z-[10000] max-w-sm w-full bg-white border-l-4 border-indigo-500 shadow-2xl rounded-2xl p-4 transform transition-all duration-500 animate-bounce-short">
                 <div class="flex items-center">
                     <div class="flex-shrink-0 bg-indigo-100 p-2 rounded-xl text-indigo-600">
@@ -19,7 +19,7 @@
                     </div>
                     <div class="ml-4 flex-1">
                         <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">İşlem Başarılı</p>
-                        <p class="text-xs font-bold text-slate-700 leading-tight">{{ session()->get('message') }}</p>
+                        <p class="text-xs font-bold text-slate-700 leading-tight">{{ session()->get('success') }}</p>
                     </div>
                     <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-slate-300 hover:text-slate-600 transition-colors">
                         <i class="fas fa-times text-[10px]"></i>

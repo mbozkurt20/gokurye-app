@@ -33,7 +33,6 @@ class CreateRestaurantsTable extends Migration
             $table->json('yemeksepeti')->nullable();
             $table->json('trendyol')->nullable();
             $table->json('migros')->nullable();
-            $table->string('gpsyemek_api_key')->nullable();
             $table->unsignedBigInteger('entegra_restaurant_id')->nullable();
             $table->string('menu_template')->nullable();
             $table->string('remember_token')->nullable();

@@ -13,7 +13,8 @@ class Categorie extends Model
         'restaurant_id',
         'name',
         'status',
-        'desk'
+        'desk',
+        'image',
     ];
 
     public function products()
