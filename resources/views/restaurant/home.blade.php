@@ -144,86 +144,88 @@
             @endphp
 
             {{-- Kart 1: Bugünkü Sipariş --}}
-            <div class="col-xl-4 fade-in-up" style="animation-delay: 0.1s">
-                <div class="neo-surface p-4">
-                    <h6 class="text-uppercase fw-black text-muted mb-2" style="font-size:10px; letter-spacing:.08em;">Bugünkü Sipariş</h6>
-                    <div class="d-flex align-items-end gap-3 mb-3">
-                        <div class="counter-display" style="font-size:56px; line-height:1; letter-spacing:-3px;">{{ count($tumu) }}</div>
-                        <div class="pb-1">
-                            <div class="d-flex align-items-center gap-2 mb-1">
-                                <span class="rounded-pill px-2 py-1 fw-black" style="font-size:10px; background:#10b98115; color:#10b981;">{{ $teslimEdilenCount }} teslim</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="rounded-pill px-2 py-1 fw-black" style="font-size:10px; background:#f59e0b15; color:#f59e0b;">{{ $bekleyenCount }} aktif</span>
-                            </div>
+            <div class="col-xl-4 mb-6">
+                <div class="group h-full rounded-[2rem] border border-slate-100 bg-white p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/10">
+                    <div class="flex items-start justify-between mb-8">
+                        <div>
+                            <h6 class="text-[11px] font-extrabold uppercase tracking-[0.1em] text-slate-400 mb-1">Bugünkü Sipariş</h6>
+                            <div class="text-6xl font-black tracking-tighter text-slate-900">{{ count($tumu) }}</div>
+                        </div>
+                        <div class="flex flex-col gap-2 pt-2">
+                <span class="inline-flex items-center rounded-lg bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-600 border border-emerald-100">
+                    {{ $teslimEdilenCount }} Teslim
+                </span>
+                            <span class="inline-flex items-center rounded-lg bg-amber-50 px-3 py-1 text-[11px] font-bold text-amber-600 border border-amber-100">
+                    {{ $bekleyenCount }} Aktif
+                </span>
                         </div>
                     </div>
-                    <div class="p-3 rounded-4 bg-white shadow-sm border border-light">
-                        <div class="row g-0 text-center">
-                            <div class="col-4 border-end">
-                                <small class="d-block text-muted fw-bold mb-1" style="font-size:9px; text-transform:uppercase;">Ciro</small>
-                                <span class="fw-black text-indigo" style="font-size:13px;">{{ $formattedExpense }}₺</span>
-                            </div>
-                            <div class="col-4 border-end">
-                                <small class="d-block text-muted fw-bold mb-1" style="font-size:9px; text-transform:uppercase;">Ort.</small>
-                                <span class="fw-black text-success" style="font-size:13px;">{{ $formattedAverageExpense }}₺</span>
-                            </div>
-                            <div class="col-4">
-                                <small class="d-block text-muted fw-bold mb-1" style="font-size:9px; text-transform:uppercase;">En Çok</small>
-                                <span class="fw-black text-dark" style="font-size:13px;">{{ $topPlatform['title'] }}</span>
-                            </div>
+
+                    <div class="grid grid-cols-3 divide-x divide-slate-100 rounded-2xl bg-slate-50/50 p-4 border border-slate-100">
+                        <div class="text-center px-2">
+                            <div class="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1">Ciro</div>
+                            <div class="text-sm font-black text-slate-900">{{ $formattedExpense }}₺</div>
+                        </div>
+                        <div class="text-center px-2">
+                            <div class="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1">Ort.</div>
+                            <div class="text-sm font-black text-indigo-600">{{ $formattedAverageExpense }}₺</div>
+                        </div>
+                        <div class="text-center px-2">
+                            <div class="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1">Lider</div>
+                            <div class="truncate text-sm font-black text-slate-900 px-1">{{ $topPlatform['title'] }}</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Kart 2: Platformlar — 3'lü grid --}}
-            <div class="col-xl-4 fade-in-up" style="animation-delay: 0.2s">
-                <div class="neo-surface p-4">
-                    <h6 class="fw-black mb-3 text-muted text-uppercase" style="font-size:10px; letter-spacing:.08em;">Platformlar</h6>
-                    <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:10px;">
+            {{-- Kart 2: Platformlar --}}
+            <div class="col-xl-4 mb-6">
+                <div class="h-full rounded-[2rem] border border-slate-100 bg-white p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/10">
+                    <h6 class="text-[11px] font-extrabold uppercase tracking-[0.1em] text-slate-400 mb-6">Platform Dağılımı</h6>
+                    <div class="grid grid-cols-3 gap-3">
                         @foreach($platforms as $p)
-                        <div class="d-flex flex-column align-items-center text-center p-3 rounded-3" style="background:{{ $p['bg'] }}; gap:8px;">
-                            <div class="d-flex align-items-center justify-content-center rounded-3" style="width:36px; height:36px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.06); flex-shrink:0;">
-                                @if(isset($p['img']))
-                                    <img src="{{ asset('theme/images/platforms/'.$p['img']) }}" style="width:20px; height:20px; object-fit:contain;">
-                                @else
-                                    <i class="fa-solid {{ $p['icon'] }}" style="color:{{ $p['color'] }}; font-size:14px;"></i>
-                                @endif
+                            <div class="flex flex-col items-center rounded-2xl border border-transparent p-4 transition-all duration-200 hover:border-slate-100 hover:bg-white hover:shadow-sm" style="background-color: {{ $p['bg'] }}15">
+                                <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm shadow-black/5 border border-slate-50">
+                                    @if(isset($p['img']))
+                                        <img src="{{ asset('theme/images/platforms/'.$p['img']) }}" class="h-5 w-5 object-contain">
+                                    @else
+                                        <i class="fa-solid {{ $p['icon'] }} text-xs" style="color: {{ $p['color'] }}"></i>
+                                    @endif
+                                </div>
+                                <div class="text-2xl font-black tracking-tight text-slate-900">{{ $p['count'] }}</div>
+                                <div class="text-[8px] font-bold uppercase tracking-wider text-slate-400 text-center leading-tight mt-1">{{ $p['title'] }}</div>
                             </div>
-                            <div class="fw-black" style="font-size:22px; color:{{ $p['color'] }}; letter-spacing:-1px; line-height:1;">{{ $p['count'] }}</div>
-                            <div class="fw-bold text-muted" style="font-size:9px; text-transform:uppercase; letter-spacing:.04em; line-height:1.2;">{{ $p['title'] }}</div>
-                        </div>
                         @endforeach
                     </div>
                 </div>
             </div>
 
-            {{-- Kart 3: Hız Göstergesi --}}
-            <div class="col-xl-4 fade-in-up" style="animation-delay: 0.3s">
-                <div class="neo-surface p-4">
-                    <h5 class="fw-black mb-3 tracking-tighter uppercase" style="font-size:13px; letter-spacing:.06em;">Bugünkü Hız</h5>
+            {{-- Kart 3: Operasyonel Hız --}}
+            <div class="col-xl-4 mb-6">
+                <div class="h-full rounded-[2rem] border border-slate-100 bg-white p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/10">
+                    <h6 class="text-[11px] font-extrabold uppercase tracking-[0.1em] text-slate-400 mb-8">Operasyonel Hız</h6>
                     @php
                         $metrics = [
-                            ['l' => 'Mutfak Hazırlık', 'v' => $stats['prepared']['avg'], 'm' => 60, 'c' => '#4f46e5'],
-                            ['l' => 'Kurye Atama',     'v' => $stats['handover']['avg'],  'm' => 20, 'c' => '#f59e0b'],
-                            ['l' => 'Saha Teslimat',   'v' => $stats['delivery']['avg'],  'm' => 45, 'c' => '#10b981'],
+                            ['l' => 'Mutfak Hazırlık', 'v' => $stats['prepared']['avg'], 'm' => 60, 'c' => 'bg-indigo-500', 't' => 'text-indigo-600'],
+                            ['l' => 'Kurye Atama',     'v' => $stats['handover']['avg'],  'm' => 20, 'c' => 'bg-amber-500',  't' => 'text-amber-600'],
+                            ['l' => 'Saha Teslimat',   'v' => $stats['delivery']['avg'],  'm' => 45, 'c' => 'bg-emerald-500','t' => 'text-emerald-600'],
                         ];
                     @endphp
                     @foreach($metrics as $m)
                         @php $pct = $m['m'] > 0 ? min(100, round(($m['v'] / $m['m']) * 100)) : 0; @endphp
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-bold text-dark" style="font-size:12px;">{{ $m['l'] }}</span>
-                                <span class="fw-black" style="color:{{ $m['c'] }}; font-size:13px;">{{ $m['v'] }} dk</span>
+                        <div class="mb-6 last:mb-0">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs font-bold text-slate-700">{{ $m['l'] }}</span>
+                                <span class="text-sm font-black {{ $m['t'] }}">{{ $m['v'] }} <small class="text-[10px] font-bold text-slate-400">dk</small></span>
                             </div>
-                            <div class="speed-indicator">
-                                <div class="speed-knob" style="left: {{ $pct }}%; border-color: {{ $m['c'] }}; box-shadow: 0 0 12px {{ $m['c'] }}66;"></div>
-                                <div style="width: {{ $pct }}%; height: 100%; background: {{ $m['c'] }}; border-radius: 100px; opacity: 0.25;"></div>
+                            <div class="relative h-2 w-full overflow-visible rounded-full bg-slate-100">
+                                <div class="relative h-full rounded-full {{ $m['c'] }} transition-all duration-500" style="width: {{ $pct }}%">
+                                    <div class="absolute -right-1 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border-2 border-white bg-inherit shadow-sm"></div>
+                                </div>
                             </div>
-                            <div class="d-flex justify-content-between mt-1">
-                                <small class="text-muted fw-bold" style="font-size:9px;">0 dk</small>
-                                <small class="text-muted fw-bold" style="font-size:9px;">{{ $m['m'] }} dk</small>
+                            <div class="mt-2 flex justify-between text-[9px] font-bold text-slate-300 uppercase tracking-tighter">
+                                <span>Hemen</span>
+                                <span>Hedef: {{ $m['m'] }} dk</span>
                             </div>
                         </div>
                     @endforeach

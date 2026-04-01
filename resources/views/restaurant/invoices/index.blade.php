@@ -10,7 +10,7 @@
         <form method="GET" class="flex items-center gap-3">
             <input type="month" name="month" value="{{ $month }}"
                    class="border border-slate-200 rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-700 focus:outline-none focus:border-brand">
-            <button class="bg-brand text-white text-xs font-black uppercase tracking-wide px-5 py-2.5 rounded-2xl">Getir</button>
+            <button class="bg-brand text-white text-xs font-black uppercase tracking-wide px-5 py-2.5 rounded-2xl">Filtrele</button>
         </form>
     </div>
 

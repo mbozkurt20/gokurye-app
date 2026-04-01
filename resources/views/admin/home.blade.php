@@ -19,12 +19,12 @@
         .toggle-chevron { font-size:12px; transition:transform .3s; color:#94a3b8; }
     </style>
 
-    <div class="container-fluid py-5 px-4">
+    <div class="container-fluid py-3 px-4">
 
-        <div class="row mb-5 fade-in-up">
+        <div class="row mb-3 fade-in-up">
             <div class="col-lg-6">
-                <span class="badge text-white px-3 py-2 rounded-pill mb-2" style="background:#4f46e5;">Canlı Operasyon</span>
-                <h1 class="fw-black text-dark tracking-tighter display-5 mb-0">Genel Bakış</h1>
+                <span class="badge text-white px-2 py-1 rounded-pill mb-1" style="background:#4f46e5;font-size:10px;">Canlı Operasyon</span>
+                <h1 class="fw-black text-dark tracking-tighter mb-0" style="font-size:1.6rem;">Genel Bakış</h1>
             </div>
             <div class="col-lg-7 d-flex align-items-center justify-content-end gap-2 flex-wrap">
                 <div class="nav-pill-group">
@@ -39,9 +39,9 @@
             </div>
         </div>
 
-        <div class="row g-4">
+        <div class="row g-3">
 
-            {{-- Toplam Sipariş --}}
+            {{-- Toplam Sipariş Kartı --}}
             <div class="col-xl-4 fade-in-up" style="animation-delay:.1s">
                 @php
                     $adminTopPlatform = collect([
@@ -54,146 +54,200 @@
                     $teslimEdilenAdmin = $tumu->where('status','DELIVERED')->count();
                     $bekleyenAdmin     = $tumu->whereIn('status',['PENDING','ASSIGNED','PREPARED','HANDOVER'])->count();
                 @endphp
-                <div class="neo-surface p-4 h-100 d-flex flex-column justify-content-between">
-                    <div>
-                        <h6 class="fw-black text-muted text-uppercase mb-1" style="font-size:10px; letter-spacing:.08em;">Toplam Sipariş</h6>
-                        <div class="counter-display mb-1" style="font-size:72px; line-height:1; letter-spacing:-4px;">{{ count($tumu) }}</div>
-                        <p class="text-muted fw-bold mb-0" style="font-size:11px;">{{ $teslimEdilenAdmin }} teslim · {{ $bekleyenAdmin }} aktif</p>
-                    </div>
-                    <div class="mt-4 p-3 rounded-4 bg-white shadow-sm border border-light">
-                        <div class="row g-0 text-center">
-                            <div class="col-4 border-end">
-                                <small class="d-block text-muted fw-bold mb-1" style="font-size:9px; text-transform:uppercase;">CİRO</small>
-                                <span class="fw-black text-indigo" style="font-size:12px;">{{ $formattedExpense }}₺</span>
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 1.25rem; background: #ffffff; border: 1px solid #eef2ff !important;">
+                    <div class="card-body p-4 text-center text-sm-start">
+                        <h6 class="text-uppercase fw-bold text-muted mb-1" style="font-size: 11px; letter-spacing: 0.05em;">Toplam Sipariş</h6>
+                        <div class="d-flex align-items-baseline gap-2 mb-3">
+                            <h2 class="display-5 fw-black text-indigo mb-0" style="letter-spacing: -2px;">{{ count($tumu) }}</h2>
+                            <span class="badge bg-indigo-subtle text-indigo rounded-pill px-2 py-1 fw-bold" style="font-size: 10px;">BUGÜN</span>
+                        </div>
+
+                        <div class="p-3 rounded-4 mb-4" style="background: #f8faff; border: 1px solid #e0e7ff;">
+                            <div class="row g-0">
+                                <div class="col-6 border-end border-light-subtle text-center">
+                                    <small class="d-block text-muted fw-bold mb-1" style="font-size: 9px;">TESLİM EDİLEN</small>
+                                    <span class="fw-black h5 mb-0 text-dark">{{ $teslimEdilenAdmin }}</span>
+                                </div>
+                                <div class="col-6 text-center">
+                                    <small class="d-block text-muted fw-bold mb-1" style="font-size: 9px;">BEKLEYEN</small>
+                                    <span class="fw-black h5 mb-0 text-indigo">{{ $bekleyenAdmin }}</span>
+                                </div>
                             </div>
-                            <div class="col-4 border-end">
-                                <small class="d-block text-muted fw-bold mb-1" style="font-size:9px; text-transform:uppercase;">ORT.</small>
-                                <span class="fw-black text-success" style="font-size:12px;">{{ $formattedAverageExpense }}₺</span>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted small fw-medium">Günlük Ciro</span>
+                                <span class="fw-bold text-dark">{{ $formattedExpense }} ₺</span>
                             </div>
-                            <div class="col-4">
-                                <small class="d-block text-muted fw-bold mb-1" style="font-size:9px; text-transform:uppercase;">EN ÇOK</small>
-                                <span class="fw-black text-dark" style="font-size:12px;">{{ $adminTopPlatform['title'] }}</span>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted small fw-medium">Sepet Ortalaması</span>
+                                <span class="fw-bold text-indigo">{{ $formattedAverageExpense }} ₺</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Platformlar --}}
+            {{-- Platform Analizi --}}
             <div class="col-xl-4 fade-in-up" style="animation-delay:.2s">
-                <div class="neo-surface p-4 h-100">
-                    <h6 class="fw-black mb-3 text-muted text-uppercase" style="font-size:10px; letter-spacing:.08em;">Platformlar</h6>
-                    @php
-                        $adminPlatforms = [
-                            ['title' => 'Telefon Sipariş', 'count' => count($telefonsiparis), 'icon' => 'fa-phone',  'bg' => '#6366f115', 'color' => '#6366f1'],
-                            ['title' => 'Getir',           'count' => count($getiryemek),    'img' => 'getir.png',        'bg' => '#ff690015', 'color' => '#ff6900'],
-                            ['title' => 'Trendyol',        'count' => count($trendyol),      'img' => 'trendyol.png',     'bg' => '#f2711515', 'color' => '#f27115'],
-                            ['title' => 'Yemeksepeti',     'count' => count($yemeksepeti),   'img' => 'yemeksepeti.png',  'bg' => '#fa000015', 'color' => '#fa0000'],
-                            ['title' => 'Migros',          'count' => $migros,               'img' => 'migros.png',       'bg' => '#ef444415', 'color' => '#ef4444'],
-                        ];
-                        $adminPlatformTotal = array_sum(array_column($adminPlatforms, 'count'));
-                    @endphp
-                    <div class="d-flex flex-column gap-2">
-                        @foreach($adminPlatforms as $p)
-                        @php $pPct = $adminPlatformTotal > 0 ? round(($p['count'] / $adminPlatformTotal) * 100) : 0; @endphp
-                        <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background:{{ $p['bg'] }};">
-                            <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0" style="width:36px;height:36px;background:white;box-shadow:0 2px 8px rgba(0,0,0,.06);">
-                                @if(isset($p['img']))
-                                    <img src="{{ asset('theme/images/platforms/'.$p['img']) }}" style="width:20px;height:20px;object-fit:contain;">
-                                @else
-                                    <i class="fa-solid {{ $p['icon'] }}" style="color:{{ $p['color'] }};font-size:14px;"></i>
-                                @endif
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="fw-bold text-dark" style="font-size:12px;">{{ $p['title'] }}</span>
-                                    <span class="fw-black" style="font-size:18px;color:{{ $p['color'] }};letter-spacing:-1px;line-height:1;">{{ $p['count'] }}</span>
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 1.25rem; background: #ffffff; border: 1px solid #eef2ff !important;">
+                    <div class="card-body p-4">
+                        <h6 class="text-uppercase fw-bold text-muted mb-4" style="font-size: 11px; letter-spacing: 0.05em;">Platform Dağılımı</h6>
+                        @php
+                            $adminPlatforms = [
+                                ['title' => 'Telefon', 'count' => count($telefonsiparis), 'icon' => 'fa-phone'],
+                                ['title' => 'Getir Yemek', 'count' => count($getiryemek), 'icon' => 'fa-motorcycle'],
+                                ['title' => 'Trendyol', 'count' => count($trendyol), 'icon' => 'fa-bag-shopping'],
+                                ['title' => 'Yemeksepeti', 'count' => count($yemeksepeti), 'icon' => 'fa-utensils'],
+                                ['title' => 'Migros Yemek', 'count' => $migros, 'icon' => 'fa-basket-shopping'],
+                            ];
+                        @endphp
+                        <div class="d-flex flex-column gap-3">
+                            @foreach($adminPlatforms as $p)
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center bg-indigo-subtle text-indigo shadow-sm" style="width: 32px; height: 32px;">
+                                            <i class="fa-solid {{ $p['icon'] }}" style="font-size: 12px;"></i>
+                                        </div>
+                                        <span class="fw-bold text-dark small">{{ $p['title'] }}</span>
+                                    </div>
+                                    <span class="fw-black text-indigo" style="font-size: 16px; letter-spacing: -0.5px;">{{ $p['count'] }}</span>
                                 </div>
-                                <div style="height:4px;background:#e2e8f0;border-radius:100px;overflow:hidden;">
-                                    <div style="width:{{ $pPct }}%;height:100%;background:{{ $p['color'] }};border-radius:100px;opacity:.6;transition:.6s ease;"></div>
-                                </div>
-                            </div>
+                            @endforeach
                         </div>
-                        @endforeach
                     </div>
                 </div>
             </div>
 
             {{-- Kurye Operasyonu --}}
             <div class="col-xl-4 fade-in-up" style="animation-delay:.3s">
-                <div class="neo-surface p-4 h-100 d-flex flex-column">
-                    <h6 class="fw-black text-muted text-uppercase mb-3" style="font-size:10px; letter-spacing:.08em;">Kurye Operasyonu</h6>
-
-                    @php
-                        $courierItems = [
-                            ['label' => 'Toplam',   'val' => $totalCouriers,  'color' => '#475569', 'bg' => '#47556910', 'icon' => 'fa-users'],
-                            ['label' => 'Müsait',   'val' => $idleCouriers,   'color' => '#10b981', 'bg' => '#10b98110', 'icon' => 'fa-circle-check'],
-                            ['label' => 'Serviste', 'val' => $serviceCouriers,'color' => '#6366f1', 'bg' => '#6366f110', 'icon' => 'fa-motorcycle'],
-                            ['label' => 'Molada',   'val' => $breakCouriers,  'color' => '#f59e0b', 'bg' => '#f59e0b10', 'icon' => 'fa-mug-hot'],
-                        ];
-                    @endphp
-
-                    <div class="row g-2 mb-3">
-                        @foreach($courierItems as $ci)
-                        <div class="col-6">
-                            <div class="p-3 rounded-4 d-flex align-items-center gap-3" style="background:{{ $ci['bg'] }}; border:1.5px solid {{ $ci['color'] }}18;">
-                                <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width:32px;height:32px;background:{{ $ci['color'] }}20;">
-                                    <i class="fas {{ $ci['icon'] }}" style="color:{{ $ci['color'] }};font-size:13px;"></i>
-                                </div>
-                                <div>
-                                    <small class="d-block fw-bold" style="font-size:9px;color:#94a3b8;text-transform:uppercase;">{{ $ci['label'] }}</small>
-                                    <span class="fw-black" style="font-size:22px;color:{{ $ci['color'] }};letter-spacing:-1px;line-height:1.1;">{{ $ci['val'] }}</span>
+                <div class="card border-0 shadow-lg h-100" style="border-radius: 1.5rem; background: #ffffff; border: 1px solid #f1f5f9 !important;">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-2">
+                        <div class="row align-items-center">
+                            <div class="col-7">
+                                <h6 class="text-uppercase fw-bold mb-1" style="font-size: 10px; letter-spacing: 0.12em; color: #6366f1;">Filo Yönetimi</h6>
+                                <h5 class="fw-black text-dark mb-0" style="letter-spacing: -0.5px; font-size: 1.1rem;">Kurye Durumu</h5>
+                            </div>
+                            <div class="col-5 text-end">
+                                <div class="d-inline-flex flex-column align-items-end">
+                                    <div class="badge rounded-pill d-flex align-items-center px-3 py-2" style="background: #eef2ff; color: #4f46e5; border: 1px solid #e0e7ff;">
+                                        <i class="fa-solid fa-bolt-lightning me-2" style="font-size: 10px;"></i>
+                                        <span class="fw-black" style="font-size: 14px;">
+                                %{{ $totalCouriers > 0 ? round(($serviceCouriers / $totalCouriers) * 100) : 0 }}
+                            </span>
+                                    </div>
+                                    <small class="text-muted fw-bold mt-1" style="font-size: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Verimlilik</small>
                                 </div>
                             </div>
                         </div>
-                        @endforeach
                     </div>
 
-                    <div class="mt-auto p-3 rounded-4" style="background:#0f172a;">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <small class="d-block fw-bold" style="font-size:9px;color:#475569;text-transform:uppercase;">Aktiflik Oranı</small>
-                                <span class="fw-black text-white" style="font-size:22px;letter-spacing:-1px;">
-                                    {{ $totalCouriers > 0 ? round(($serviceCouriers / $totalCouriers) * 100) : 0 }}%
-                                </span>
-                            </div>
-                            <i class="fa-solid fa-map-location-dot" style="color:#6366f1;font-size:28px;"></i>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            @php
+                                $courierItems = [
+                                    ['label' => 'Müsait', 'val' => $idleCouriers, 'color' => '#10b981', 'bg' => '#f0fdf4', 'icon' => 'fa-circle-check'],
+                                    ['label' => 'Servis', 'val' => $serviceCouriers, 'color' => '#6366f1', 'bg' => '#eef2ff', 'icon' => 'fa-truck-fast'],
+                                    ['label' => 'Mola', 'val' => $breakCouriers, 'color' => '#f59e0b', 'bg' => '#fffbeb', 'icon' => 'fa-coffee'],
+                                    ['label' => 'Toplam', 'val' => $totalCouriers, 'color' => '#64748b', 'bg' => '#f8fafc', 'icon' => 'fa-users-gear'],
+                                ];
+                            @endphp
+
+                            @foreach($courierItems as $ci)
+                                <div class="col-6">
+                                    <div class="p-3 rounded-4 border-0 position-relative overflow-hidden shadow-sm transition-all" style="background: {{ $ci['bg'] }};">
+                                        <div class="d-flex align-items-center mb-2 position-relative z-1">
+                                            <div class="rounded-3 d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
+                                                <i class="fa-solid {{ $ci['icon'] }}" style="color: {{ $ci['color'] }}; font-size: 11px;"></i>
+                                            </div>
+                                            <span class="fw-bold text-muted" style="font-size: 9px; text-transform: uppercase;">{{ $ci['label'] }}</span>
+                                        </div>
+                                        <h3 class="fw-black mb-0 position-relative z-1" style="color: #1e293b; letter-spacing: -1px;">{{ $ci['val'] }}</h3>
+
+                                        <i class="fa-solid {{ $ci['icon'] }} position-absolute" style="right: -8px; bottom: -8px; font-size: 36px; color: {{ $ci['color'] }}; opacity: 0.06; transform: rotate(-15deg);"></i>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="px-4 pb-4">
+                        <div class="bg-light rounded-pill" style="height: 5px; overflow: hidden; background-color: #f1f5f9 !important;">
+                            <div class="bg-indigo rounded-pill shadow-sm" style="height: 100%; width: {{ $totalCouriers > 0 ? ($serviceCouriers / $totalCouriers) * 100 : 0 }}%; background: linear-gradient(90deg, #6366f1, #4f46e5);"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Toggle 1: Haftalık Sipariş Trendi + Kurye Bugün Durumu --}}
+            {{-- Toggle: Analitik & Performans --}}
             <div class="col-12 fade-in-up" style="animation-delay:.4s">
                 <div class="neo-surface overflow-hidden">
-                    <button type="button" id="weeklyToggleBtn" class="toggle-btn">
+                    <button type="button" id="analyticsToggleBtn" class="toggle-btn">
                         <div class="d-flex align-items-center gap-3">
-                            <div class="rounded-3 d-flex align-items-center justify-content-center" style="background:#4f46e515;width:36px;height:36px;">
-                                <i class="fas fa-chart-line" style="color:#4f46e5;font-size:14px;"></i>
+                            <div class="rounded-3 d-flex align-items-center justify-content-center" style="background:#4f46e515;width:32px;height:32px;">
+                                <i class="fas fa-chart-line" style="color:#4f46e5;font-size:13px;"></i>
                             </div>
                             <div class="text-start">
-                                <span class="fw-black text-dark" style="font-size:13px;text-transform:uppercase;letter-spacing:.04em;">Haftalık Trend & Kurye Durumu</span>
-                                <small class="d-block text-muted fw-bold" style="font-size:10px;text-transform:uppercase;">Son 7 gün sipariş · Bugün kurye aktivitesi</small>
+                                <span class="fw-black text-dark" style="font-size:12px;text-transform:uppercase;letter-spacing:.04em;">Analitik & Performans</span>
+                                <small class="d-block text-muted fw-bold" style="font-size:10px;text-transform:uppercase;">Haftalık trend · Kurye aktivitesi · Restoran skor</small>
                             </div>
                         </div>
-                        <i class="fas fa-chevron-down toggle-chevron" id="weeklyChevron"></i>
+                        <i class="fas fa-chevron-down toggle-chevron" id="analyticsChevron"></i>
                     </button>
-                    <div id="weeklyContent" style="display:none;">
+                    <div id="analyticsContent" style="display:none;">
                         <div class="px-4 pb-4 pt-2">
-                            <div class="row g-4">
-                                <div class="col-xl-6">
-                                    <h6 class="fw-black text-muted text-uppercase mb-3" style="font-size:10px; letter-spacing:.08em;">Haftalık Sipariş Trendi</h6>
-                                    <canvas id="weeklyTrendChart" height="140"></canvas>
+                            <div class="row g-3">
+                                <div class="col-xl-4">
+                                    <h6 class="fw-black text-muted text-uppercase mb-2" style="font-size:10px;letter-spacing:.08em;">Haftalık Sipariş Trendi</h6>
+                                    <canvas id="weeklyTrendChart" height="130"></canvas>
                                 </div>
-                                <div class="col-xl-6">
-                                    <h6 class="fw-black text-muted text-uppercase mb-3" style="font-size:10px; letter-spacing:.08em;">
+                                <div class="col-xl-4">
+                                    <h6 class="fw-black text-muted text-uppercase mb-2" style="font-size:10px;letter-spacing:.08em;">
                                         Kurye Bugün Durumu
                                         <a href="{{ route('admin.courier.performance') }}" class="text-indigo ms-2" style="font-size:10px;text-decoration:none;">Detay →</a>
                                     </h6>
                                     @if($courierStatusToday->isEmpty())
-                                        <p class="text-muted fw-bold text-center py-4" style="font-size:12px;">Bugün kurye hareketi kaydı yok.</p>
+                                        <p class="text-muted fw-bold text-center py-3" style="font-size:12px;">Bugün kurye hareketi kaydı yok.</p>
                                     @else
-                                        <canvas id="courierTodayChart" height="140"></canvas>
+                                        <canvas id="courierTodayChart" height="130"></canvas>
+                                    @endif
+                                </div>
+                                <div class="col-xl-4">
+                                    <h6 class="fw-black text-muted text-uppercase mb-2" style="font-size:10px;letter-spacing:.08em;">Restoran Performansı</h6>
+                                    @if($restaurantStats->isEmpty())
+                                        <p class="text-muted fw-bold text-center py-3" style="font-size:12px;">Henüz sipariş verisi yok.</p>
+                                    @else
+                                    <div class="table-responsive">
+                                        <table class="table table-borderless align-middle mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th style="font-size:9px;font-weight:900;color:#94a3b8;text-transform:uppercase;padding:4px 6px;">Restoran</th>
+                                                    <th style="font-size:9px;font-weight:900;color:#94a3b8;text-transform:uppercase;padding:4px 6px;">Sip.</th>
+                                                    <th style="font-size:9px;font-weight:900;color:#94a3b8;text-transform:uppercase;padding:4px 6px;">Haz.</th>
+                                                    <th style="font-size:9px;font-weight:900;color:#94a3b8;text-transform:uppercase;padding:4px 6px;">Tes.</th>
+                                                    <th style="font-size:9px;font-weight:900;color:#94a3b8;text-transform:uppercase;padding:4px 6px;">Skor</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($restaurantStats as $rs)
+                                                @php
+                                                    $prepMin = $rs->avg_prepared_min ?? 0;
+                                                    $delMin  = $rs->avg_delivery_min ?? 0;
+                                                    $score   = max(0, 100 - round((($prepMin + $delMin) / 2) * 1.5));
+                                                    $scoreColor = $score >= 70 ? 'text-success' : ($score >= 40 ? 'text-warning' : 'text-danger');
+                                                @endphp
+                                                <tr class="border-bottom border-light">
+                                                    <td class="fw-bold" style="font-size:11px;padding:5px 6px;">{{ $rs->restaurant_name }}</td>
+                                                    <td style="padding:5px 6px;"><span class="badge fw-black px-2 py-1 rounded-pill" style="background:#4f46e515;color:#4f46e5;font-size:10px;">{{ $rs->total_orders }}</span></td>
+                                                    <td style="padding:5px 6px;"><span class="fw-black text-dark" style="font-size:11px;">{{ $prepMin ?: '—' }}{{ $prepMin ? 'dk' : '' }}</span></td>
+                                                    <td style="padding:5px 6px;"><span class="fw-black text-dark" style="font-size:11px;">{{ $delMin  ?: '—' }}{{ $delMin  ? 'dk' : '' }}</span></td>
+                                                    <td style="padding:5px 6px;"><span class="fw-black {{ $scoreColor }}" style="font-size:13px;">{{ $score }}</span></td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
                                     @endif
                                 </div>
                             </div>
@@ -202,66 +256,10 @@
                 </div>
             </div>
 
-            {{-- Toggle 2: Restoran Performansı --}}
-            <div class="col-12 fade-in-up" style="animation-delay:.45s">
-                <div class="neo-surface overflow-hidden">
-                    <button type="button" id="restPerfToggleBtn" class="toggle-btn">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="rounded-3 d-flex align-items-center justify-content-center" style="background:#10b98115;width:36px;height:36px;">
-                                <i class="fas fa-store" style="color:#10b981;font-size:14px;"></i>
-                            </div>
-                            <div class="text-start">
-                                <span class="fw-black text-dark" style="font-size:13px;text-transform:uppercase;letter-spacing:.04em;">Restoran Performansı</span>
-                                <small class="d-block text-muted fw-bold" style="font-size:10px;text-transform:uppercase;">Son 30 gün — sipariş & hız analizi</small>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-down toggle-chevron" id="restPerfChevron"></i>
-                    </button>
-                    <div id="restPerfContent" style="display:none;">
-                        <div class="px-4 pb-4 pt-0">
-                            @if($restaurantStats->isEmpty())
-                                <p class="text-muted fw-bold text-center py-4" style="font-size:12px;">Henüz sipariş verisi yok.</p>
-                            @else
-                            <div class="table-responsive">
-                                <table class="table table-borderless align-middle mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th style="font-size:10px;font-weight:900;color:#94a3b8;text-transform:uppercase;">Restoran</th>
-                                            <th style="font-size:10px;font-weight:900;color:#94a3b8;text-transform:uppercase;">Sipariş</th>
-                                            <th style="font-size:10px;font-weight:900;color:#94a3b8;text-transform:uppercase;">Ort. Hazırlık</th>
-                                            <th style="font-size:10px;font-weight:900;color:#94a3b8;text-transform:uppercase;">Ort. Teslimat</th>
-                                            <th style="font-size:10px;font-weight:900;color:#94a3b8;text-transform:uppercase;">Skor</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($restaurantStats as $rs)
-                                        @php
-                                            $prepMin = $rs->avg_prepared_min ?? 0;
-                                            $delMin  = $rs->avg_delivery_min ?? 0;
-                                            $score   = max(0, 100 - round((($prepMin + $delMin) / 2) * 1.5));
-                                            $scoreColor = $score >= 70 ? 'text-success' : ($score >= 40 ? 'text-warning' : 'text-danger');
-                                        @endphp
-                                        <tr class="border-bottom border-light">
-                                            <td class="py-3 fw-bold" style="font-size:13px;">{{ $rs->restaurant_name }}</td>
-                                            <td><span class="badge fw-black px-3 py-2 rounded-pill" style="background:#4f46e515;color:#4f46e5;">{{ $rs->total_orders }}</span></td>
-                                            <td><span class="fw-black text-dark" style="font-size:13px;">{{ $prepMin ?: '—' }}{{ $prepMin ? ' dk' : '' }}</span></td>
-                                            <td><span class="fw-black text-dark" style="font-size:13px;">{{ $delMin  ?: '—' }}{{ $delMin  ? ' dk' : '' }}</span></td>
-                                            <td><span class="fw-black {{ $scoreColor }}" style="font-size:15px;">{{ $score }}</span></td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {{-- SİPARİŞ AKIŞI — Odak Bölüm --}}
             <div class="col-12 fade-in-up" style="animation-delay:.5s">
                 <div style="background:#0f172a;border-radius:32px;overflow:hidden;box-shadow:0 20px 60px rgba(15,23,42,0.15);">
-                    <div class="d-flex justify-content-between align-items-center px-5 py-4" style="position:relative;">
+                    <div class="d-flex justify-content-between align-items-center px-4 py-3" style="position:relative;">
                         <div class="d-flex align-items-center gap-3">
                             <div class="rounded-3 d-flex align-items-center justify-content-center" style="background:#4f46e5;width:40px;height:40px;">
                                 <i class="fas fa-stream text-white" style="font-size:16px;"></i>
@@ -287,7 +285,7 @@
                             </a>
                         </div>
                     </div>
-                    <div style="background:white;border-radius:24px;margin:0 8px 8px;padding:8px;">
+                    <div style="background:white;border-radius:20px;margin:0 6px 6px;padding:2px 4px 4px;">
                         @include('admin.partials.home_table')
                     </div>
                 </div>
@@ -341,7 +339,7 @@
             });
         }
 
-        makeToggle('weeklyToggleBtn', 'weeklyContent', 'weeklyChevron', function () {
+        makeToggle('analyticsToggleBtn', 'analyticsContent', 'analyticsChevron', function () {
             if (!weeklyChart) {
                 weeklyChart = new Chart(document.getElementById('weeklyTrendChart'), {
                     type: 'line',
@@ -391,7 +389,6 @@
             @endif
         });
 
-        makeToggle('restPerfToggleBtn', 'restPerfContent', 'restPerfChevron', null);
 
         $('#dateModal').on('shown.bs.modal', function () { $(this).appendTo('body'); });
     </script>
