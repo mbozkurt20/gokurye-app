@@ -125,7 +125,7 @@ class CourierController extends Controller
 
         Courier::create([
             'name' => $request->input('name'),
-            'phone' => $request->input('phone'),
+            'phone' => preg_replace('/\D/', '', $request->input('phone')),
             'password' => Hash::make($request->input('password')),
             'price_type' => $request->input('price_type'),
             'price' => $request->input('price'),
@@ -180,7 +180,7 @@ class CourierController extends Controller
 
         if (!empty($request->input('password'))) {
             Courier::whereId($request->get('id'))->update([
-                'password' => $request->input('password')
+                'password' => Hash::make($request->input('password'))
             ]);
         }
 
@@ -192,7 +192,7 @@ class CourierController extends Controller
 
         $updateData = [
             'name' => $request->input('name'),
-            'phone' => $request->input('phone'),
+            'phone' => preg_replace('/\D/', '', $request->input('phone')),
             'latitude' => $request->input('latitude'),
             'longitude' => $request->input('longitude'),
             'price_type' => $request->input('price_type'),
