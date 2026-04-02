@@ -42,8 +42,8 @@ class PushNotificationService
                 ->withAndroidConfig(AndroidConfig::fromArray([
                     'priority' => 'HIGH',
                     'notification' => [
-                        'sound' => 'alarm', // android/app/src/main/res/raw/alarm.mp3
-                        'channel_id' => 'high_importance_channel',
+                        'sound' => 'tehlike',
+                        'channel_id' => 'orders',
                         'notification_priority' => 'PRIORITY_MAX',
                         'default_sound' => false,
                     ],
@@ -55,17 +55,15 @@ class PushNotificationService
                     ],
                     'payload' => [
                         'aps' => [
-                            'sound' => 'alarm.mp3', // Xcode bundle içindeki alarm.mp3
+                            'sound' => 'tehlike.mp3',
                             'mutable-content' => 1,
                             'content-available' => 1,
                         ],
                     ],
                 ]));
 
-            // Eğer ek veri gönderilmek istenirse (genelde boş array gelir)
-            if (!empty($data)) {
-                $message = $message->withData($data);
-            }
+            $mergedData = array_merge(['type' => 'new_order'], $data);
+            $message = $message->withData($mergedData);
 
             $this->client->send($message);
             return true;

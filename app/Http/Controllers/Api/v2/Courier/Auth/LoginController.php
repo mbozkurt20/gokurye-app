@@ -26,74 +26,82 @@ class LoginController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 400);
+            return Json::error($validator->errors()->first(), 422);
         }
 
-        // Courier kullanıcıyı bul
-        $courier = Courier::query()->where('phone', $request->phone)->first();
-
-        if (isset($courier->is_active) && !$courier->is_active) {
-            if ($token = JWTAuth::getToken()) {
-                JWTAuth::invalidate($token);
-            }
-
-            return Json::error('Hesabınız Aktif Edilmemiş, yöneticiniz ile iletişime geçiniz.', 401);
-        }
+        $rawPhone = preg_replace('/\D/', '', $request->phone);
+        $courier = Courier::query()
+            ->where(function ($q) use ($rawPhone) {
+                $q->where('phone', $rawPhone)
+                  ->orWhere(function ($q2) use ($rawPhone) {
+                      // DB'de boşluklu kayıtlı olabilir: "545 345 51 25"
+                      $q2->whereRaw("REPLACE(phone, ' ', '') = ?", [$rawPhone]);
+                  });
+            })
+            ->first();
 
         if (!$courier || !Hash::check($request->password, $courier->password)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return Json::error('Telefon numarası veya şifre hatalı.', 401);
         }
 
-        $courier->fcm_token = $request->input("fcm_token");
-        $courier->update();
+        if (!$courier->is_active) {
+            return Json::error('Hesabınız aktif edilmemiş, yöneticiniz ile iletişime geçiniz.', 403);
+        }
 
-        $ttl = 60;  // Token'ın geçerlilik süresi 60 dakika
+        $courier->fcm_token = $request->input('fcm_token');
+        $courier->save();
+
+        $ttl = 60 * 24 * 30; // 30 gün
         $expiryDate = Carbon::now()->addMinutes($ttl);
 
-        $token = JWTAuth::fromUser($courier, ['exp' => $expiryDate]);
+        $token = JWTAuth::fromUser($courier, ['exp' => $expiryDate->timestamp]);
 
-        return response()->json(['message' => 'Giriş Başarılı', 'token' => $token, 'expiry_date' => $expiryDate, 'courier' => new CourierResource($courier)], 200);
+        return Json::success('Giriş başarılı', [
+            'token' => $token,
+            'expiry_date' => $expiryDate->toIso8601String(),
+            'courier' => new CourierResource($courier),
+        ]);
     }
 
     public function register(Request $request)
     {
-        $requestData = Validator::make($request->all(), [
-            'name' => 'required',
-            'code' => 'required',
-            'phone' => 'required',
-            'password' => 'required',
-            'latitude' => 'required',
-            'longitude' => 'required',
-            'birthday' => 'required',
-            'fcm_token' => 'nullable',
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string',
+            'code' => 'required|string',
+            'phone' => 'required|string|unique:couriers,phone',
+            'password' => 'required|string|min:6',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'birthday' => 'required|date',
+            'fcm_token' => 'nullable|string',
+            'price_type' => 'nullable|in:package,fixed',
+            'price' => 'nullable|numeric',
+            'fixed_price' => 'nullable|numeric',
+            'km_price' => 'nullable|numeric',
         ]);
 
-        if ($requestData->fails()) {
-            return Json::error($requestData->errors());
+        if ($validator->fails()) {
+            return Json::error($validator->errors()->first(), 422);
         }
 
-        if (!Admin::where('code',$request->input('code'))->exists()) {
-            return Json::error('Üzgünüz, bu koda ait yönetici bulunamadı!');
+        if (!Admin::where('code', $request->input('code'))->exists()) {
+            return Json::error('Bu koda ait yönetici bulunamadı.', 404);
         }
 
-        if ($request->has('price_type') || $request->has('price') || $request->has('phone')) {
-            if ($request->input('price_type') == 'package' && (!$request->has('price') || $request->input('price') == null)) {
-                return Json::error('Lütfen Paket Başı Ücretinizi Giriniz!!');
-            }
+        if ($request->input('price_type') == 'package' && empty($request->input('price'))) {
+            return Json::error('Lütfen paket başı ücretinizi giriniz.', 422);
+        }
 
-            if ($request->input('price_type') === 'fixed') {
-                if (empty($request->input('fixed_price')) || empty($request->input('km_price'))) {
-                    return Json::error('Lütfen Sabit Ücret ve Km Başı Ücretinizi Giriniz');
-                }
-            }
-
-            if (Courier::where('phone', $request->input('phone'))->exists()) {
-                return Json::error('Bu telefon numarasına ait bir kayıt zaten mevcut.');
+        if ($request->input('price_type') === 'fixed') {
+            if (empty($request->input('fixed_price')) || empty($request->input('km_price'))) {
+                return Json::error('Lütfen sabit ücret ve km başı ücretinizi giriniz.', 422);
             }
         }
+
+        $admin = Admin::where('code', $request->input('code'))->first();
 
         $courier = Courier::create([
-            'admin_id' => Admin::where('code',$request->input('code'))->first()->id,
+            'admin_id' => $admin->id,
             'name' => $request->input('name'),
             'birthday' => $request->input('birthday'),
             'phone' => $request->input('phone'),
@@ -107,19 +115,17 @@ class LoginController extends Controller
             'fcm_token' => $request->input('fcm_token'),
             'code' => $this->generateCode(),
             'status' => CourierStatus::active,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
-        return Json::success('Kaydınız Başarıyla Alınmıştır', $courier);
+        return Json::success('Kaydınız başarıyla alınmıştır.', new CourierResource($courier), 201);
     }
 
-    public function generateCode()
+    private function generateCode(): int
     {
-        $code = rand(100000, 999999);
-
-        if (Courier::where('code', $code)->exists()) {
+        do {
             $code = rand(100000, 999999);
-        }
+        } while (Courier::where('code', $code)->exists());
 
         return $code;
     }
@@ -129,7 +135,7 @@ class LoginController extends Controller
         try {
             JWTAuth::invalidate(JWTAuth::getToken());
 
-            return Json::success('Oturumunuz Sonlandırıldı', 201);
+            return Json::success('Oturumunuz sonlandırıldı.');
         } catch (JWTException $e) {
             return Json::error($e->getMessage());
         }

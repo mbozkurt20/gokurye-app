@@ -70,6 +70,7 @@
                 <div id="order-menu" class="hidden pl-12 space-y-1 mt-1 border-l-2 border-brand/10 ml-6">
                     <a href="{{ route('admin.deliveredOrders') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Teslim Edilenler</a>
                     <a href="{{ route('admin.deletedOrders') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">İptal Edilenler</a>
+                    <a href="{{ route('admin.order.management') }}" class="block py-2 text-[11px] font-semibold text-slate-400 hover:text-brand transition-colors uppercase tracking-tight">Paket Yönetimi</a>
                 </div>
             </div>
 

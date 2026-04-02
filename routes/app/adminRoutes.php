@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\CourierController;
 use App\Http\Controllers\Admin\InsightsController;
 use App\Http\Controllers\Admin\CommissionController;
 use App\Http\Controllers\Admin\HeatmapController;
+use App\Http\Controllers\Admin\OrderManagementController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'admin'], function () {
@@ -112,6 +113,12 @@ Route::group(['prefix' => 'admin'], function () {
         });
 
         Route::get('/heatmap', [HeatmapController::class, 'index'])->name('admin.heatmap');
+
+        Route::controller(OrderManagementController::class)->prefix('order-management')->group(function () {
+            Route::get('/', 'index')->name('admin.order.management');
+            Route::post('/merge', 'merge')->name('admin.order.merge');
+            Route::post('/reassign/{orderId}', 'reassign')->name('admin.order.reassign');
+        });
 
         Route::controller(CourierController::class)->group(function () {
             Route::get('/courier-performance', 'performance')->name('admin.courier.performance');

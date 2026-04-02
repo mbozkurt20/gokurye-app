@@ -18,7 +18,7 @@ Route::middleware('jwt.courier')->group(function () {
         Route::post('/location', [\App\Http\Controllers\Api\v2\Courier\Profile\IndexController::class, 'updateLocation']);
         Route::get('/orders', [\App\Http\Controllers\Api\v2\Courier\Orders\OrderController::class, 'activeOrders']);
         Route::get('/available-orders', [\App\Http\Controllers\Api\v2\Courier\Orders\OrderController::class, 'availableOrders']);
-        Route::get('/old-orders', [\App\Http\Controllers\Api\v2\Courier\Orders\OrderController::class, 'pastOrdes']);
+        Route::get('/old-orders', [\App\Http\Controllers\Api\v2\Courier\Orders\OrderController::class, 'pastOrders']);
         Route::get('/report', [\App\Http\Controllers\Api\v2\Courier\Orders\OrderController::class, 'report']);
         Route::post('/order/{orderId}/status', [\App\Http\Controllers\Api\v2\Courier\Orders\OrderController::class, 'changeStatus']);
         Route::post('/order/{orderId}/transfer', [\App\Http\Controllers\Api\v2\Courier\Orders\OrderController::class, 'transfer']);

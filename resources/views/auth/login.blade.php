@@ -44,13 +44,13 @@
                 </div>
 
                 <div class="flex flex-col gap-4">
-                    <a href="{{ route('demo.index') }}" class="group flex items-center justify-between p-6 bg-indigo-500 hover:bg-indigo-400 text-white rounded-3xl transition-all duration-300 shadow-2xl shadow-indigo-900/20">
+                    <a href="{{ route('courier.apply') }}" class="group flex items-center justify-between p-6 bg-indigo-500 hover:bg-indigo-400 text-white rounded-3xl transition-all duration-300 shadow-2xl shadow-indigo-900/20">
                         <div>
-                            <h4 class="text-lg font-black uppercase tracking-tight">Sistemi İnceleyin</h4>
-                            <p class="text-indigo-100 text-sm font-medium">Pazaryeri panelini demo ile keşfedin</p>
+                            <h4 class="text-lg font-black uppercase tracking-tight">Hemen Başlayın</h4>
+                            <p class="text-indigo-100 text-sm font-medium">Kurye olarak ekibimize katılın</p>
                         </div>
                         <div class="bg-white/20 p-3 rounded-2xl group-hover:scale-110 transition-transform">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                         </div>
                     </a>
 

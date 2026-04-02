@@ -15,67 +15,52 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class IndexController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $courier = auth('courier')->user();
 
-        if (!$courier) {
-            return Json::error('Kurye Bulunamadı', 404);
-        }
-
-        return Json::success('Kurye Bilgileri', new CourierResource($courier));
+        return Json::success('Kurye bilgileri', new CourierResource($courier));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function updateLocation(Request $request)
     {
         $courier = auth('courier')->user();
 
-        $requestData = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
         ]);
 
-        if ($requestData->fails()) {
-            return Json::error($requestData->errors());
+        if ($validator->fails()) {
+            return Json::error($validator->errors()->first(), 422);
         }
 
         $courier->latitude = $request->latitude;
         $courier->longitude = $request->longitude;
         $courier->save();
 
-        return Json::success('Konum Güncellendi', new CourierResource($courier));
+        return Json::success('Konum güncellendi.', new CourierResource($courier));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request)
     {
-        if ($request->input('price_type') == 'package' && (!$request->has('price') || $request->input('price') == null)) {
-            return Json::error('Lütfen Paket Başı Ücretinizi Giriniz!!');
+        $courier = auth('courier')->user();
+
+        if ($request->input('price_type') == 'package' && empty($request->input('price'))) {
+            return Json::error('Lütfen paket başı ücretinizi giriniz.', 422);
         }
 
         if ($request->input('price_type') === 'fixed') {
             if (empty($request->input('fixed_price')) || empty($request->input('km_price'))) {
-                return Json::error('Lütfen Sabit Ücret ve Km Başı Ücretinizi Giriniz');
+                return Json::error('Lütfen sabit ücret ve km başı ücretinizi giriniz.', 422);
             }
         }
 
-        $id = auth('courier')->id();
-
-        if (Courier::where('phone', $request->input('phone'))
-            ->where('id', '!=', $id)
+        if ($request->filled('phone') && Courier::where('phone', $request->input('phone'))
+            ->where('id', '!=', $courier->id)
             ->exists()) {
-            return Json::error('Bu telefon numarasına ait bir kayıt zaten mevcut.');
+            return Json::error('Bu telefon numarasına ait bir kayıt zaten mevcut.', 409);
         }
-
-        $courier = Courier::find($id);
 
         $courier->update([
             'name' => $request->input('name') ?? $courier->name,
@@ -85,82 +70,76 @@ class IndexController extends Controller
             'latitude' => $request->input('latitude') ?? $courier->latitude,
             'longitude' => $request->input('longitude') ?? $courier->longitude,
             'price_type' => $request->input('price_type') ?? $courier->price_type,
-            'price' => $request->input('price') ? ($request->input('price')) : ($courier->price_type == null ? 0.00 : $courier->price_type),
+            'price' => $request->filled('price') ? $request->input('price') : $courier->price,
             'fixed_price' => $request->input('fixed_price') ?? $courier->fixed_price,
             'km_price' => $request->input('km_price') ?? $courier->km_price,
             'online' => $request->input('online') ?? $courier->online,
-            'status' => $request->input('status') ?? $courier->status,
         ]);
 
-        return Json::success('Bilgileriniz Başarıyla Güncellenmiştir', new CourierResource($courier));
+        return Json::success('Bilgileriniz başarıyla güncellendi.', new CourierResource($courier));
     }
 
     public function updatePassword(Request $request)
     {
-        $requestData = Validator::make($request->all(), [
-            'password' => 'required|confirmed',
+        $validator = Validator::make($request->all(), [
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:6|confirmed',
         ]);
 
-        if ($requestData->fails()) {
-            return response()->json(['errors' => $requestData->errors()->messages(), 'status' => 400], 400);
+        if ($validator->fails()) {
+            return Json::error($validator->errors()->first(), 422);
         }
 
-        $id = auth('courier')->id();
+        $courier = auth('courier')->user();
 
-        $courier = Courier::find($id);
+        if (!Hash::check($request->input('current_password'), $courier->password)) {
+            return Json::error('Mevcut şifreniz hatalı.', 401);
+        }
 
         $courier->update([
             'password' => Hash::make($request->input('password')),
         ]);
 
-        return Json::success('Şifreniz Başarıyla Güncellenmiştir', new CourierResource($courier));
+        return Json::success('Şifreniz başarıyla güncellendi.');
     }
 
     public function updateStatus(Request $request)
     {
-        $requestData = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'status' => 'required|in:active,passive,break',
         ]);
 
-        if ($requestData->fails()) {
-            return response()->json(['errors' => $requestData->errors()->messages(), 'status' => 400], 400);
+        if ($validator->fails()) {
+            return Json::error($validator->errors()->first(), 422);
         }
 
-        $id = auth('courier')->id();
+        $courier = auth('courier')->user();
 
-        $courier = Courier::find($id);
-
-        if ($courier->status == CourierStatus::service){
-            return Json::error('Teslim Edilmeyen Siparişiniz Bulunuyor.');
+        if ($courier->status == CourierStatus::service) {
+            return Json::error('Teslim edilmeyen siparişiniz bulunuyor.', 409);
         }
 
         $courier->update([
             'status' => $request->input('status'),
         ]);
 
-        return Json::success('Durumunuz Başarıyla Güncellenmiştir', new CourierResource($courier));
+        return Json::success('Durumunuz başarıyla güncellendi.', new CourierResource($courier));
     }
 
     public function destroy()
     {
         try {
-            $id = auth('courier')->id();
-
-            $courier = Courier::find($id);
+            $courier = auth('courier')->user();
 
             if ($courier->status == CourierStatus::service) {
-                return Json::error('Üzgünüz, şuan aktif bir paket taşıyor görünüyorsunuz, durumunu kontrol ediniz!');
+                return Json::error('Şu an aktif bir paket taşıyorsunuz, önce siparişi tamamlayınız.', 409);
             }
 
-            $isDelete = $courier->delete();
+            $courier->delete();
 
-            if ($isDelete) {
-                JWTAuth::invalidate(JWTAuth::getToken());
+            JWTAuth::invalidate(JWTAuth::getToken());
 
-                return Json::success('Hesabınız Silindi ve Oturumunuz Sonlandırıldı');
-            } else {
-                return Json::error('Hesabınız Silineedi');
-            }
+            return Json::success('Hesabınız silindi ve oturumunuz sonlandırıldı.');
 
         } catch (JWTException $e) {
             return Json::error($e->getMessage());
