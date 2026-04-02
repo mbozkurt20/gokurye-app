@@ -69,7 +69,8 @@ class PushNotificationService
             return true;
 
         } catch (MessagingException | FirebaseException $e) {
-            throw new \Exception('Bildirim gönderme hatası: ' . $e->getMessage());
+            \Log::warning('FCM bildirim hatası (token geçersiz veya süresi dolmuş): ' . $e->getMessage());
+            return false;
         }
     }
 
