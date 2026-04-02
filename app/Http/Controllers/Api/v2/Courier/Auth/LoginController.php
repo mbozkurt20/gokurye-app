@@ -30,11 +30,7 @@ class LoginController extends Controller
         }
 
         $rawPhone = preg_replace('/\D/', '', $request->phone);
-        // DB'de farklı formatlarda olabilir: "545 345 51 25", "(545) 345-5125" vs.
-        // Tüm rakam-dışı karakterleri temizleyerek karşılaştır
-        $courier = Courier::query()
-            ->whereRaw("REGEXP_REPLACE(phone, '[^0-9]', '') = ?", [$rawPhone])
-            ->first();
+        $courier = Courier::query()->where('phone', $rawPhone)->first();
 
         if (!$courier || !Hash::check($request->password, $courier->password)) {
             return Json::error('Telefon numarası veya şifre hatalı.', 401);
