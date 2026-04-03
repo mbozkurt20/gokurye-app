@@ -130,7 +130,7 @@ class OrderController extends Controller
             // Bildirimler
             if ($courier->fcm_token) {
                 $ser = new PushNotificationService();
-                $ser->sendNotification($courier->fcm_token, $restaurant->restaurant_name . ' Restorandan Yeni Sipariş Atandı', 'Sipariş Takip Kodu:' . $order->tracking_id);
+                $ser->sendNotification($courier->fcm_token, $restaurant->restaurant_name . ' Restorandan Yeni Sipariş Atandı', 'Sipariş Takip Kodu:' . $order->tracking_id, ['order_id' => (string)$order->id]);
             }
 
             return response()->json([

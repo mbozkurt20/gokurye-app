@@ -100,7 +100,7 @@ class OrderManagementController extends Controller
                     $courier->fcm_token,
                     'Paket Grubu Atandı',
                     count($orders) . ' adet paket size atandı.',
-                    ['type' => 'new_order']
+                    ['type' => 'new_order', 'order_id' => (string)($orders[0]->id ?? '')]
                 );
             } catch (\Exception $e) {
                 Log::warning('FCM gönderilemedi: ' . $e->getMessage());
@@ -147,7 +147,7 @@ class OrderManagementController extends Controller
                     $courier->fcm_token,
                     'Yeni Sipariş Atandı',
                     'Transfer edilen sipariş size yönlendirildi. Takip: ' . $order->tracking_id,
-                    ['type' => 'new_order']
+                    ['type' => 'new_order', 'order_id' => (string)$order->id]
                 );
             } catch (\Exception $e) {
                 Log::warning('FCM gönderilemedi: ' . $e->getMessage());

@@ -180,7 +180,9 @@ class IndexController extends Controller
 
             $fixedTotal = $fixedPrice * $orderCount;
             $total = $distanceTotal + $fixedTotal;
-            $info = "Sabit " . number_format($fixedPrice, 2) . " TL + km ücreti";
+            $info = "Paket başı sabit " . number_format($fixedPrice, 2) . " TL'ye ek olarak; " .
+                "her siparişte ilk " . $externalKm . " km'den sonraki mesafe için " .
+                "km başına " . number_format($kmPrice, 2) . " TL eklenerek hesaplanmaktadır.";
         }
 
         return Json::success('Hakediş bilgileri', [

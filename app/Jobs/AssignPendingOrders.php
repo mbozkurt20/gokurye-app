@@ -116,7 +116,8 @@ class AssignPendingOrders implements ShouldQueue
                     (new PushNotificationService())->sendNotification(
                         $assignedCourier->fcm_token,
                         ($restaurant->restaurant_name ?? $restaurant->name) . ' - Yeni Sipariş',
-                        'Takip: ' . $order->tracking_id
+                        'Takip: ' . $order->tracking_id,
+                        ['order_id' => (string)$order->id]
                     );
                 }
 
