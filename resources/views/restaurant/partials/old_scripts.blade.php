@@ -25,8 +25,8 @@
 
     // Pusher ayarları
     Pusher.logToConsole = false; // debug için true yapabilirsiniz
-    var pusher = new Pusher('{{ env("PUSHER_APP_KEY") }}', {
-        cluster: '{{ env("PUSHER_APP_CLUSTER") }}'
+    var pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
+        cluster: '{{ config('broadcasting.connections.pusher.options.cluster') }}'
     });
 
     let restaurantId = "{{ auth('restaurant')->id() }}";

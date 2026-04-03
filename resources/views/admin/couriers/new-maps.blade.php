@@ -250,7 +250,7 @@
 
     // Pusher
     if (typeof window.pusherInstance === 'undefined') {
-        window.pusherInstance = new Pusher('{{ env("PUSHER_APP_KEY") }}', { cluster: '{{ env("PUSHER_APP_CLUSTER") }}' });
+        window.pusherInstance = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', { cluster: '{{ config('broadcasting.connections.pusher.options.cluster') }}' });
     }
     if (typeof window.courierChannel === 'undefined') {
         window.courierChannel = window.pusherInstance.subscribe('courier-channel');

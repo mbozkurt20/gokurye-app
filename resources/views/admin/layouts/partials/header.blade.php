@@ -185,7 +185,7 @@
     }
 
     // Pusher ve Bildirim Fonksiyonları
-    var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', { cluster: 'mt1', encrypted: true });
+    var pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', { cluster: 'mt1', encrypted: true });
     var channel = pusher.subscribe('notifications-' + {{ Auth::guard('admin')->id() }});
 
     channel.bind('new-notify-' + {{ Auth::guard('admin')->id() }}, function(data) {

@@ -707,7 +707,7 @@
     // Enable pusher logging - sadece test için
     Pusher.logToConsole = true;
 
-    var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+    var pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
         cluster: 'mt1', // kendi cluster'ını yaz
         encrypted: true
     });
