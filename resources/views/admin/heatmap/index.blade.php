@@ -135,5 +135,5 @@
         }
     };
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&libraries=visualization&callback=initHeatmap" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_key') }}&libraries=visualization&callback=initHeatmap" async defer></script>
 @endsection
