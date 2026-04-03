@@ -1,8 +1,6 @@
 @extends('restaurant.layouts.app')
 
 @section('content')
-    <script src="https://maps.googleapis.com/maps/api/js?key={{env('GOOGLE_MAPS_API_KEY')}}&libraries=places"></script>
-
     <div class="container-fluid py-4 px-md-5">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>

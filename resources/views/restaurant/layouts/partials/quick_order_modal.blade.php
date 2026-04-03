@@ -1,5 +1,3 @@
-<script src="https://maps.googleapis.com/maps/api/js?key={{env('GOOGLE_MAPS_API_KEY')}}&libraries=places"></script>
-
 <div id="quickOrderModal" class="custom-modal">
     <div class="custom-modal-content border-0 shadow-2xl overflow-hidden !rounded-[32px]">
         <span class="close-btn" id="closeModalBtn">&times;</span>
