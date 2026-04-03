@@ -18,6 +18,11 @@ class CourierOrder extends Model
 
     public function order()
     {
-        return $this->belongsTo(Order::class); // Tek bir order ile ilişkiliyse
+        return $this->belongsTo(Order::class);
+    }
+
+    public function courier()
+    {
+        return $this->belongsTo(Courier::class);
     }
 }
