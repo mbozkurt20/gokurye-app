@@ -373,7 +373,11 @@ es<script>
 
         const reasonArea = document.getElementById('sharedReasonSelectionArea');
         const cancelReasonTextarea = document.getElementById('sharedCancelReason');
-        cancelReasonTextarea.value = '';
+        if (cancelReasonTextarea) cancelReasonTextarea.value = '';
+
+        // Cancel modal yok (admin paneli gibi) — iptal sessizce geç
+        const modalEl = document.getElementById('sharedCancelModal');
+        if (!modalEl) return;
 
         // Cancel modal info güncelle
         const cancelInfo = document.getElementById('cancelModalOrderInfo');
@@ -381,16 +385,13 @@ es<script>
 
         // Onay butonunu bağla
         const confirmBtn = document.getElementById('sharedCancelConfirmBtn');
-        confirmBtn.onclick = function() {
-            confirmCancelShared();
-        };
+        if (confirmBtn) confirmBtn.onclick = function() { confirmCancelShared(); };
 
-        const modalEl = document.getElementById('sharedCancelModal');
         let myModal = bootstrap.Modal.getInstance(modalEl);
         if (!myModal) myModal = new bootstrap.Modal(modalEl, { backdrop: false });
 
         if (!platformsWithReasons.includes(currentPlatform)) {
-            reasonArea.innerHTML = '';
+            if (reasonArea) reasonArea.innerHTML = '';
             myModal.show();
             return;
         }
@@ -1075,18 +1076,34 @@ es<script>
                     ${courierStatusBadge}
                 </div>`;
             } else {
+                @if($key === 'admin')
                 courierSection = `
                 <button onclick="openCourierModal('${order.id}', '${escapeHtml(trackingId)}', false, '${order.restaurant?.latitude || ''}', '${order.restaurant?.longitude || ''}')" class="flex items-center gap-2 px-4 py-2 bg-white border-2 border-dashed border-slate-200 text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:border-brand hover:text-brand transition-all">
                     <i class="fas fa-plus-circle"></i> KURYE ATA
                 </button>`;
+                @else
+                courierSection = `
+                <span class="flex items-center gap-2 px-4 py-2 bg-slate-50 border-2 border-dashed border-slate-100 text-slate-300 rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-not-allowed" title="Kurye atama sadece admin tarafından yapılabilir">
+                    <i class="fas fa-lock text-[9px]"></i> KURYE ATA
+                </span>`;
+                @endif
             }
         }
 
         // Escape order data for onclick
         const orderJsonSafe = JSON.stringify(order).replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
+        @if($key === 'admin')
+        const rowCheckbox = (status === 'PREPARED')
+            ? `<td class="py-4 px-3"><input type="checkbox" class="bulk-order-checkbox rounded" value="${order.id}" onchange="updateBulkBar()"></td>`
+            : `<td class="py-4 px-3"></td>`;
+        @else
+        const rowCheckbox = '';
+        @endif
+
         return `
         <tr id="data_${order.id}" class="hover:bg-slate-50/50 transition-colors border-b border-slate-50">
+            ${rowCheckbox}
             <td class="py-4 px-3">${platformHtml}<input type="hidden" value="${escapeHtml(trackingId)}" id="tracking_${order.id}"></td>
             <td class="py-4 px-3"><span class="font-black text-slate-400 text-xs tracking-widest">#${escapeHtml(trackingId)}</span></td>
             <td class="py-4 px-3 text-[11px] font-bold text-slate-500 italic">${order.platform_date ?? createdAt}</td>
@@ -1123,4 +1140,90 @@ es<script>
             </td>
         </tr>`;
     }
+
+    @if($key === 'admin')
+    // ═══════════════════════════════════════
+    // TOPLU ATAMA
+    // ═══════════════════════════════════════
+    function updateBulkBar() {
+        const checked = document.querySelectorAll('.bulk-order-checkbox:checked');
+        const bar = document.getElementById('bulkAssignBar');
+        const countEl = document.getElementById('bulkSelectedCount');
+        if (!bar) return;
+        if (checked.length > 0) {
+            bar.classList.remove('hidden');
+            countEl.textContent = checked.length;
+        } else {
+            bar.classList.add('hidden');
+        }
+    }
+
+    function toggleSelectAll(masterCb, statusId) {
+        const tbody = document.getElementById('order-tbody-' + statusId);
+        if (!tbody) return;
+        tbody.querySelectorAll('.bulk-order-checkbox').forEach(cb => cb.checked = masterCb.checked);
+        updateBulkBar();
+    }
+
+    function clearBulkSelection() {
+        document.querySelectorAll('.bulk-order-checkbox').forEach(cb => cb.checked = false);
+        document.querySelectorAll('.select-all-checkbox').forEach(cb => cb.checked = false);
+        updateBulkBar();
+    }
+
+    // Kuryeler yükle ve select'e doldur
+    async function loadBulkCourierSelect() {
+        const sel = document.getElementById('bulkCourierSelect');
+        if (!sel || sel.options.length > 1) return;
+        try {
+            const couriers = await fetchCouriers();
+            couriers.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.name + (c.status === 'active' ? ' (Müsait)' : ' (Yolda)');
+                sel.appendChild(opt);
+            });
+        } catch(e) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadBulkCourierSelect();
+        // Bar görününce kurye listesini tekrar yükle
+        const bar = document.getElementById('bulkAssignBar');
+        if (bar) new MutationObserver(() => { if (!bar.classList.contains('hidden')) loadBulkCourierSelect(); }).observe(bar, { attributes: true });
+    });
+
+    async function bulkAssignOrders() {
+        const checked = [...document.querySelectorAll('.bulk-order-checkbox:checked')];
+        const courierId = document.getElementById('bulkCourierSelect')?.value;
+        if (!checked.length || !courierId) {
+            alert('Sipariş ve kurye seçin.');
+            return;
+        }
+        const orderIds = checked.map(cb => cb.value);
+        const btn = document.getElementById('bulkAssignBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+        try {
+            const res = await fetch('/admin/orders/bulk-assign', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || '' },
+                body: JSON.stringify({ order_ids: orderIds, courier_id: courierId }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                clearBulkSelection();
+                fetchOrders();
+            } else {
+                alert(data.message || 'Hata oluştu.');
+            }
+        } catch(e) {
+            alert('İstek gönderilemedi.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check mr-1"></i> Ata';
+        }
+    }
+    @endif
 </script>

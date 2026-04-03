@@ -110,6 +110,55 @@ class OrderManagementController extends Controller
         return back()->with('success', count($orders) . ' sipariş ' . $courier->name . ' adlı kuryeye atandı.');
     }
 
+    // Home tablosundan toplu kurye atama (JSON)
+    public function bulkAssign(Request $request)
+    {
+        $request->validate([
+            'order_ids'   => 'required|array|min:1',
+            'order_ids.*' => 'integer|exists:orders,id',
+            'courier_id'  => 'required|integer|exists:couriers,id',
+        ]);
+
+        $adminId   = auth('admin')->id();
+        $courier   = Courier::where('id', $request->courier_id)->where('admin_id', $adminId)->firstOrFail();
+
+        $orders = Order::whereIn('id', $request->order_ids)
+            ->whereHas('restaurant', fn($q) => $q->where('admin_id', $adminId))
+            ->where('status', OrderStatus::PREPARED)
+            ->get();
+
+        if ($orders->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Geçerli sipariş bulunamadı.']);
+        }
+
+        DB::transaction(function () use ($orders, $courier) {
+            foreach ($orders as $order) {
+                $order->update([
+                    'courier_id'  => $courier->id,
+                    'assigned_at' => now(),
+                    'status'      => OrderStatus::PREPARED,
+                ]);
+                CourierOrder::firstOrCreate(['courier_id' => $courier->id, 'order_id' => $order->id]);
+            }
+            $courier->update(['status' => CourierStatus::service, 'last_assigned_at' => now()]);
+        });
+
+        if ($courier->fcm_token) {
+            try {
+                (new PushNotificationService())->sendNotification(
+                    $courier->fcm_token,
+                    'Paket Grubu Atandı',
+                    count($orders) . ' adet paket size atandı.',
+                    ['type' => 'new_order', 'order_id' => (string)($orders[0]->id ?? '')]
+                );
+            } catch (\Exception $e) {
+                Log::warning('FCM gönderilemedi: ' . $e->getMessage());
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => count($orders) . ' sipariş ' . $courier->name . ' adlı kuryeye atandı.']);
+    }
+
     // Transfer edilmiş paketi başka kuryeye ata
     public function reassign(Request $request, int $orderId)
     {

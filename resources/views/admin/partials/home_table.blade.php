@@ -28,6 +28,29 @@
         </div>
     </div>
 
+    {{-- Toplu Atama Barı (sadece admin) --}}
+    <div id="bulkAssignBar" class="hidden mb-4 p-4 bg-indigo-600 rounded-2xl flex items-center justify-between gap-4 shadow-xl shadow-indigo-200">
+        <div class="flex items-center gap-3">
+            <span class="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
+                <i class="fas fa-layer-group text-white text-xs"></i>
+            </span>
+            <span class="text-white font-black text-sm"><span id="bulkSelectedCount">0</span> sipariş seçildi</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <select id="bulkCourierSelect" class="px-4 py-2 rounded-xl border-0 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-white min-w-48">
+                <option value="">Kurye Seç...</option>
+            </select>
+            <button onclick="bulkAssignOrders()" id="bulkAssignBtn"
+                class="px-5 py-2 bg-white text-indigo-600 rounded-xl font-black text-xs uppercase tracking-wider hover:bg-indigo-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-check mr-1"></i> Ata
+            </button>
+            <button onclick="clearBulkSelection()"
+                class="px-4 py-2 bg-white/20 text-white rounded-xl font-black text-xs uppercase tracking-wider hover:bg-white/30 transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
     @php
         $statuses = \App\Helpers\OrderStatus::statuses();
     @endphp
@@ -44,6 +67,7 @@
                         <table class="table custom-modern-table m-0">
                             <thead>
                             <tr>
+                                <th class="w-10"><input type="checkbox" class="select-all-checkbox rounded" onchange="toggleSelectAll(this, '{{ $statusId }}')"></th>
                                 <th>Restoran</th>
                                 <th>Sipariş No</th>
                                 <th>Saat</th>

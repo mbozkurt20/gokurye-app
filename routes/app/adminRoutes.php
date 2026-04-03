@@ -120,6 +120,8 @@ Route::group(['prefix' => 'admin'], function () {
             Route::post('/reassign/{orderId}', 'reassign')->name('admin.order.reassign');
         });
 
+        Route::post('/orders/bulk-assign', [OrderManagementController::class, 'bulkAssign'])->name('admin.orders.bulk-assign');
+
         Route::controller(CourierController::class)->group(function () {
             Route::get('/courier-performance', 'performance')->name('admin.courier.performance');
             Route::get('/couriers/shifts', 'shifts')->name('admin.couriers.shifts');
