@@ -1,4 +1,4 @@
-<script>
+e<script>
     const statusMap = {!! json_encode(\App\Helpers\OrderStatus::statuses()) !!};
 
     // Shared modal state

@@ -16,10 +16,16 @@ class OrderResource extends JsonResource
      */
     public function toArray($request): array
     {
+        $restaurant = Restaurant::find($this->restaurant_id);
+
         return [
             'id' =>$this->id,
             'platform' => $this->platform,
-            'restaurantName' => Restaurant::find($this->restaurant_id)->restaurant_name,
+            'restaurantName' => $restaurant?->restaurant_name,
+            'restaurantAddress' => $restaurant?->address,
+            'restaurantPhone' => $restaurant?->phone,
+            'restaurantLat' => $restaurant?->latitude,
+            'restaurantLong' => $restaurant?->longitude,
             'distance' => OrdersHelper::formatDistance($this->distance),
             'full_name' => $this->full_name,
             'tracking_id' => $this->tracking_id,
@@ -35,7 +41,7 @@ class OrderResource extends JsonResource
             'assigned_at' => date('d-m-Y h:i:s',strtotime($this->assigned_at)),
             'created_at' => date('d-m-Y h:i:s',strtotime($this->created_at)),
             'products' => json_decode($this->items ), //OrderItemResource::collection($this->whenLoaded('order_items'))
-            'is_sms' => $this->restaurant->admin->is_sms,
+            'is_sms' => $restaurant?->admin?->is_sms,
         ];
     }
 }
