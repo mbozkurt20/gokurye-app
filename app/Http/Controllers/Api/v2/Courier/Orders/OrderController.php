@@ -51,7 +51,7 @@ class OrderController extends Controller
 
         $orders = Order::where('courier_id', $courier->id)
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->whereNotIn('status', [OrderStatus::ASSIGNED, OrderStatus::HANDOVER])
+            ->whereNotIn('status', [OrderStatus::PREPARED, OrderStatus::ASSIGNED, OrderStatus::HANDOVER])
             ->orderBy('created_at', 'desc')
             ->get();
 

@@ -78,6 +78,11 @@ class IndexController extends Controller
             'fixed_price' => $request->input('fixed_price') ?? $courier->fixed_price,
             'km_price' => $request->input('km_price') ?? $courier->km_price,
             'online' => $request->input('online') ?? $courier->online,
+            'iban' => $request->input('iban') ?? $courier->iban,
+            'bank' => $request->input('bank') ?? $courier->bank,
+            'vehicle_type' => $request->input('vehicle_type') ?? $courier->vehicle_type,
+            'plate' => $request->input('plate') ?? $courier->plate,
+            'blood_type' => $request->input('blood_type') ?? $courier->blood_type,
         ]);
 
         return Json::success('Bilgileriniz başarıyla güncellendi.', new CourierResource($courier));

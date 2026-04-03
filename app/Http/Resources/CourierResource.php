@@ -23,6 +23,11 @@ class CourierResource extends JsonResource
             'phone' => $this->phone,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
+            'iban' => $this->iban,
+            'bank' => $this->bank,
+            'vehicle_type' => $this->vehicle_type,
+            'plate' => $this->plate,
+            'blood_type' => $this->blood_type,
         ];
     }
 }
