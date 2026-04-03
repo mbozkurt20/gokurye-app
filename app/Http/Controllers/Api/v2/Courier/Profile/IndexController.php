@@ -4,9 +4,13 @@ namespace App\Http\Controllers\Api\v2\Courier\Profile;
 
 use App\Helpers\CourierStatus;
 use App\Helpers\Json;
+use App\Helpers\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CourierResource;
 use App\Models\Courier;
+use App\Models\Order;
+use App\Models\ProgressPaymentRecord;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -124,6 +128,155 @@ class IndexController extends Controller
         ]);
 
         return Json::success('Durumunuz başarıyla güncellendi.', new CourierResource($courier));
+    }
+
+    public function earnings(Request $request)
+    {
+        $courier = auth('courier')->user();
+
+        $startDate = $request->query('startDate')
+            ? Carbon::parse($request->query('startDate'))->startOfDay()
+            : Carbon::now()->startOfMonth()->startOfDay();
+
+        $endDate = $request->query('endDate')
+            ? Carbon::parse($request->query('endDate'))->endOfDay()
+            : Carbon::now()->endOfDay();
+
+        $deliveredOrders = Order::where('courier_id', $courier->id)
+            ->where('status', OrderStatus::DELIVERED)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get();
+
+        $orderCount = $deliveredOrders->count();
+        $totalKm = $deliveredOrders->sum(fn($o) => (float) $o->distance);
+
+        $paidAmount = ProgressPaymentRecord::where('payable_type', 'courier')
+            ->where('payable_id', $courier->id)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->sum('amount');
+
+        $total = 0;
+        $info = '';
+
+        if ($courier->price_type === 'package') {
+            $unitPrice = (float) $courier->price;
+            $total = $orderCount * $unitPrice;
+            $info = "{$orderCount} paket x " . number_format($unitPrice, 2) . " TL";
+        } else {
+            $kmPrice = (float) $courier->km_price;
+            $fixedPrice = (float) $courier->fixed_price;
+            $externalKm = (float) $courier->km_distance_later;
+
+            $distanceTotal = $deliveredOrders->sum(function ($o) use ($kmPrice, $externalKm) {
+                $orderKm = (float) $o->distance;
+                $payableKm = max(0, $orderKm - $externalKm);
+                return $payableKm * $kmPrice;
+            });
+
+            $fixedTotal = $fixedPrice * $orderCount;
+            $total = $distanceTotal + $fixedTotal;
+            $info = "Sabit " . number_format($fixedPrice, 2) . " TL + km ücreti";
+        }
+
+        return Json::success('Hakediş bilgileri', [
+            'order_count'            => $orderCount,
+            'total_km'               => round($totalKm, 2),
+            'total_progress_payment' => number_format($total, 2, '.', ''),
+            'paid_amount'            => number_format($paidAmount, 2, '.', ''),
+            'remaining'              => number_format(max(0, $total - $paidAmount), 2, '.', ''),
+            'calculation_info'       => $info,
+            'price_type'             => $courier->price_type,
+        ]);
+    }
+
+    public function getNotes()
+    {
+        $courier = auth('courier')->user();
+        return Json::success('Notlar', $courier->notes ?? []);
+    }
+
+    public function saveNote(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'text' => 'required|string|max:500',
+        ]);
+
+        if ($validator->fails()) {
+            return Json::error($validator->errors()->first(), 422);
+        }
+
+        $courier = auth('courier')->user();
+        $notes = $courier->notes ?? [];
+        $notes[] = [
+            'text'       => $request->input('text'),
+            'created_at' => now()->toIso8601String(),
+        ];
+        $courier->notes = $notes;
+        $courier->save();
+
+        return Json::success('Not kaydedildi.', $courier->notes);
+    }
+
+    public function deleteNote($index)
+    {
+        $courier = auth('courier')->user();
+        $notes = $courier->notes ?? [];
+
+        if (!isset($notes[$index])) {
+            return Json::error('Not bulunamadı.', 404);
+        }
+
+        array_splice($notes, $index, 1);
+        $courier->notes = $notes;
+        $courier->save();
+
+        return Json::success('Not silindi.', $courier->notes);
+    }
+
+    public function getExpenses()
+    {
+        $courier = auth('courier')->user();
+        return Json::success('Giderler', $courier->expenses ?? []);
+    }
+
+    public function addExpense(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'description' => 'required|string|max:255',
+            'amount'      => 'required|numeric|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return Json::error($validator->errors()->first(), 422);
+        }
+
+        $courier = auth('courier')->user();
+        $expenses = $courier->expenses ?? [];
+        $expenses[] = [
+            'description' => $request->input('description'),
+            'amount'      => (float) $request->input('amount'),
+            'created_at'  => now()->toIso8601String(),
+        ];
+        $courier->expenses = $expenses;
+        $courier->save();
+
+        return Json::success('Gider kaydedildi.', $courier->expenses);
+    }
+
+    public function deleteExpense($index)
+    {
+        $courier = auth('courier')->user();
+        $expenses = $courier->expenses ?? [];
+
+        if (!isset($expenses[$index])) {
+            return Json::error('Gider bulunamadı.', 404);
+        }
+
+        array_splice($expenses, $index, 1);
+        $courier->expenses = $expenses;
+        $courier->save();
+
+        return Json::success('Gider silindi.', $courier->expenses);
     }
 
     public function destroy()

@@ -40,6 +40,13 @@ class Courier extends Authenticatable implements JWTSubject
         'vehicle_type',
         'plate',
         'blood_type',
+        'notes',
+        'expenses',
+    ];
+
+    protected $casts = [
+        'notes'    => 'array',
+        'expenses' => 'array',
     ];
 
     public function payments()

@@ -35,6 +35,18 @@ class SystemFeauteSeeder extends Seeder
                 'name' => 'Kurye Boş Paketleri Görebilsin',
                 'description' => 'Kuryenin henüz kimseye atanmış olmayan paketleri görüntülemesini sağlar.'
             ],
+            [
+                'name' => 'Kurye Transfer Edebilsin',
+                'description' => 'Kuryenin elindeki paketi başka bir kuryeye transfer etmesine izin verir.'
+            ],
+            [
+                'name' => 'Kurye Konum Gösterebilsin',
+                'description' => 'Sipariş detayında müşteri konumunu haritada görüntüleyebilir.'
+            ],
+            [
+                'name' => 'Kurye Gider Ekleyebilsin',
+                'description' => 'Kurye kendi giderlerini (yakıt, köprü vb.) uygulama üzerinden ekleyebilir.'
+            ],
         ];
 
         foreach ($features as $feature) {

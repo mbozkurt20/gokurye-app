@@ -110,6 +110,16 @@ class OrderController extends Controller
             ->where('system_feature_id', 3)
             ->exists();
 
+        // DURUM 2: Reddet — feature 4 (Kurye Paket İptal Edebilsin) kontrolü
+        if ($statusId === 2) {
+            $rejectAllowed = $adminId && AdminSystemFeature::where('admin_id', $adminId)
+                ->where('system_feature_id', 4)
+                ->exists();
+            if (!$rejectAllowed) {
+                return Json::error('Paketi reddetme yetkisi admininiz tarafından verilmemiş.', 403);
+            }
+        }
+
         try {
             return DB::transaction(function () use ($order, $courier, $statusId, $feature3Active) {
 
@@ -211,12 +221,12 @@ class OrderController extends Controller
     {
         $courier = auth('courier')->user();
 
-        // Feature 4: Kurye Paket Transfer Edebilsin
-        $feature4Active = AdminSystemFeature::where('admin_id', $courier->admin_id)
-            ->where('system_feature_id', 4)
+        // Feature 6: Kurye Transfer Edebilsin
+        $transferAllowed = AdminSystemFeature::where('admin_id', $courier->admin_id)
+            ->where('system_feature_id', 6)
             ->exists();
 
-        if (!$feature4Active) {
+        if (!$transferAllowed) {
             return Json::error('Sipariş transferi için yetkiniz bulunmamaktadır.', 403);
         }
 

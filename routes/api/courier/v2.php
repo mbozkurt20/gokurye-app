@@ -23,5 +23,12 @@ Route::middleware('jwt.courier')->group(function () {
         Route::post('/order/{orderId}/status', [\App\Http\Controllers\Api\v2\Courier\Orders\OrderController::class, 'changeStatus']);
         Route::post('/order/{orderId}/transfer', [\App\Http\Controllers\Api\v2\Courier\Orders\OrderController::class, 'transfer']);
         Route::post('/order/{orderId}/verify', [\App\Http\Controllers\Api\v2\Courier\Orders\OrderController::class, 'verifyOrderCode']);
+        Route::get('/earnings', [\App\Http\Controllers\Api\v2\Courier\Profile\IndexController::class, 'earnings']);
+        Route::get('/notes', [\App\Http\Controllers\Api\v2\Courier\Profile\IndexController::class, 'getNotes']);
+        Route::post('/notes', [\App\Http\Controllers\Api\v2\Courier\Profile\IndexController::class, 'saveNote']);
+        Route::delete('/notes/{index}', [\App\Http\Controllers\Api\v2\Courier\Profile\IndexController::class, 'deleteNote']);
+        Route::get('/expenses', [\App\Http\Controllers\Api\v2\Courier\Profile\IndexController::class, 'getExpenses']);
+        Route::post('/expenses', [\App\Http\Controllers\Api\v2\Courier\Profile\IndexController::class, 'addExpense']);
+        Route::delete('/expenses/{index}', [\App\Http\Controllers\Api\v2\Courier\Profile\IndexController::class, 'deleteExpense']);
     });
 });
