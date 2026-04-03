@@ -10,7 +10,7 @@
             <p class="text-sm text-slate-500 mt-1">Paket birleştirme ve transfer yönetimi</p>
         </div>
         <div class="flex items-center gap-3">
-            <span class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-2xl text-xs font-black uppercase tracking-wider">
+            <span id="pendingBadgeCount" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-2xl text-xs font-black uppercase tracking-wider">
                 <span class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
                 {{ $pendingOrders->count() }} Bekleyen Paket
             </span>
@@ -301,35 +301,122 @@
     }
 
     // Checkbox + button state
-    const checkboxes = document.querySelectorAll('.order-checkbox');
+    let checkboxes = document.querySelectorAll('.order-checkbox');
     const countEl   = document.getElementById('selectedCount');
     const mergeBtn  = document.getElementById('mergeBtn');
 
     function updateState() {
+        checkboxes = document.querySelectorAll('.order-checkbox');
         const checked = document.querySelectorAll('.order-checkbox:checked').length;
         if (countEl) countEl.textContent = checked;
         const hasCourier = document.querySelector('input[name="courier_id"]:checked');
         if (mergeBtn) mergeBtn.disabled = checked === 0 || !hasCourier;
+        // Bekleyen sayısını güncelle
+        const badge = document.getElementById('pendingBadgeCount');
+        if (badge) {
+            const cnt = document.querySelectorAll('.order-row').length;
+            badge.lastChild.textContent = ' ' + cnt + ' Bekleyen Paket';
+        }
     }
 
-    checkboxes.forEach(cb => cb.addEventListener('change', updateState));
+    function bindCheckboxes() {
+        document.querySelectorAll('.order-checkbox').forEach(cb => cb.addEventListener('change', updateState));
+        document.querySelectorAll('.order-row').forEach(row => {
+            row.addEventListener('change', () => {
+                const cb = row.querySelector('.order-checkbox');
+                row.classList.toggle('bg-indigo-50/50', cb.checked);
+                row.classList.toggle('border-l-4', cb.checked);
+                row.classList.toggle('border-indigo-500', cb.checked);
+            });
+        });
+    }
+    bindCheckboxes();
+
     document.querySelectorAll('input[name="courier_id"]').forEach(r => r.addEventListener('change', updateState));
 
     function selectAll() {
+        checkboxes = document.querySelectorAll('.order-checkbox');
         const allChecked = [...checkboxes].every(cb => cb.checked);
         checkboxes.forEach(cb => cb.checked = !allChecked);
         updateState();
     }
 
-    // Row click highlight
-    document.querySelectorAll('.order-row').forEach(row => {
-        row.addEventListener('change', () => {
-            const cb = row.querySelector('.order-checkbox');
-            row.classList.toggle('bg-indigo-50/50', cb.checked);
-            row.classList.toggle('border-l-4', cb.checked);
-            row.classList.toggle('border-indigo-500', cb.checked);
-        });
+    // ═══════════════════════════════════════════════════════
+    // PUSHER — Anlık sipariş güncellemeleri
+    // ═══════════════════════════════════════════════════════
+    const adminChannel = pusher.subscribe('admin-{{ Auth::guard('admin')->id() }}');
+
+    // Yeni sipariş geldi → listeye ekle
+    adminChannel.bind('new-order', function(data) {
+        const order = data.order;
+        if (!order) return;
+
+        const emptyEl = document.querySelector('#orderList .py-20');
+        if (emptyEl) emptyEl.closest('.py-20')?.remove();
+
+        const list = document.getElementById('orderList');
+        if (!list) return;
+
+        // Zaten listede varsa ekleme
+        if (list.querySelector(`[data-id="${order.id}"]`)) return;
+
+        const platform = order.platform && order.platform !== 'manual' ? order.platform : 'Manuel';
+        const time = order.created_at ? order.created_at.substring(11, 16) : '';
+        const distance = order.distance ? `<p class="text-[11px] text-slate-400 mt-0.5"><i class="fas fa-route text-[9px]"></i> ${parseFloat(order.distance).toFixed(1)} km</p>` : '';
+
+        const html = `
+        <label class="flex items-start gap-5 px-8 py-5 cursor-pointer hover:bg-slate-50 transition-colors order-row group new-order-flash" data-id="${order.id}">
+            <div class="relative mt-0.5">
+                <input type="checkbox" name="order_ids[]" value="${order.id}"
+                       class="order-checkbox w-5 h-5 rounded-lg border-2 border-slate-200 text-indigo-600 cursor-pointer focus:ring-indigo-500 focus:ring-offset-0">
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 mb-1">
+                    <span class="text-sm font-black text-slate-900">#${order.tracking_id}</span>
+                    <span class="px-2.5 py-0.5 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase">${platform}</span>
+                    <span class="px-2 py-0.5 bg-rose-100 text-rose-600 rounded-full text-[10px] font-black animate-pulse">Yeni</span>
+                </div>
+                <p class="text-xs font-bold text-slate-700 truncate">${order.full_name ?? ''}</p>
+                <p class="text-[11px] text-slate-400 truncate mt-0.5">${order.address ?? ''}</p>
+            </div>
+            <div class="text-right flex-shrink-0">
+                <p class="text-xs font-black text-slate-900">${order.restaurantName ?? '-'}</p>
+                ${distance}
+                <p class="text-[10px] text-slate-300 mt-1">${time}</p>
+            </div>
+        </label>`;
+
+        list.insertAdjacentHTML('afterbegin', html);
+        bindCheckboxes();
+        updateState();
+
+        // Yeni badge pulsing efekti 5 sn sonra kaldır
+        setTimeout(() => {
+            const newBadge = list.querySelector(`[data-id="${order.id}"] .animate-pulse`);
+            if (newBadge) newBadge.remove();
+        }, 5000);
+    });
+
+    // Sipariş güncellendi (kurye teslim aldı/reddetti) → listeden çıkar
+    adminChannel.bind('update-order', function(data) {
+        const order = data.order;
+        if (!order || order.status === 'PREPARED') return;
+
+        const row = document.querySelector(`#orderList [data-id="${order.id}"]`);
+        if (row) {
+            row.style.transition = 'opacity 0.4s';
+            row.style.opacity = '0';
+            setTimeout(() => { row.remove(); updateState(); }, 400);
+        }
     });
 </script>
+<style>
+    @keyframes flashNew {
+        0%   { background-color: #EEF2FF; }
+        50%  { background-color: #C7D2FE; }
+        100% { background-color: transparent; }
+    }
+    .new-order-flash { animation: flashNew 1.5s ease-out; }
+</style>
 @endpush
 @endsection
