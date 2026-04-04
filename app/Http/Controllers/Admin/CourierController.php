@@ -72,7 +72,13 @@ class CourierController extends Controller
         $couriers = Courier::where('restaurant_id', 0)
             ->where('admin_id', Auth::guard('admin')->id())
             ->whereIn('status', [CourierStatus::active, CourierStatus::service])
-            ->get();
+            ->get()
+            ->map(function ($courier) {
+                $courier->active_order_count = \App\Models\Order::where('courier_id', $courier->id)
+                    ->whereNotIn('status', ['DELIVERED', 'UNSUPPLIED'])
+                    ->count();
+                return $courier;
+            });
 
         return response()->json($couriers);
     }

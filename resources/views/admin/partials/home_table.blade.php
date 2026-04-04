@@ -128,7 +128,7 @@
     }
 
     .custom-modern-table tbody td {
-        padding: 10px 12px;
+        padding: 12px 12px;
         vertical-align: middle;
         border-bottom: 1px solid #f1f5f9;
     }
