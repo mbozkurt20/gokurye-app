@@ -258,8 +258,8 @@
 
             {{-- SİPARİŞ AKIŞI — Odak Bölüm --}}
             <div class="col-12 fade-in-up" style="animation-delay:.5s">
-                <div style="background:#0f172a;border-radius:32px;overflow:hidden;box-shadow:0 20px 60px rgba(15,23,42,0.15);">
-                    <div class="d-flex justify-content-between align-items-center px-4 py-3" style="position:relative;">
+                <div style="background:#0f172a;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(15,23,42,0.10);">
+                    <div class="d-flex justify-content-between align-items-center px-3 py-2" style="position:relative;">
                         <div class="d-flex align-items-center gap-3">
                             <div class="rounded-3 d-flex align-items-center justify-content-center" style="background:#4f46e5;width:40px;height:40px;">
                                 <i class="fas fa-stream text-white" style="font-size:16px;"></i>
@@ -285,7 +285,7 @@
                             </a>
                         </div>
                     </div>
-                    <div style="background:white;border-radius:20px;margin:0 6px 6px;padding:2px 4px 4px;">
+                    <div style="background:white;border-radius:0 0 20px 20px;">
                         @include('admin.partials.home_table')
                     </div>
                 </div>

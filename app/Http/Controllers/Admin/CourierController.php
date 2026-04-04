@@ -473,7 +473,7 @@ class CourierController extends Controller
             ]);
         }
 
-        echo 'OK';
+        return response()->json(['success' => true, 'message' => 'Kurye atandı']);
     }
 
     public function performance(Request $request)
