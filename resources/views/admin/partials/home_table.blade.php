@@ -62,9 +62,8 @@
                  role="tabpanel"
                  aria-labelledby="{{ $statusId }}-tab">
 
-                <div class="neo-surface p-0 border-0 shadow-sm">
-                    <div class="table-responsive">
-                        <table class="table custom-modern-table m-0">
+                <div class="table-responsive">
+                        <table class="table custom-modern-table m-0 w-100">
                             <thead>
                             <tr>
                                 <th class="w-10">
@@ -88,7 +87,6 @@
                             </thead>
                             <tbody id="order-tbody-{{ $statusId }}"></tbody>
                         </table>
-                    </div>
                 </div>
             </div>
         @endforeach

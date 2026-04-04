@@ -63,7 +63,7 @@
     channel.bind('new-order', function (data) {
         console.log('Gelen data:', data);
         if (data.order) {
-            refreshOrderTable(data.order);
+            refreshOrderTable(data.order, true);
 
             if ('{{\App\Helpers\OrdersHelper::getOrderSystem(1)}}') {
                 const audio = new Audio('{{asset('voices/order/beep-warning-6387.mp3')}}');
@@ -86,7 +86,7 @@
     channel.bind('update-order', function (data) {
         console.log('Gelen data:', data);
         if (data.order) {
-            refreshOrderTable(data.order);
+            refreshOrderTable(data.order, true);
         }
     });
 
@@ -206,8 +206,9 @@
                 <p class="text-muted fw-bold mt-2" style="font-size: 11px;">Kuryeler yükleniyor...</p>
             </div>`;
 
-        // Modalı aç
+        // Modalı aç — body'ye taşı (aria-hidden çakışmasını önler)
         const modalEl = document.getElementById('sharedCourierModal');
+        if (modalEl.parentElement !== document.body) document.body.appendChild(modalEl);
         let modal = bootstrap.Modal.getInstance(modalEl);
         if (!modal) modal = new bootstrap.Modal(modalEl, { backdrop: false });
         modal.show();
@@ -387,6 +388,7 @@
         const confirmBtn = document.getElementById('sharedCancelConfirmBtn');
         if (confirmBtn) confirmBtn.onclick = function() { confirmCancelShared(); };
 
+        if (modalEl.parentElement !== document.body) document.body.appendChild(modalEl);
         let myModal = bootstrap.Modal.getInstance(modalEl);
         if (!myModal) myModal = new bootstrap.Modal(modalEl, { backdrop: false });
 
@@ -665,7 +667,7 @@
     // TABLE REFRESH
     // ==========================================
 
-    async function refreshOrderTable(order) {
+    async function refreshOrderTable(order, autoSwitchTab) {
         let targetStatusKey = order.status;
 
         if (order.status === 'PREPARED' && order.courier_id && order.courier_id != -1) {
@@ -685,6 +687,8 @@
             if (currentTabId !== tabId) {
                 existingRow.remove();
                 $('#order-tbody-' + tabId).append(newRowHtml);
+                // Sipariş başka taba geçti — o tabı göster
+                $(`#${tabId}-tab`).tab('show');
             } else {
                 existingRow.replaceWith(newRowHtml);
             }
@@ -694,6 +698,10 @@
                 targetBody.append(newRowHtml);
             } else {
                 $(`#${tabId}`).find('tbody').append(newRowHtml);
+            }
+            // Yeni sipariş — ilgili tabı göster (autoSwitchTab=true ise)
+            if (autoSwitchTab) {
+                $(`#${tabId}-tab`).tab('show');
             }
         }
 
@@ -1104,21 +1112,21 @@
         return `
         <tr id="data_${order.id}" class="hover:bg-slate-50/50 transition-colors border-b border-slate-50">
             ${rowCheckbox}
-            <td class="py-4 px-3">${platformHtml}<input type="hidden" value="${escapeHtml(trackingId)}" id="tracking_${order.id}"></td>
-            <td class="py-4 px-3"><span class="font-black text-slate-400 text-xs tracking-widest">#${escapeHtml(trackingId)}</span></td>
-            <td class="py-4 px-3 text-[11px] font-bold text-slate-500 italic">${order.platform_date ?? createdAt}</td>
-            <td class="py-4 px-3" style="width:200px;"><span class="font-black text-slate-800 text-xs uppercase tracking-tighter truncate block">${escapeHtml(fullName)}</span></td>
-            <td class="py-4 px-3">${courierSection}</td>
-            <td class="py-4 px-3 font-black text-slate-800 text-xs text-ov">${total} ₺</td>
-            <td class="py-4 px-3 font-bold text-red-400 text-[10px] italic text-ov">-${discount} ₺</td>
-            <td class="py-4 px-3 text-ov"><span class="px-3 py-1.5 bg-slate-900 text-white rounded-xl font-black text-xs shadow-lg shadow-slate-200">${amount} ₺</span></td>
-            <td class="py-4 px-3 text-ov"><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${order.payment_method}</span></td>
-            <td class="py-4 px-3 text-ov"><strong class="text-slate-900 font-black italic text-[10px]" id="distance${order.id}">${distanceStr}</strong></td>
-            <td class="py-4 px-3">
+            <td class="py-2 px-3">${platformHtml}<input type="hidden" value="${escapeHtml(trackingId)}" id="tracking_${order.id}"></td>
+            <td class="py-2 px-3"><span class="font-black text-slate-400 text-xs tracking-widest">#${escapeHtml(trackingId)}</span></td>
+            <td class="py-2 px-3 text-[11px] font-bold text-slate-500 italic">${order.platform_date ?? createdAt}</td>
+            <td class="py-2 px-3"><span class="font-black text-slate-800 text-xs uppercase tracking-tighter truncate block" style="max-width:140px;">${escapeHtml(fullName)}</span></td>
+            <td class="py-2 px-3">${courierSection}</td>
+            <td class="py-2 px-3 font-black text-slate-800 text-xs">${total} ₺</td>
+            <td class="py-2 px-3 font-bold text-red-400 text-[10px] italic">-${discount} ₺</td>
+            <td class="py-2 px-3 font-black text-slate-900 text-xs">${amount} ₺</td>
+            <td class="py-2 px-3"><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${order.payment_method}</span></td>
+            <td class="py-2 px-3"><strong class="text-slate-900 font-black italic text-[10px]" id="distance${order.id}">${distanceStr}</strong></td>
+            <td class="py-2 px-3">
                 <input type="hidden" id="tracking_${order.id}" value="${escapeHtml(trackingId)}">
                 <input type="hidden" id="platform_${order.id}" value="${escapeHtml(platform)}">
 
-                <div class="flex flex-col gap-1 w-28" id="action-container-${order.id}">
+                <div class="flex flex-col gap-1" style="min-width:90px;" id="action-container-${order.id}">
                     ${status === 'PENDING' ? `<button class="w-full py-2 bg-brand text-white rounded-xl font-black text-[10px] uppercase tracking-tighter shadow-lg shadow-brand/20 hover:scale-105 transition-transform border-0" onclick="updateStatusDirectly('${order.id}', 'PREPARED')">Hazırlandı</button>` : ''}
                     ${status === 'HANDOVER' ? `<button class="w-full py-2 bg-green-500 text-white rounded-xl font-black text-[10px] uppercase tracking-tighter shadow-lg shadow-green-500/20 hover:scale-105 transition-transform border-0" onclick="updateStatusDirectly('${order.id}', 'DELIVERED')">Teslim Edildi</button>` : ''}
                     ${status !== 'DELIVERED' && status !== 'UNSUPPLIED'
@@ -1127,7 +1135,7 @@
                     }
                 </div>
             </td>
-            <td class="py-4 px-3">
+            <td class="py-2 px-3">
                 <div class="flex items-center gap-1.5">
                     <button class="w-9 h-9 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:text-brand hover:border-brand shadow-sm transition-all active:scale-90"
                        onclick='openOrderModal(${JSON.stringify(order)})'>
