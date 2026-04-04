@@ -67,7 +67,11 @@
                         <table class="table custom-modern-table m-0">
                             <thead>
                             <tr>
-                                <th class="w-10"><input type="checkbox" class="select-all-checkbox rounded" onchange="toggleSelectAll(this, '{{ $statusId }}')"></th>
+                                <th class="w-10">
+                                    @if(in_array($statusKey, ['PENDING', 'PREPARED']))
+                                        <input type="checkbox" class="select-all-checkbox rounded" onchange="toggleSelectAll(this, '{{ $statusId }}')">
+                                    @endif
+                                </th>
                                 <th>Restoran</th>
                                 <th>Sipariş No</th>
                                 <th>Saat</th>
@@ -148,4 +152,5 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
 </style>
 
+@include('restaurant.partials.home_script_modals')
 @include('partials.home_scripts',['key' => 'admin'])

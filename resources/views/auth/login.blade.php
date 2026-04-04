@@ -22,7 +22,7 @@
         <div class="absolute inset-0 bg-indigo-950/50 backdrop-blur-[2px]"></div>
         <div class="relative flex h-full flex-col justify-center p-16">
             <div class="max-w-xl">
-                <img src="{{config('site.logo')}}" alt="Logo" class="h-40 brightness-0 invert mb-10">
+                <img src="{{config('site.logo')}}" alt="Logo" class="h-28 object-contain mb-10">
 
                 <h2 class="text-6xl font-extrabold tracking-tight text-white mb-8 leading-[1.1]">
                     Pazaryeri Teslimatında <br> <span class="text-emerald-400">Tam Kontrol.</span>

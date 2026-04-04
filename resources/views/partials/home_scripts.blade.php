@@ -1,4 +1,4 @@
-es<script>
+<script>
     const statusMap = {!! json_encode(\App\Helpers\OrderStatus::statuses()) !!};
 
     // Shared modal state
@@ -1094,7 +1094,7 @@ es<script>
         const orderJsonSafe = JSON.stringify(order).replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
         @if($key === 'admin')
-        const rowCheckbox = (status === 'PREPARED')
+        const rowCheckbox = (status === 'PREPARED' || status === 'PENDING')
             ? `<td class="py-4 px-3"><input type="checkbox" class="bulk-order-checkbox rounded" value="${order.id}" onchange="updateBulkBar()"></td>`
             : `<td class="py-4 px-3"></td>`;
         @else
