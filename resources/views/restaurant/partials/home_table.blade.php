@@ -1,6 +1,6 @@
-<div class="mt-5 fade-in-up">
-    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
-        <ul class="nav nav-pills nav-pill-group p-2 neo-surface border-0 no-scrollbar flex-nowrap" id="orderStatusTabs" role="tablist" style="overflow-x: auto; white-space: nowrap;">
+<div class="fade-in-up">
+    <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2 px-3 pt-2">
+        <ul class="nav nav-pills nav-pill-group p-1 neo-surface border-0 no-scrollbar flex-nowrap" id="orderStatusTabs" role="tablist" style="overflow-x: auto; white-space: nowrap;">
             @foreach(\App\Helpers\OrderStatus::statuses() as $value => $key)
                 <li class="nav-item" role="presentation">
                     <button class="nav-link nav-link-custom border-0 {{ $loop->first ? 'active' : '' }}"
@@ -39,9 +39,8 @@
                  role="tabpanel"
                  aria-labelledby="{{ $statusId }}-tab">
 
-                <div class="neo-surface p-0 border-0 shadow-sm">
-                    <div class="table-responsive">
-                        <table class="table custom-modern-table m-0">
+                <div class="table-responsive">
+                        <table class="table custom-modern-table m-0 w-100">
                             <thead>
                             <tr>
                                 <th>Restoran</th>
@@ -60,7 +59,6 @@
                             </thead>
                             <tbody id="order-tbody-{{ $statusId }}"></tbody>
                         </table>
-                    </div>
                 </div>
             </div>
         @endforeach
@@ -71,16 +69,17 @@
     .neo-surface {
         background: rgba(255, 255, 255, 0.8);
         backdrop-filter: blur(10px);
-        border-radius: 24px;
+        border-radius: 16px;
         border: 1px solid rgba(255, 255, 255, 0.4);
     }
 
     .nav-pill-group .nav-link-custom {
         background: transparent;
         color: #64748b;
-        padding: 10px 20px;
-        border-radius: 15px !important;
+        padding: 6px 14px;
+        border-radius: 12px !important;
         font-weight: 700;
+        font-size: 11px;
         transition: 0.3s;
     }
 
@@ -91,19 +90,46 @@
 
     .custom-modern-table thead th {
         background: #f8fafc;
-        padding: 18px 20px;
-        font-size: 11px;
+        padding: 10px 12px;
+        font-size: 10px;
         font-weight: 900;
         text-transform: uppercase;
         color: #64748b;
         border: none;
+        white-space: nowrap;
     }
 
     .custom-modern-table tbody td {
-        padding: 18px 20px;
+        padding: 10px 12px;
         vertical-align: middle;
         border-bottom: 1px solid #f1f5f9;
     }
+
+    .custom-modern-table tbody tr {
+        transition: background 0.15s;
+    }
+
+    .custom-modern-table tbody tr:hover td {
+        background: #f8fafc;
+    }
+
+    /* Güzel checkbox */
+    .bulk-order-checkbox,
+    .select-all-checkbox {
+        width: 16px;
+        height: 16px;
+        border: 2px solid #c7d2fe;
+        border-radius: 5px;
+        cursor: pointer;
+        accent-color: #4f46e5;
+        transition: border-color 0.2s;
+    }
+    .bulk-order-checkbox:hover,
+    .select-all-checkbox:hover {
+        border-color: #4f46e5;
+    }
+
+    .tab-content { padding-bottom: 1rem; }
 
     .alert-nebula {
         background: #0f172a;

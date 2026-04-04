@@ -97,7 +97,7 @@
     .neo-surface {
         background: rgba(255, 255, 255, 0.8);
         backdrop-filter: blur(10px);
-        border-radius: 24px;
+        border-radius: 16px;
         border: 1px solid rgba(255, 255, 255, 0.4);
     }
 
@@ -128,10 +128,36 @@
     }
 
     .custom-modern-table tbody td {
-        padding: 8px 12px;
+        padding: 10px 12px;
         vertical-align: middle;
         border-bottom: 1px solid #f1f5f9;
     }
+
+    .custom-modern-table tbody tr {
+        transition: background 0.15s;
+    }
+
+    .custom-modern-table tbody tr:hover td {
+        background: #f8fafc;
+    }
+
+    /* Güzel checkbox */
+    .bulk-order-checkbox,
+    .select-all-checkbox {
+        width: 16px;
+        height: 16px;
+        border: 2px solid #c7d2fe;
+        border-radius: 5px;
+        cursor: pointer;
+        accent-color: #4f46e5;
+        transition: border-color 0.2s;
+    }
+    .bulk-order-checkbox:hover,
+    .select-all-checkbox:hover {
+        border-color: #4f46e5;
+    }
+
+    .tab-content { padding-bottom: 1rem; }
 
     .alert-nebula {
         background: #0f172a;
